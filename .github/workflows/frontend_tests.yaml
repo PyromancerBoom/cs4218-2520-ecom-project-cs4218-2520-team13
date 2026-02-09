@@ -13,17 +13,10 @@ jobs:
     strategy:
       matrix:
         node-version: [24.x]
-        # mongodb-version: ["6.0"]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      # for backend
-      # - name: Start MongoDB
-      #   uses: supercharge/mongodb-github-action@1.10.0
-      #   with:
-      #     mongodb-version: ${{ matrix.mongodb-version }}
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
@@ -37,11 +30,6 @@ jobs:
       - name: Install Client Dependencies
         working-directory: ./client
         run: npm install
-
-      # - name: Run Backend Tests
-      #   env:
-      #     MONGO_URL: mongodb://localhost:27017/test_db
-      #   run: npm run test:backend
 
       - name: Run Frontend Tests
         run: npm run test:frontend
