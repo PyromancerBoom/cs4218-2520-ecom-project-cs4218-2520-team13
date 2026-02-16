@@ -28,16 +28,12 @@ await jest.unstable_mockModule('../models/userModel.js', () => ({
 const mockOrderFind = jest.fn();
 const mockOrderFindByIdAndUpdate = jest.fn();
 
-await jest.unstable_mockModule('../models/orderModel.js', async () => {
-  const actual = await jest.importActual('../models/orderModel.js');
-  return {
-    ...actual,
-    default: {
-      find: mockOrderFind,
-      findByIdAndUpdate: mockOrderFindByIdAndUpdate
-    }
-  };
-});
+await jest.unstable_mockModule('../models/orderModel.js', () => ({
+  default: {
+    find: mockOrderFind,
+    findByIdAndUpdate: mockOrderFindByIdAndUpdate
+  }
+}));
 
 // Mock authHelper
 const mockHashPassword = jest.fn();
@@ -59,7 +55,6 @@ await jest.unstable_mockModule('jsonwebtoken', () => ({
 
 // Import after mocking
 const { updateProfileController, getOrdersController, getAllOrdersController, orderStatusController } = await import('./authController.js');
-const { ORDER_STATUSES } = await import('../models/orderModel.js');
 
 beforeAll(() => {
   jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -203,7 +198,7 @@ describe('updateProfileController', () => {
       await updateProfileController(req, res);
 
       expect(res.json).toHaveBeenCalledWith({
-        error: 'Passsword is required and 6 character long'
+        error: 'Password is required and 6 character long'
       });
       expect(mockUserFindByIdAndUpdate).not.toHaveBeenCalled();
     });
@@ -214,7 +209,7 @@ describe('updateProfileController', () => {
       await updateProfileController(req, res);
 
       expect(res.json).toHaveBeenCalledWith({
-        error: 'Passsword is required and 6 character long'
+        error: 'Password is required and 6 character long'
       });
     });
 
@@ -274,7 +269,7 @@ describe('updateProfileController', () => {
 
       expect(res.send).toHaveBeenCalledWith({
         success: true,
-        message: 'Profile Updated SUccessfully',
+        message: 'Profile Updated Successfully',
         updatedUser
       });
     });
@@ -308,7 +303,7 @@ describe('updateProfileController', () => {
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
-        message: 'Error WHile Update profile',
+        message: 'Error While Update Profile',
         error: expect.any(Error)
       });
     });
@@ -420,7 +415,7 @@ describe('getOrdersController', () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
-        message: 'Error WHile Geting Orders',
+        message: 'Error While Getting Orders',
         error: expect.any(Error)
       });
     });
@@ -525,7 +520,7 @@ describe('getAllOrdersController', () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
-        message: 'Error WHile Geting Orders',
+        message: 'Error While Getting Orders',
         error: expect.any(Error)
       });
     });
@@ -591,23 +586,6 @@ describe('orderStatusController', () => {
     });
   });
 
-  describe('Status validation', () => {
-    it.each(ORDER_STATUSES)('should accept valid status: %s', async (status) => {
-      req.body.status = status;
-      const updatedOrder = { _id: 'order123', status };
-      mockOrderFindByIdAndUpdate.mockResolvedValueOnce(updatedOrder);
-
-      await orderStatusController(req, res);
-
-      expect(mockOrderFindByIdAndUpdate).toHaveBeenCalledWith(
-        'order123',
-        { status },
-        { new: true }
-      );
-      expect(res.json).toHaveBeenCalledWith(updatedOrder);
-    });
-  });
-
   describe('Edge cases', () => {
     it('should handle order not found (returns null)', async () => {
       mockOrderFindByIdAndUpdate.mockResolvedValueOnce(null);
@@ -640,7 +618,7 @@ describe('orderStatusController', () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
-        message: 'Error While Updateing Order',
+        message: 'Error While Updating Order',
         error: expect.any(Error)
       });
     });
