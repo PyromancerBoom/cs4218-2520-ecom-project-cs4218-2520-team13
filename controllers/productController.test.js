@@ -1,4 +1,4 @@
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, beforeAll, afterAll } from '@jest/globals';
 
 // Mock mongoose before importing models
 await jest.unstable_mockModule('mongoose', () => ({
@@ -77,9 +77,19 @@ await jest.unstable_mockModule('dotenv', () => ({
 // Import after mocking
 const { createProductController, deleteProductController, updateProductController } = await import('./productController.js');
 
+beforeAll(() => {
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+});
+
+afterAll(() => {
+  console.log.mockRestore();
+});
+
+// Wei Sheng, A0259272X
 describe('createProductController', () => {
   let req, res;
 
+  // Wei Sheng, A0259272X
   beforeEach(() => {
     req = {
       fields: {},
@@ -93,6 +103,7 @@ describe('createProductController', () => {
     mockSlugify.mockImplementation((str) => str.toLowerCase().replace(/\s+/g, '-'));
   });
 
+  // Wei Sheng, A0259272X
   describe('Validation', () => {
     it('should validate name field (required)', async () => {
       req.fields = { description: 'Desc', price: 100, category: 'cat1', quantity: 10 };
@@ -103,6 +114,7 @@ describe('createProductController', () => {
       expect(res.send).toHaveBeenCalledWith({ error: 'Name is Required' });
     });
 
+    // Wei Sheng, A0259272X
     it('should validate description field (required)', async () => {
       req.fields = { name: 'Product', price: 100, category: 'cat1', quantity: 10 };
 
@@ -112,6 +124,7 @@ describe('createProductController', () => {
       expect(res.send).toHaveBeenCalledWith({ error: 'Description is Required' });
     });
 
+    // Wei Sheng, A0259272X
     it('should validate price field (required)', async () => {
       req.fields = { name: 'Product', description: 'Desc', category: 'cat1', quantity: 10 };
 
@@ -121,6 +134,7 @@ describe('createProductController', () => {
       expect(res.send).toHaveBeenCalledWith({ error: 'Price is Required' });
     });
 
+    // Wei Sheng, A0259272X
     it('should validate category field (required)', async () => {
       req.fields = { name: 'Product', description: 'Desc', price: 100, quantity: 10 };
 
@@ -130,6 +144,7 @@ describe('createProductController', () => {
       expect(res.send).toHaveBeenCalledWith({ error: 'Category is Required' });
     });
 
+    // Wei Sheng, A0259272X
     it('should validate quantity field (required)', async () => {
       req.fields = { name: 'Product', description: 'Desc', price: 100, category: 'cat1' };
 
@@ -139,9 +154,10 @@ describe('createProductController', () => {
       expect(res.send).toHaveBeenCalledWith({ error: 'Quantity is Required' });
     });
 
-    it('should validate photo size (max 1MB)', async () => {
+    // Wei Sheng, A0259272X
+    it('should not accept photo of size exactly 1MB', async () => {
       req.fields = { name: 'Product', description: 'Desc', price: 100, category: 'cat1', quantity: 10 };
-      req.files = { photo: { size: 1000001, path: '/tmp/photo.jpg', type: 'image/jpeg' } };
+      req.files = { photo: { size: 1000000, path: '/tmp/photo.jpg', type: 'image/jpeg' } };
 
       await createProductController(req, res);
 
@@ -151,7 +167,8 @@ describe('createProductController', () => {
       });
     });
 
-    it('should accept photo exactly 1MB (1000000 bytes)', async () => {
+    // Wei Sheng, A0259272X
+    it('should accept photo less than 1MB (1000000 bytes)', async () => {
       req.fields = {
         name: 'Product',
         description: 'Desc',
@@ -159,7 +176,7 @@ describe('createProductController', () => {
         category: 'cat1',
         quantity: 10
       };
-      req.files = { photo: { size: 1000000, path: '/tmp/photo.jpg', type: 'image/jpeg' } };
+      req.files = { photo: { size: 99999, path: '/tmp/photo.jpg', type: 'image/jpeg' } };
 
       mockProductSave.mockResolvedValueOnce(true);
       mockReadFileSync.mockReturnValue(Buffer.from('photo-data'));
@@ -167,10 +184,12 @@ describe('createProductController', () => {
       await createProductController(req, res);
 
       expect(res.status).toHaveBeenCalledWith(201);
-    });
+    }); 
   });
 
   describe('Product creation', () => {
+    
+    // Wei Sheng, A0259272X
     it('should create slug from name using slugify(name)', async () => {
       req.fields = {
         name: 'Test Product',
@@ -187,6 +206,7 @@ describe('createProductController', () => {
       expect(mockSlugify).toHaveBeenCalledWith('Test Product');
     });
 
+    // Wei Sheng, A0259272X
     it('should create product with all fields', async () => {
       req.fields = {
         name: 'Test Product',
@@ -214,6 +234,7 @@ describe('createProductController', () => {
       );
     });
 
+    // Wei Sheng, A0259272X
     it('should save photo data when provided', async () => {
       req.fields = {
         name: 'Product',
@@ -233,6 +254,7 @@ describe('createProductController', () => {
       expect(mockReadFileSync).toHaveBeenCalledWith('/tmp/photo.jpg');
     });
 
+    // Wei Sheng, A0259272X
     it('should not require photo for product creation', async () => {
       req.fields = {
         name: 'Product',
@@ -253,6 +275,8 @@ describe('createProductController', () => {
   });
 
   describe('Response handling', () => {
+    
+    // Wei Sheng, A0259272X
     it('should return 201 status on success', async () => {
       req.fields = {
         name: 'Product',
@@ -269,6 +293,7 @@ describe('createProductController', () => {
       expect(res.status).toHaveBeenCalledWith(201);
     });
 
+    // Wei Sheng, A0259272X
     it('should return correct response structure on success', async () => {
       req.fields = {
         name: 'Product',
@@ -291,6 +316,8 @@ describe('createProductController', () => {
   });
 
   describe('Error handling', () => {
+    
+    // Wei Sheng, A0259272X
     it('should handle errors and return 500 status', async () => {
       req.fields = {
         name: 'Product',
@@ -308,12 +335,13 @@ describe('createProductController', () => {
       expect(res.send).toHaveBeenCalledWith({
         success: false,
         error: expect.any(Error),
-        message: 'Error in crearing product'
+        message: 'Error in creating product'
       });
     });
   });
 });
 
+// Wei Sheng, A0259272X
 describe('deleteProductController', () => {
   let req, res;
 
@@ -329,6 +357,8 @@ describe('deleteProductController', () => {
   });
 
   describe('Product deletion', () => {
+
+    // Wei Sheng, A0259272X
     it('should delete product by ID from req.params.pid', async () => {
       mockProductFindByIdAndDelete.mockReturnValue({
         select: jest.fn().mockResolvedValue({ _id: 'product123' })
@@ -339,6 +369,7 @@ describe('deleteProductController', () => {
       expect(mockProductFindByIdAndDelete).toHaveBeenCalledWith('product123');
     });
 
+    // Wei Sheng, A0259272X
     it('should exclude photo from response using select("-photo")', async () => {
       const selectMock = jest.fn().mockResolvedValue({ _id: 'product123' });
       mockProductFindByIdAndDelete.mockReturnValue({ select: selectMock });
@@ -350,6 +381,8 @@ describe('deleteProductController', () => {
   });
 
   describe('Response handling', () => {
+
+    // Wei Sheng, A0259272X
     it('should return 200 status on success', async () => {
       mockProductFindByIdAndDelete.mockReturnValue({
         select: jest.fn().mockResolvedValue({ _id: 'product123' })
@@ -360,6 +393,7 @@ describe('deleteProductController', () => {
       expect(res.status).toHaveBeenCalledWith(200);
     });
 
+    // Wei Sheng, A0259272X
     it('should return success message', async () => {
       mockProductFindByIdAndDelete.mockReturnValue({
         select: jest.fn().mockResolvedValue({ _id: 'product123' })
@@ -373,6 +407,7 @@ describe('deleteProductController', () => {
       });
     });
 
+    // Wei Sheng, A0259272X
     it('should handle product not found (still returns success)', async () => {
       mockProductFindByIdAndDelete.mockReturnValue({
         select: jest.fn().mockResolvedValue(null)
@@ -389,6 +424,8 @@ describe('deleteProductController', () => {
   });
 
   describe('Error handling', () => {
+
+    // Wei Sheng, A0259272X
     it('should handle database errors and return 500 status', async () => {
       mockProductFindByIdAndDelete.mockReturnValue({
         select: jest.fn().mockRejectedValue(new Error('Database error'))
@@ -406,6 +443,7 @@ describe('deleteProductController', () => {
   });
 });
 
+// Wei Sheng, A0259272X
 describe('updateProductController', () => {
   let req, res;
 
@@ -424,6 +462,8 @@ describe('updateProductController', () => {
   });
 
   describe('Validation', () => {
+
+    // Wei Sheng, A0259272X
     it('should validate name field (required)', async () => {
       req.fields = { description: 'Desc', price: 100, category: 'cat1', quantity: 10 };
 
@@ -433,6 +473,7 @@ describe('updateProductController', () => {
       expect(res.send).toHaveBeenCalledWith({ error: 'Name is Required' });
     });
 
+    // Wei Sheng, A0259272X
     it('should validate description field (required)', async () => {
       req.fields = { name: 'Product', price: 100, category: 'cat1', quantity: 10 };
 
@@ -442,6 +483,7 @@ describe('updateProductController', () => {
       expect(res.send).toHaveBeenCalledWith({ error: 'Description is Required' });
     });
 
+    // Wei Sheng, A0259272X
     it('should validate price field (required)', async () => {
       req.fields = { name: 'Product', description: 'Desc', category: 'cat1', quantity: 10 };
 
@@ -451,6 +493,7 @@ describe('updateProductController', () => {
       expect(res.send).toHaveBeenCalledWith({ error: 'Price is Required' });
     });
 
+    // Wei Sheng, A0259272X
     it('should validate category field (required)', async () => {
       req.fields = { name: 'Product', description: 'Desc', price: 100, quantity: 10 };
 
@@ -460,6 +503,7 @@ describe('updateProductController', () => {
       expect(res.send).toHaveBeenCalledWith({ error: 'Category is Required' });
     });
 
+    // Wei Sheng, A0259272X
     it('should validate quantity field (required)', async () => {
       req.fields = { name: 'Product', description: 'Desc', price: 100, category: 'cat1' };
 
@@ -469,6 +513,7 @@ describe('updateProductController', () => {
       expect(res.send).toHaveBeenCalledWith({ error: 'Quantity is Required' });
     });
 
+    // Wei Sheng, A0259272X
     it('should validate photo size (max 1MB)', async () => {
       req.fields = { name: 'Product', description: 'Desc', price: 100, category: 'cat1', quantity: 10 };
       req.files = { photo: { size: 1000001, path: '/tmp/photo.jpg', type: 'image/jpeg' } };
@@ -477,12 +522,38 @@ describe('updateProductController', () => {
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
-        error: 'photo is Required and should be less then 1mb'
+        error: 'photo is Required and should be less than 1mb'
       });
     });
+
+    // Wei Sheng, A0259272X
+    it('should accept photo less than 1MB (1000000 bytes)', async () => {
+      req.fields = {
+        name: 'Product',
+        description: 'Desc',
+        price: 100,
+        category: 'cat1',
+        quantity: 10
+      };
+      req.files = { photo: { size: 999999, path: '/tmp/photo.jpg', type: 'image/jpeg' } };
+
+      const mockProduct = {
+        photo: { data: null, contentType: null },
+        save: jest.fn().mockResolvedValue(true)
+      };
+
+      mockProductFindByIdAndUpdate.mockResolvedValueOnce(mockProduct);
+      mockReadFileSync.mockReturnValue(Buffer.from('photo-data'));
+
+      await updateProductController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(201);
+    }); 
   });
 
   describe('Product update', () => {
+
+    // Wei Sheng, A0259272X
     it('should update product by ID from req.params.pid', async () => {
       req.fields = {
         name: 'Updated Product',
@@ -510,6 +581,7 @@ describe('updateProductController', () => {
       );
     });
 
+    // Wei Sheng, A0259272X
     it('should update slug when name changes', async () => {
       req.fields = {
         name: 'New Product Name',
@@ -539,6 +611,7 @@ describe('updateProductController', () => {
       );
     });
 
+    // Wei Sheng, A0259272X
     it('should update photo when new photo is provided', async () => {
       req.fields = {
         name: 'Product',
@@ -567,6 +640,7 @@ describe('updateProductController', () => {
       expect(mockProduct.photo.contentType).toBe('image/png');
     });
 
+    // Wei Sheng, A0259272X
     it('should return updated product with { new: true }', async () => {
       req.fields = {
         name: 'Updated Product',
@@ -596,6 +670,8 @@ describe('updateProductController', () => {
   });
 
   describe('Response handling', () => {
+
+    // Wei Sheng, A0259272X
     it('should return 201 status on success', async () => {
       req.fields = {
         name: 'Updated Product',
@@ -619,6 +695,7 @@ describe('updateProductController', () => {
       expect(res.status).toHaveBeenCalledWith(201);
     });
 
+    // Wei Sheng, A0259272X
     it('should return correct response structure on success', async () => {
       req.fields = {
         name: 'Updated Product',
@@ -648,6 +725,8 @@ describe('updateProductController', () => {
   });
 
   describe('Error handling', () => {
+
+    // Wei Sheng, A0259272X
     it('should handle product not found', async () => {
       req.fields = {
         name: 'Updated Product',
@@ -664,6 +743,7 @@ describe('updateProductController', () => {
       expect(mockProductFindByIdAndUpdate).toHaveBeenCalled();
     });
 
+    // Wei Sheng, A0259272X
     it('should handle errors and return 500 status', async () => {
       req.fields = {
         name: 'Updated Product',
@@ -681,7 +761,7 @@ describe('updateProductController', () => {
       expect(res.send).toHaveBeenCalledWith({
         success: false,
         error: expect.any(Error),
-        message: 'Error in Updte product'
+        message: 'Error in Update product'
       });
     });
   });
