@@ -383,7 +383,7 @@ describe('deleteProductController', () => {
   describe('Response handling', () => {
 
     // Wei Sheng, A0259272X
-    it('should return 200 status on success', async () => {
+    it('should return 200 status on success with success message', async () => {
       mockProductFindByIdAndDelete.mockReturnValue({
         select: jest.fn().mockResolvedValue({ _id: 'product123' })
       });
@@ -391,16 +391,6 @@ describe('deleteProductController', () => {
       await deleteProductController(req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
-    });
-
-    // Wei Sheng, A0259272X
-    it('should return success message', async () => {
-      mockProductFindByIdAndDelete.mockReturnValue({
-        select: jest.fn().mockResolvedValue({ _id: 'product123' })
-      });
-
-      await deleteProductController(req, res);
-
       expect(res.send).toHaveBeenCalledWith({
         success: true,
         message: 'Product Deleted successfully'
@@ -672,7 +662,7 @@ describe('updateProductController', () => {
   describe('Response handling', () => {
 
     // Wei Sheng, A0259272X
-    it('should return 201 status on success', async () => {
+    it('should return 201 status with correct response structure on success', async () => {
       req.fields = {
         name: 'Updated Product',
         description: 'Desc',
@@ -693,29 +683,6 @@ describe('updateProductController', () => {
       await updateProductController(req, res);
 
       expect(res.status).toHaveBeenCalledWith(201);
-    });
-
-    // Wei Sheng, A0259272X
-    it('should return correct response structure on success', async () => {
-      req.fields = {
-        name: 'Updated Product',
-        description: 'Desc',
-        price: 100,
-        category: 'cat1',
-        quantity: 10
-      };
-
-      const mockProduct = {
-        _id: 'product123',
-        name: 'Updated Product',
-        photo: { data: null, contentType: null },
-        save: jest.fn().mockResolvedValue(true)
-      };
-
-      mockProductFindByIdAndUpdate.mockResolvedValueOnce(mockProduct);
-
-      await updateProductController(req, res);
-
       expect(res.send).toHaveBeenCalledWith({
         success: true,
         message: 'Product Updated Successfully',
