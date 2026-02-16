@@ -64,6 +64,7 @@ afterAll(() => {
   console.log.mockRestore();
 });
 
+// Wei Sheng, A0259272X
 describe('updateProfileController', () => {
   let req, res;
 
@@ -322,6 +323,7 @@ describe('updateProfileController', () => {
   });
 });
 
+// Wei Sheng, A0259272X
 describe('getOrdersController', () => {
   let req, res;
 
@@ -422,6 +424,7 @@ describe('getOrdersController', () => {
   });
 });
 
+// Wei Sheng, A0259272X
 describe('getAllOrdersController', () => {
   let req, res;
 
@@ -527,6 +530,7 @@ describe('getAllOrdersController', () => {
   });
 });
 
+// Wei Sheng, A0259272X
 describe('orderStatusController', () => {
   let req, res;
 
