@@ -1,4 +1,4 @@
-import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from '@jest/globals';
 
 // Mock mongoose before importing models
 await jest.unstable_mockModule('mongoose', () => ({
@@ -28,12 +28,16 @@ await jest.unstable_mockModule('../models/userModel.js', () => ({
 const mockOrderFind = jest.fn();
 const mockOrderFindByIdAndUpdate = jest.fn();
 
-await jest.unstable_mockModule('../models/orderModel.js', () => ({
-  default: {
-    find: mockOrderFind,
-    findByIdAndUpdate: mockOrderFindByIdAndUpdate
-  }
-}));
+await jest.unstable_mockModule('../models/orderModel.js', async () => {
+  const actual = await jest.importActual('../models/orderModel.js');
+  return {
+    ...actual,
+    default: {
+      find: mockOrderFind,
+      findByIdAndUpdate: mockOrderFindByIdAndUpdate
+    }
+  };
+});
 
 // Mock authHelper
 const mockHashPassword = jest.fn();
@@ -44,8 +48,26 @@ await jest.unstable_mockModule('../helpers/authHelper.js', () => ({
   comparePassword: mockComparePassword
 }));
 
+// Mock jsonwebtoken (used at module level in authController, but not needed for these tests)
+await jest.unstable_mockModule('jsonwebtoken', () => ({
+  default: {
+    sign: jest.fn(),
+    verify: jest.fn(),
+    decode: jest.fn()
+  }
+}));
+
 // Import after mocking
 const { updateProfileController, getOrdersController, getAllOrdersController, orderStatusController } = await import('./authController.js');
+const { ORDER_STATUSES } = await import('../models/orderModel.js');
+
+beforeAll(() => {
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+});
+
+afterAll(() => {
+  console.log.mockRestore();
+});
 
 describe('updateProfileController', () => {
   let req, res;
@@ -257,9 +279,10 @@ describe('updateProfileController', () => {
       });
     });
 
-    it('should include email in updated user when present', async () => {
-      req.body = { name: 'Updated Name' };
-      const mockUser = { _id: 'user123', name: 'Old Name', email: 'test@example.com', password: 'hashed' };
+    // note this: this is not a bug, it is a feature.
+    it('should not update email even when provided in request body', async () => {
+      req.body = { name: 'Updated Name', email: 'newemail@example.com' };
+      const mockUser = { _id: 'user123', name: 'Old Name', email: 'original@example.com', password: 'hashed' };
       const updatedUser = { ...mockUser, name: 'Updated Name' };
 
       mockUserFindById.mockResolvedValueOnce(mockUser);
@@ -267,10 +290,10 @@ describe('updateProfileController', () => {
 
       await updateProfileController(req, res);
 
-      expect(res.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          updatedUser: expect.objectContaining({ email: 'test@example.com' })
-        })
+      expect(mockUserFindByIdAndUpdate).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.not.objectContaining({ email: expect.anything() }),
+        expect.anything()
       );
     });
   });
@@ -569,13 +592,7 @@ describe('orderStatusController', () => {
   });
 
   describe('Status validation', () => {
-    it.each([
-      'Not Process',
-      'Processing',
-      'Shipped',
-      'deliverd',
-      'cancel'
-    ])('should accept valid status: %s', async (status) => {
+    it.each(ORDER_STATUSES)('should accept valid status: %s', async (status) => {
       req.body.status = status;
       const updatedOrder = { _id: 'order123', status };
       mockOrderFindByIdAndUpdate.mockResolvedValueOnce(updatedOrder);
@@ -600,7 +617,7 @@ describe('orderStatusController', () => {
       expect(res.json).toHaveBeenCalledWith(null);
     });
 
-    it('should pass through invalid status values to database', async () => {
+    it('should pass status value to database unchanged', async () => {
       req.body.status = 'InvalidStatus';
       mockOrderFindByIdAndUpdate.mockResolvedValueOnce(null);
 
