@@ -26,6 +26,11 @@ const Profile = () => {
   // form function
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!name || name.trim() === "") {
+      toast.error("Name is required");
+      return;
+    }
+
     try {
       const { data } = await axios.put("/api/v1/auth/profile", {
         name,
@@ -34,7 +39,7 @@ const Profile = () => {
         phone,
         address,
       });
-      if (data?.errro) {
+      if (data?.error) {
         toast.error(data?.error);
       } else {
         setAuth({ ...auth, user: data?.updatedUser });
@@ -75,7 +80,6 @@ const Profile = () => {
                   <input
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     className="form-control"
                     id="exampleInputEmail1"
                     placeholder="Enter Your Email "
