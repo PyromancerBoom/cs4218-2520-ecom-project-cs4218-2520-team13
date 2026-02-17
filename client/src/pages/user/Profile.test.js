@@ -76,48 +76,60 @@ describe("User Profile Component - Lifecycle and Interaction Tests", () => {
         });
 
         test("should enforce security by disabling the email field", () => {
+
             render(<Profile />);
+
             expect(screen.getByPlaceholderText(/Enter Your Email/i)).toBeDisabled();
         });
 
         test("should handle scenarios where auth user data is absent", () => {
             useAuth.mockReturnValue([{ user: null }, mockSetAuth]);
+
             expect(() => render(<Profile />)).not.toThrow();
         });
 
         test("should correctly display UI components (Layout and Menu)", () => {
+
             render(<Profile />);
+
             expect(screen.getByTestId("profile-menu")).toBeInTheDocument();
             expect(screen.getByTestId("header-title")).toHaveTextContent("Your Profile");
         });
     });
 
     // Real-time Field Interactions (State updates)
-    describe("B) User Interaction and Real-time Validation", () => {
+    describe(" User Interaction and Real-time Validation", () => {
         test("should capture changes in the Password field", () => {
             render(<Profile />);
             const passwordField = screen.getByPlaceholderText(/Enter Your Password/i);
+
             fireEvent.change(passwordField, { target: { value: "newPass123" } });
+
             expect(passwordField.value).toBe("newPass123");
         });
 
         test("should capture changes in the Phone field", () => {
             render(<Profile />);
             const phoneField = screen.getByPlaceholderText(/Enter Your Phone/i);
+
             fireEvent.change(phoneField, { target: { value: "99988877" } });
+
             expect(phoneField.value).toBe("99988877");
         });
 
         test("should capture changes in the Address field", () => {
             render(<Profile />);
+
             const addressField = screen.getByPlaceholderText(/Enter Your Address/i);
             fireEvent.change(addressField, { target: { value: "123 Main St" } });
+
             expect(addressField.value).toBe("123 Main St");
         });
 
         test("should block the submission if name is erased", async () => {
             render(<Profile />);
             const nameField = screen.getByPlaceholderText(/Enter Your Name/i);
+
             fireEvent.change(nameField, { target: { value: "" } });
             fireEvent.click(screen.getByText("UPDATE"));
 
