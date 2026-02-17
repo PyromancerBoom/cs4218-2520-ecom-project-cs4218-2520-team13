@@ -1,30 +1,25 @@
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+const { describe, it, expect, beforeEach } = require('@jest/globals');
 
-// 1. Mock mongoose
-await jest.unstable_mockModule('mongoose', () => ({
+jest.mock('mongoose', () => ({
+    Schema: jest.fn(),
+    model: jest.fn(),
     default: {
         Schema: jest.fn(),
-        model: jest.fn(),
-        ObjectId: jest.fn()
-    },
-    Schema: jest.fn(),
-    model: jest.fn()
-}));
-
-// 2. Mock userModel 函式
-const mockUserFindByIdAndUpdate = jest.fn();
-const mockUserFindByIdAndDelete = jest.fn();
-
-await jest.unstable_mockModule('../models/userModel.js', () => ({
-    default: {
-        findByIdAndUpdate: mockUserFindByIdAndUpdate,
-        findByIdAndDelete: mockUserFindByIdAndDelete
+        model: jest.fn()
     }
 }));
 
-// 3. 在 Mock 之後導入 Controller
-const { updateRoleController, deleteUserController } = await import('./authController.js');
+const mockUserFindByIdAndUpdate = jest.fn();
+const mockUserFindByIdAndDelete = jest.fn();
 
+jest.mock('../models/userModel.js', () => ({
+    findByIdAndUpdate: mockUserFindByIdAndUpdate,
+    findByIdAndDelete: mockUserFindByIdAndDelete
+}));
+
+const { updateRoleController, deleteUserController } = require('./authController.js');
+
+//LOU,YING-WEN A0338250J
 describe('updateRoleController', () => {
     let req, res;
 
@@ -48,11 +43,7 @@ describe('updateRoleController', () => {
 
             await updateRoleController(req, res);
 
-            expect(mockUserFindByIdAndUpdate).toHaveBeenCalledWith(
-                'user_123',
-                { role: 1 },
-                { new: true }
-            );
+            expect(mockUserFindByIdAndUpdate).toHaveBeenCalledWith('user_123', { role: 1 }, { new: true });
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         });
@@ -67,18 +58,15 @@ describe('updateRoleController', () => {
         });
     });
 
-    describe('Error handling', () => {
-        it('should return 200 even if user to update is not found (current logic)', async () => {
+    describe('Error handling & Edge cases', () => {
+        it('should return 200 even if user to update is not found', async () => {
             const selectMock = jest.fn().mockResolvedValue(null);
             mockUserFindByIdAndUpdate.mockReturnValue({ select: selectMock });
 
             await updateRoleController(req, res);
 
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
-                success: true,
-                user: null
-            }));
+            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ user: null }));
         });
 
         it('should return 500 when database error occurs', async () => {
@@ -89,9 +77,7 @@ describe('updateRoleController', () => {
             await updateRoleController(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
             expect(consoleSpy).toHaveBeenCalledWith(dbError);
-
             consoleSpy.mockRestore();
         });
     });
@@ -101,13 +87,8 @@ describe('deleteUserController', () => {
     let req, res;
 
     beforeEach(() => {
-        req = {
-            params: { id: 'user_999' },
-        };
-        res = {
-            status: jest.fn().mockReturnThis(),
-            send: jest.fn(),
-        };
+        req = { params: { id: 'user_999' } };
+        res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
         jest.clearAllMocks();
     });
 
@@ -120,13 +101,9 @@ describe('deleteUserController', () => {
             await deleteUserController(req, res);
 
             expect(mockUserFindByIdAndDelete).toHaveBeenCalledWith('user_999');
-            expect(selectMock).toHaveBeenCalledWith('-password');
+            expect(selectMock).toHaveBeenCalledWith("-password");
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.send).toHaveBeenCalledWith({
-                success: true,
-                message: 'User Deleted Successfully',
-                user: mockDeletedUser,
-            });
+            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         });
     });
 

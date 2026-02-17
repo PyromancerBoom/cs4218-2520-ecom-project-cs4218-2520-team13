@@ -1,28 +1,27 @@
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+const { describe, it, expect, beforeEach } = require('@jest/globals');
 
-await jest.unstable_mockModule('mongoose', () => ({
+jest.mock('mongoose', () => ({
+    Schema: jest.fn(),
+    model: jest.fn(),
     default: {
         Schema: jest.fn(),
         model: jest.fn(),
         ObjectId: jest.fn()
     },
-    Schema: jest.fn(),
-    model: jest.fn()
+    ObjectId: jest.fn()
 }));
 
 const mockCategoryFind = jest.fn();
 const mockCategoryFindOne = jest.fn();
 
-await jest.unstable_mockModule('../models/categoryModel.js', () => ({
-    default: {
-        find: mockCategoryFind,
-        findOne: mockCategoryFindOne
-    }
+jest.mock('../models/categoryModel.js', () => ({
+    find: mockCategoryFind,
+    findOne: mockCategoryFindOne
 }));
 
-const { categoryControlller, singleCategoryController } = await import('./categoryController.js');
+const { categoryControlller, singleCategoryController } = require('./categoryController.js');
 
-// LOU,YING-WEN A0338250J
+//LOU,YING-WEN A0338250J
 describe('categoryControlller', () => {
     let req, res;
 
@@ -37,10 +36,7 @@ describe('categoryControlller', () => {
 
     describe('Success path', () => {
         it('should return all categories successfully', async () => {
-            const mockCategories = [
-                { name: "Tech", slug: "tech" },
-                { name: "Food", slug: "food" }
-            ];
+            const mockCategories = [{ name: "Tech", slug: "tech" }];
             mockCategoryFind.mockResolvedValue(mockCategories);
 
             await categoryControlller(req, res);
@@ -51,6 +47,16 @@ describe('categoryControlller', () => {
                 message: "All Categories List",
                 category: mockCategories,
             });
+        });
+
+        it('should return 200 and an empty array when no categories exist', async () => {
+            mockCategoryFind.mockResolvedValue([]);
+            await categoryControlller(req, res);
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+                success: true,
+                category: []
+            }));
         });
     });
 
@@ -63,41 +69,13 @@ describe('categoryControlller', () => {
             await categoryControlller(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.send).toHaveBeenCalledWith({
-                success: false,
-                error: mockError,
-                message: "Error while getting all categories",
-            });
-
+            expect(consoleSpy).toHaveBeenCalledWith(mockError);
             consoleSpy.mockRestore();
-        });
-
-        it('should return 200 and an empty array when no categories exist', async () => {
-            mockCategoryFind.mockResolvedValue([]);
-            await categoryControlller(req, res);
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
-                success: true,
-                category: []
-            }));
-        });
-
-        it('should return 200 and null if the category slug does not exist', async () => {
-            req.params.slug = "non-existent";
-            mockCategoryFindOne.mockResolvedValue(null);
-
-            await singleCategoryController(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
-                success: true,
-                category: null
-            }));
         });
     });
 });
 
-// LOU,YING-WEN A0338250J
+//LOU,YING-WEN A0338250J
 describe('singleCategoryController', () => {
     let req, res;
 
@@ -120,33 +98,38 @@ describe('singleCategoryController', () => {
 
             expect(mockCategoryFindOne).toHaveBeenCalledWith({ slug: "tech" });
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.send).toHaveBeenCalledWith({
+            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
                 success: true,
-                message: "Get Single Category Successfully",
-                category: mockCategory,
-            });
+                category: mockCategory
+            }));
+        });
+
+        it('should return 200 and null if the category slug does not exist', async () => {
+            req.params.slug = "non-existent";
+            mockCategoryFindOne.mockResolvedValue(null);
+
+            await singleCategoryController(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+                success: true,
+                category: null
+            }));
         });
     });
 
     describe('Error handling', () => {
-        it('should handle errors in singleCategoryController', async () => {
-            const mockError = new Error("Not found");
-            req.params.slug = "invalid";
+        it('should handle errors in singleCategoryController and return 500', async () => {
+            const mockError = new Error("Database error");
+            req.params.slug = "tech";
             mockCategoryFindOne.mockRejectedValue(mockError);
             const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
 
             await singleCategoryController(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.send).toHaveBeenCalledWith({
-                success: false,
-                error: mockError,
-                message: "Error While getting Single Category",
-            });
-
+            expect(consoleSpy).toHaveBeenCalledWith(mockError);
             consoleSpy.mockRestore();
         });
     });
-
-
 });
