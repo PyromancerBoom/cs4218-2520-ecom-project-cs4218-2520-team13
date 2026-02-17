@@ -22,6 +22,7 @@ await jest.unstable_mockModule('../models/categoryModel.js', () => ({
 
 const { categoryControlller, singleCategoryController } = await import('./categoryController.js');
 
+// LOU,YING-WEN A0338250J
 describe('categoryControlller', () => {
     let req, res;
 
@@ -70,9 +71,33 @@ describe('categoryControlller', () => {
 
             consoleSpy.mockRestore();
         });
+
+        it('should return 200 and an empty array when no categories exist', async () => {
+            mockCategoryFind.mockResolvedValue([]);
+            await categoryControlller(req, res);
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+                success: true,
+                category: []
+            }));
+        });
+
+        it('should return 200 and null if the category slug does not exist', async () => {
+            req.params.slug = "non-existent";
+            mockCategoryFindOne.mockResolvedValue(null);
+
+            await singleCategoryController(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+                success: true,
+                category: null
+            }));
+        });
     });
 });
 
+// LOU,YING-WEN A0338250J
 describe('singleCategoryController', () => {
     let req, res;
 
@@ -122,4 +147,6 @@ describe('singleCategoryController', () => {
             consoleSpy.mockRestore();
         });
     });
+
+
 });

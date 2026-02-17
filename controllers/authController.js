@@ -275,6 +275,7 @@ export const getAllUsersController = async (req, res) => {
   }
 };
 
+//LOU,YING-WEN A0338250J
 //update user role
 export const updateRoleController = async (req, res) => {
   try {
@@ -301,6 +302,7 @@ export const updateRoleController = async (req, res) => {
   }
 };
 
+//LOU,YING-WEN A0338250J
 // delete user controller
 export const deleteUserController = async (req, res) => {
   try {

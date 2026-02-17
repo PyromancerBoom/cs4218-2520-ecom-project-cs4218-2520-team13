@@ -56,9 +56,31 @@ describe('updateRoleController', () => {
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         });
+
+        it('should correctly exclude password from the result', async () => {
+            const selectMock = jest.fn().mockResolvedValue({});
+            mockUserFindByIdAndUpdate.mockReturnValue({ select: selectMock });
+
+            await updateRoleController(req, res);
+
+            expect(selectMock).toHaveBeenCalledWith("-password");
+        });
     });
 
     describe('Error handling', () => {
+        it('should return 200 even if user to update is not found (current logic)', async () => {
+            const selectMock = jest.fn().mockResolvedValue(null);
+            mockUserFindByIdAndUpdate.mockReturnValue({ select: selectMock });
+
+            await updateRoleController(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+                success: true,
+                user: null
+            }));
+        });
+
         it('should return 500 when database error occurs', async () => {
             const dbError = new Error('DB Error');
             mockUserFindByIdAndUpdate.mockImplementation(() => { throw dbError; });
