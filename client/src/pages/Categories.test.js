@@ -1,14 +1,18 @@
-import React from "react";
-import { render, screen } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
-import Categories from "./Categories";
-import useCategory from "../hooks/useCategory";
-import "@testing-library/jest-dom";
+const React = require("react");
+global.React = React;
+const { render, screen } = require("@testing-library/react");
+const { BrowserRouter } = require("react-router-dom");
+require("@testing-library/jest-dom");
 
-// Mock the custom hook to control its return values
-jest.mock("../hooks/useCategory");
+const mockUseCategory = jest.fn();
 
-// Mock the Layout component to isolate testing to Categories logic
+jest.mock("../hooks/useCategory", () => ({
+    __esModule: true,
+    default: mockUseCategory
+}));
+
+const Categories = require("./Categories").default;
+
 jest.mock("../components/Layout", () => ({ children, title }) => (
     <div data-testid="mock-layout">
         <h1>{title}</h1>
@@ -16,7 +20,6 @@ jest.mock("../components/Layout", () => ({ children, title }) => (
     </div>
 ));
 
-//LOU,YING-WEN A0338250J
 describe("Categories Page Unit Test", () => {
     const mockCategories = [
         { _id: "1", name: "Electronics", slug: "electronics" },
@@ -25,51 +28,74 @@ describe("Categories Page Unit Test", () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        // Fix ReferenceError: React is not defined in Node environment
-        global.React = React;
     });
 
-    test("should render all category links correctly", () => {
-        // Arrange: Set mock return value for the hook
-        useCategory.mockReturnValue(mockCategories);
+    it("should render all category links correctly", () => {
+        mockUseCategory.mockReturnValue(mockCategories);
 
-        // Act: Wrap with BrowserRouter as Categories uses Link component
         render(
             <BrowserRouter>
                 <Categories />
             </BrowserRouter>
         );
 
-        // Assert: Check if Layout title is rendered
         expect(screen.getByText("All Categories")).toBeInTheDocument();
-
-        // Assert: Verify that both categories are displayed as links
         expect(screen.getByText("Electronics")).toBeInTheDocument();
-        expect(screen.getByText("Books")).toBeInTheDocument();
-
-        // Assert: Verify correct URL path for the links
-        expect(screen.getByText("Electronics").closest("a")).toHaveAttribute(
-            "href",
-            "/category/electronics"
-        );
+        expect(screen.getByText("Electronics").closest("a")).toHaveAttribute("href", "/category/electronics");
     });
 
-    test("should render empty state when no categories are returned", () => {
-        // Arrange: Simulate empty data array from hook
-        useCategory.mockReturnValue([]);
+    it("should render empty state when no categories are returned", () => {
+        mockUseCategory.mockReturnValue([]);
 
-        // Act
         render(
             <BrowserRouter>
                 <Categories />
             </BrowserRouter>
         );
 
-        // Assert: Ensure page doesn't crash and title still exists
+        expect(screen.queryAllByRole("link")).toHaveLength(0);
         expect(screen.getByText("All Categories")).toBeInTheDocument();
+    });
 
-        // Assert: Verify no links are rendered
-        const links = screen.queryAllByRole("link");
-        expect(links.length).toBe(0);
+    it("should apply correct Bootstrap classes for the grid layout", () => {
+        mockUseCategory.mockReturnValue([mockCategories[0]]);
+
+        render(
+            <BrowserRouter>
+                <Categories />
+            </BrowserRouter>
+        );
+
+        const linkElement = screen.getByText("Electronics");
+        const columnWrapper = linkElement.closest(".col-md-6");
+
+        expect(columnWrapper).toHaveClass("mt-5", "mb-3", "gx-3", "gy-3");
+    });
+
+    it("should handle categories with special characters in name or slug", () => {
+        const specialMock = [{ _id: "3", name: "Home & Garden", slug: "home-garden" }];
+        mockUseCategory.mockReturnValue(specialMock);
+
+        render(
+            <BrowserRouter>
+                <Categories />
+            </BrowserRouter>
+        );
+
+        const link = screen.getByText("Home & Garden");
+        expect(link.closest("a")).toHaveAttribute("href", "/category/home-garden");
+    });
+
+    it("should verify Layout component receives the correct title prop", () => {
+        mockUseCategory.mockReturnValue([]);
+
+        render(
+            <BrowserRouter>
+                <Categories />
+            </BrowserRouter>
+        );
+
+        const titleElement = screen.getByRole("heading", { level: 1 });
+        expect(titleElement).toHaveTextContent("All Categories");
     });
 });

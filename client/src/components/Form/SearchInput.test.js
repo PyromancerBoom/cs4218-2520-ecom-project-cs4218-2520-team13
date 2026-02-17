@@ -1,10 +1,11 @@
-import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import axios from "axios";
-import { MemoryRouter } from "react-router-dom";
-import SearchInput from "./SearchInput";
-import { useSearch } from "../../context/search";
-
+const React = require("react");
+global.React = React;
+const { render, screen, fireEvent, waitFor } = require("@testing-library/react");
+const axios = require("axios");
+const { MemoryRouter } = require("react-router-dom");
+const SearchInput = require("./SearchInput").default;
+const { useSearch } = require("../../context/search");
+require("@testing-library/jest-dom");
 
 jest.mock("axios");
 jest.mock("../../context/search");
@@ -25,27 +26,23 @@ describe("SearchInput Component Unit Test", () => {
         useSearch.mockReturnValue([mockValues, mockSetValues]);
     });
 
-    test("should update keyword value on input change", () => {
-        // Arrange
+    it("should update keyword value on input change", () => {
         render(
             <MemoryRouter>
                 <SearchInput />
             </MemoryRouter>
         );
 
-        // Act
         const input = screen.getByPlaceholderText("Search");
         fireEvent.change(input, { target: { value: "laptop" } });
 
-        // Assert
         expect(mockSetValues).toHaveBeenCalledWith({
             ...mockValues,
             keyword: "laptop",
         });
     });
 
-    test("should call API and navigate on successful submit", async () => {
-        // Arrange
+    it("should call API and navigate on successful submit", async () => {
         const mockResults = [{ _id: "1", name: "Laptop" }];
         axios.get.mockResolvedValue({ data: mockResults });
         useSearch.mockReturnValue([{ keyword: "laptop", results: [] }, mockSetValues]);
@@ -55,11 +52,9 @@ describe("SearchInput Component Unit Test", () => {
             </MemoryRouter>
         );
 
-        // Act
         const form = screen.getByRole("search");
         fireEvent.submit(form);
 
-        // Assert
         await waitFor(() => {
             expect(axios.get).toHaveBeenCalledWith("/api/v1/product/search/laptop");
             expect(mockSetValues).toHaveBeenCalledWith({
@@ -70,11 +65,9 @@ describe("SearchInput Component Unit Test", () => {
         });
     });
 
-    test("should handle API error gracefully", async () => {
-        // Arrange
+    it("should handle API error gracefully", async () => {
         const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
         axios.get.mockRejectedValue(new Error("API Error"));
-
         useSearch.mockReturnValue([{ keyword: "error", results: [] }, mockSetValues]);
 
         render(
@@ -83,15 +76,63 @@ describe("SearchInput Component Unit Test", () => {
             </MemoryRouter>
         );
 
-        // Act
         const form = screen.getByRole("search");
         fireEvent.submit(form);
 
-        // Assert
         await waitFor(() => {
             expect(consoleSpy).toHaveBeenCalledWith(expect.any(Error));
         });
-
         consoleSpy.mockRestore();
+    });
+
+    it("should have correct accessibility attributes and input type", () => {
+        render(
+            <MemoryRouter>
+                <SearchInput />
+            </MemoryRouter>
+        );
+
+        const input = screen.getByPlaceholderText("Search");
+        expect(input).toHaveAttribute("type", "search");
+        expect(input).toHaveAttribute("aria-label", "Search");
+
+        const button = screen.getByRole("button", { name: /search/i });
+        expect(button).toHaveAttribute("type", "submit");
+    });
+
+    it("should prevent default form submission behavior", () => {
+        const { createEvent } = require("@testing-library/react");
+
+        render(
+            <MemoryRouter>
+                <SearchInput />
+            </MemoryRouter>
+        );
+
+        const form = screen.getByRole("search");
+        const submitEvent = createEvent.submit(form);
+        Object.defineProperty(submitEvent, 'preventDefault', { value: jest.fn() });
+        fireEvent(form, submitEvent);
+
+        expect(submitEvent.preventDefault).toHaveBeenCalled();
+    });
+
+    it("should handle submission with an empty keyword correctly", async () => {
+        axios.get.mockResolvedValue({ data: [] });
+        useSearch.mockReturnValue([{ keyword: "", results: [] }, mockSetValues]);
+
+        render(
+            <MemoryRouter>
+                <SearchInput />
+            </MemoryRouter>
+        );
+
+        const form = screen.getByRole("search");
+        fireEvent.submit(form);
+
+        await waitFor(() => {
+            expect(axios.get).toHaveBeenCalledWith("/api/v1/product/search/");
+            expect(mockNavigate).toHaveBeenCalledWith("/search");
+        });
     });
 });
