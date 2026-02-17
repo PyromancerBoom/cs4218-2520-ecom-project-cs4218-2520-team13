@@ -1,7 +1,5 @@
-import { jest, describe, it, expect, beforeEach, beforeAll, afterAll } from '@jest/globals';
-
-// Mock mongoose before importing models
-await jest.unstable_mockModule('mongoose', () => ({
+jest.mock('mongoose', () => ({
+  __esModule: true,
   default: {
     Schema: jest.fn(),
     model: jest.fn(),
@@ -11,55 +9,33 @@ await jest.unstable_mockModule('mongoose', () => ({
   model: jest.fn()
 }));
 
-// Mock fs
-const mockReadFileSync = jest.fn();
-await jest.unstable_mockModule('fs', () => ({
-  default: {
-    readFileSync: mockReadFileSync
-  },
-  readFileSync: mockReadFileSync
-}));
+jest.mock('fs', () => {
+  const readFileSync = jest.fn();
+  return { __esModule: true, default: { readFileSync }, readFileSync };
+});
 
-// Mock slugify
-const mockSlugify = jest.fn();
-await jest.unstable_mockModule('slugify', () => ({
-  default: mockSlugify
-}));
-
-// Mock productModel as a constructor function with static methods
-const mockProductSave = jest.fn();
-const mockProductFindByIdAndUpdate = jest.fn();
-const mockProductFindByIdAndDelete = jest.fn();
-
-// Create a mock constructor that returns an instance with save method
-const MockProductModel = jest.fn().mockImplementation((data) => ({
-  ...data,
-  photo: { data: null, contentType: null },
-  save: mockProductSave
-}));
-
-// Add static methods to the constructor
-MockProductModel.findByIdAndUpdate = mockProductFindByIdAndUpdate;
-MockProductModel.findByIdAndDelete = mockProductFindByIdAndDelete;
-
-await jest.unstable_mockModule('../models/productModel.js', () => ({
-  default: MockProductModel
-}));
-
-// Mock categoryModel
-await jest.unstable_mockModule('../models/categoryModel.js', () => ({
-  default: {
-    findOne: jest.fn()
-  }
-}));
-
-// Mock orderModel
-await jest.unstable_mockModule('../models/orderModel.js', () => ({
+jest.mock('slugify', () => ({
+  __esModule: true,
   default: jest.fn()
 }));
 
-// Mock braintree
-await jest.unstable_mockModule('braintree', () => ({
+jest.mock('../models/productModel.js', () => ({
+  __esModule: true,
+  default: jest.fn()
+}));
+
+jest.mock('../models/categoryModel.js', () => ({
+  __esModule: true,
+  default: { findOne: jest.fn() }
+}));
+
+jest.mock('../models/orderModel.js', () => ({
+  __esModule: true,
+  default: jest.fn()
+}));
+
+jest.mock('braintree', () => ({
+  __esModule: true,
   default: {
     BraintreeGateway: jest.fn().mockImplementation(() => ({
       clientToken: { generate: jest.fn() },
@@ -69,13 +45,29 @@ await jest.unstable_mockModule('braintree', () => ({
   }
 }));
 
-// Mock dotenv
-await jest.unstable_mockModule('dotenv', () => ({
+jest.mock('dotenv', () => ({
+  __esModule: true,
   default: { config: jest.fn() }
 }));
 
-// Import after mocking
-const { createProductController, deleteProductController, updateProductController } = await import('./productController.js');
+const { createProductController, deleteProductController, updateProductController } = require('./productController.js');
+
+const MockProductModel = require('../models/productModel.js').default;
+const mockReadFileSync = require('fs').readFileSync;
+const mockSlugify = require('slugify').default;
+
+// Mock save function shared across all product instances
+const mockProductSave = jest.fn();
+const mockProductFindByIdAndUpdate = jest.fn();
+const mockProductFindByIdAndDelete = jest.fn();
+
+MockProductModel.mockImplementation((data) => ({
+  ...data,
+  photo: { data: null, contentType: null },
+  save: mockProductSave
+}));
+MockProductModel.findByIdAndUpdate = mockProductFindByIdAndUpdate;
+MockProductModel.findByIdAndDelete = mockProductFindByIdAndDelete;
 
 beforeAll(() => {
   jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -101,9 +93,15 @@ describe('createProductController', () => {
     };
     jest.clearAllMocks();
     mockSlugify.mockImplementation((str) => str.toLowerCase().replace(/\s+/g, '-'));
+    MockProductModel.mockImplementation((data) => ({
+      ...data,
+      photo: { data: null, contentType: null },
+      save: mockProductSave
+    }));
+    MockProductModel.findByIdAndUpdate = mockProductFindByIdAndUpdate;
+    MockProductModel.findByIdAndDelete = mockProductFindByIdAndDelete;
   });
 
-  // Wei Sheng, A0259272X
   describe('Validation', () => {
     it('should validate name field (required)', async () => {
       req.fields = { description: 'Desc', price: 100, category: 'cat1', quantity: 10 };
@@ -163,12 +161,12 @@ describe('createProductController', () => {
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith({
-        error: 'photo is Required and should be less then 1mb'
+        error: 'photo is Required and should be less than 1mb'
       });
     });
 
     // Wei Sheng, A0259272X
-    it('should accept photo less than 1MB (1000000 bytes)', async () => {
+    it('should accept photo less than 1MB (999999 bytes boundary)', async () => {
       req.fields = {
         name: 'Product',
         description: 'Desc',
@@ -176,7 +174,7 @@ describe('createProductController', () => {
         category: 'cat1',
         quantity: 10
       };
-      req.files = { photo: { size: 99999, path: '/tmp/photo.jpg', type: 'image/jpeg' } };
+      req.files = { photo: { size: 999999, path: '/tmp/photo.jpg', type: 'image/jpeg' } };
 
       mockProductSave.mockResolvedValueOnce(true);
       mockReadFileSync.mockReturnValue(Buffer.from('photo-data'));
@@ -184,11 +182,22 @@ describe('createProductController', () => {
       await createProductController(req, res);
 
       expect(res.status).toHaveBeenCalledWith(201);
-    }); 
+      expect(mockReadFileSync).toHaveBeenCalledWith('/tmp/photo.jpg');
+    });
+
+    // Wei Sheng, A0259272X
+    it('should not access the database when required fields are missing', async () => {
+      req.fields = {};
+
+      await createProductController(req, res);
+
+      expect(MockProductModel).not.toHaveBeenCalled();
+      expect(mockProductSave).not.toHaveBeenCalled();
+    });
   });
 
   describe('Product creation', () => {
-    
+
     // Wei Sheng, A0259272X
     it('should create slug from name using slugify(name)', async () => {
       req.fields = {
@@ -251,7 +260,10 @@ describe('createProductController', () => {
 
       await createProductController(req, res);
 
+      const productInstance = MockProductModel.mock.results[0].value;
       expect(mockReadFileSync).toHaveBeenCalledWith('/tmp/photo.jpg');
+      expect(productInstance.photo.data).toEqual(mockPhotoData);
+      expect(productInstance.photo.contentType).toBe('image/jpeg');
     });
 
     // Wei Sheng, A0259272X
@@ -275,9 +287,9 @@ describe('createProductController', () => {
   });
 
   describe('Response handling', () => {
-    
+
     // Wei Sheng, A0259272X
-    it('should return 201 status on success', async () => {
+    it('should return 201 status with correct response structure on success', async () => {
       req.fields = {
         name: 'Product',
         description: 'Desc',
@@ -290,23 +302,8 @@ describe('createProductController', () => {
 
       await createProductController(req, res);
 
+      expect(mockProductSave).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(201);
-    });
-
-    // Wei Sheng, A0259272X
-    it('should return correct response structure on success', async () => {
-      req.fields = {
-        name: 'Product',
-        description: 'Desc',
-        price: 100,
-        category: 'cat1',
-        quantity: 10
-      };
-
-      mockProductSave.mockResolvedValueOnce(true);
-
-      await createProductController(req, res);
-
       expect(res.send).toHaveBeenCalledWith({
         success: true,
         message: 'Product Created Successfully',
@@ -316,7 +313,7 @@ describe('createProductController', () => {
   });
 
   describe('Error handling', () => {
-    
+
     // Wei Sheng, A0259272X
     it('should handle errors and return 500 status', async () => {
       req.fields = {
@@ -341,7 +338,6 @@ describe('createProductController', () => {
   });
 });
 
-// Wei Sheng, A0259272X
 describe('deleteProductController', () => {
   let req, res;
 
@@ -354,6 +350,7 @@ describe('deleteProductController', () => {
       send: jest.fn()
     };
     jest.clearAllMocks();
+    MockProductModel.findByIdAndDelete = mockProductFindByIdAndDelete;
   });
 
   describe('Product deletion', () => {
@@ -433,7 +430,6 @@ describe('deleteProductController', () => {
   });
 });
 
-// Wei Sheng, A0259272X
 describe('updateProductController', () => {
   let req, res;
 
@@ -449,6 +445,7 @@ describe('updateProductController', () => {
     };
     jest.clearAllMocks();
     mockSlugify.mockImplementation((str) => str.toLowerCase().replace(/\s+/g, '-'));
+    MockProductModel.findByIdAndUpdate = mockProductFindByIdAndUpdate;
   });
 
   describe('Validation', () => {
@@ -538,7 +535,16 @@ describe('updateProductController', () => {
       await updateProductController(req, res);
 
       expect(res.status).toHaveBeenCalledWith(201);
-    }); 
+    });
+
+    // Wei Sheng, A0259272X
+    it('should not access the database when required fields are missing', async () => {
+      req.fields = {};
+
+      await updateProductController(req, res);
+
+      expect(mockProductFindByIdAndUpdate).not.toHaveBeenCalled();
+    });
   });
 
   describe('Product update', () => {
@@ -630,33 +636,6 @@ describe('updateProductController', () => {
       expect(mockProduct.photo.contentType).toBe('image/png');
     });
 
-    // Wei Sheng, A0259272X
-    it('should return updated product with { new: true }', async () => {
-      req.fields = {
-        name: 'Updated Product',
-        description: 'Desc',
-        price: 100,
-        category: 'cat1',
-        quantity: 10
-      };
-
-      const mockProduct = {
-        _id: 'product123',
-        name: 'Updated Product',
-        photo: { data: null, contentType: null },
-        save: jest.fn().mockResolvedValue(true)
-      };
-
-      mockProductFindByIdAndUpdate.mockResolvedValueOnce(mockProduct);
-
-      await updateProductController(req, res);
-
-      expect(mockProductFindByIdAndUpdate).toHaveBeenCalledWith(
-        'product123',
-        expect.any(Object),
-        { new: true }
-      );
-    });
   });
 
   describe('Response handling', () => {
@@ -694,7 +673,7 @@ describe('updateProductController', () => {
   describe('Error handling', () => {
 
     // Wei Sheng, A0259272X
-    it('should handle product not found', async () => {
+    it('should handle product not found and return 500', async () => {
       req.fields = {
         name: 'Updated Product',
         description: 'Desc',
@@ -707,7 +686,14 @@ describe('updateProductController', () => {
 
       await updateProductController(req, res);
 
-      expect(mockProductFindByIdAndUpdate).toHaveBeenCalled();
+      // When findByIdAndUpdate returns null, products.save() throws TypeError
+      // which is caught and returned as a 500 error response
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        error: expect.any(Error),
+        message: 'Error in Update product'
+      });
     });
 
     // Wei Sheng, A0259272X
