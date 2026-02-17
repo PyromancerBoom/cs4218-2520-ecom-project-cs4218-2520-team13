@@ -17,12 +17,12 @@ const Search = () => {
         <div className="col-md-9 offset-md-3">
           <h1 className="text-center">Search Results</h1>
           <h6 className="text-center">
-            {values?.results.length < 1
+            {(values?.results?.length || 0) < 1
               ? "No Products Found"
-              : `Found ${values?.results.length}`}
+              : `Found ${values?.results?.length}`}
           </h6>
           <div className="d-flex flex-wrap">
-            {values?.results.map((p) => (
+            {values?.results?.map((p) => (
               <div className="card m-2" key={p._id}>
                 <img
                   src={`/api/v1/product/product-photo/${p._id}`}
