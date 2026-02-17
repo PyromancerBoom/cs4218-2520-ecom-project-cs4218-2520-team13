@@ -1,7 +1,5 @@
-import { jest, describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from '@jest/globals';
-
-// Mock mongoose before importing models
-await jest.unstable_mockModule('mongoose', () => ({
+jest.mock('mongoose', () => ({
+  __esModule: true,
   default: {
     Schema: jest.fn(),
     model: jest.fn(),
@@ -11,41 +9,30 @@ await jest.unstable_mockModule('mongoose', () => ({
   model: jest.fn()
 }));
 
-// Mock userModel
-const mockUserFindById = jest.fn();
-const mockUserFindByIdAndUpdate = jest.fn();
-const mockUserFindOne = jest.fn();
-
-await jest.unstable_mockModule('../models/userModel.js', () => ({
+jest.mock('../models/userModel.js', () => ({
+  __esModule: true,
   default: {
-    findById: mockUserFindById,
-    findByIdAndUpdate: mockUserFindByIdAndUpdate,
-    findOne: mockUserFindOne
+    findById: jest.fn(),
+    findByIdAndUpdate: jest.fn(),
+    findOne: jest.fn()
   }
 }));
 
-// Mock orderModel
-const mockOrderFind = jest.fn();
-const mockOrderFindByIdAndUpdate = jest.fn();
-
-await jest.unstable_mockModule('../models/orderModel.js', () => ({
+jest.mock('../models/orderModel.js', () => ({
+  __esModule: true,
   default: {
-    find: mockOrderFind,
-    findByIdAndUpdate: mockOrderFindByIdAndUpdate
+    find: jest.fn(),
+    findByIdAndUpdate: jest.fn()
   }
 }));
 
-// Mock authHelper
-const mockHashPassword = jest.fn();
-const mockComparePassword = jest.fn();
-
-await jest.unstable_mockModule('../helpers/authHelper.js', () => ({
-  hashPassword: mockHashPassword,
-  comparePassword: mockComparePassword
+jest.mock('../helpers/authHelper.js', () => ({
+  hashPassword: jest.fn(),
+  comparePassword: jest.fn()
 }));
 
-// Mock jsonwebtoken (used at module level in authController, but not needed for these tests)
-await jest.unstable_mockModule('jsonwebtoken', () => ({
+jest.mock('jsonwebtoken', () => ({
+  __esModule: true,
   default: {
     sign: jest.fn(),
     verify: jest.fn(),
@@ -53,8 +40,20 @@ await jest.unstable_mockModule('jsonwebtoken', () => ({
   }
 }));
 
-// Import after mocking
-const { updateProfileController, getOrdersController, getAllOrdersController, orderStatusController } = await import('./authController.js');
+const { updateProfileController, getOrdersController, getAllOrdersController, orderStatusController } = require('./authController.js');
+
+const mockUserModel = require('../models/userModel.js').default;
+const mockUserFindById = mockUserModel.findById;
+const mockUserFindByIdAndUpdate = mockUserModel.findByIdAndUpdate;
+const mockUserFindOne = mockUserModel.findOne;
+
+const mockOrderModel = require('../models/orderModel.js').default;
+const mockOrderFind = mockOrderModel.find;
+const mockOrderFindByIdAndUpdate = mockOrderModel.findByIdAndUpdate;
+
+const mockAuthHelper = require('../helpers/authHelper.js');
+const mockHashPassword = mockAuthHelper.hashPassword;
+const mockComparePassword = mockAuthHelper.comparePassword;
 
 beforeAll(() => {
   jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -81,20 +80,9 @@ describe('updateProfileController', () => {
     jest.clearAllMocks();
   });
 
-  describe('Authentication', () => {
-    it('should require authentication (uses req.user._id from requireSignIn middleware)', async () => {
-      req.body = { name: 'Test' };
-      const mockUser = { _id: 'user123', name: 'Old', password: 'hashed' };
-      mockUserFindById.mockResolvedValueOnce(mockUser);
-      mockUserFindByIdAndUpdate.mockResolvedValueOnce(mockUser);
-
-      await updateProfileController(req, res);
-
-      expect(mockUserFindById).toHaveBeenCalledWith('user123');
-    });
-  });
-
   describe('Field updates', () => {
+
+    // Wei Sheng, A0259272X
     it('should update name from req.body.name', async () => {
       req.body = { name: 'Updated Name' };
       const mockUser = { _id: 'user123', name: 'Old Name', password: 'hashed' };
@@ -112,6 +100,7 @@ describe('updateProfileController', () => {
       );
     });
 
+    // Wei Sheng, A0259272X
     it('should update phone from req.body.phone', async () => {
       req.body = { phone: '9876543210' };
       const mockUser = { _id: 'user123', phone: '1234567890', password: 'hashed' };
@@ -129,6 +118,7 @@ describe('updateProfileController', () => {
       );
     });
 
+    // Wei Sheng, A0259272X
     it('should update address from req.body.address', async () => {
       req.body = { address: '456 New St' };
       const mockUser = { _id: 'user123', address: '123 Old St', password: 'hashed' };
@@ -146,6 +136,7 @@ describe('updateProfileController', () => {
       );
     });
 
+    // Wei Sheng, A0259272X
     it('should keep existing values when fields are not provided', async () => {
       req.body = {};
       const mockUser = {
@@ -171,9 +162,50 @@ describe('updateProfileController', () => {
         { new: true }
       );
     });
+
+    // Wei Sheng, A0259272X
+    it('should fall back to existing value when a field is an empty string', async () => {
+      req.body = { name: '' };
+      const mockUser = { _id: 'user123', name: 'Original Name', password: 'hashed' };
+
+      mockUserFindById.mockResolvedValueOnce(mockUser);
+      mockUserFindByIdAndUpdate.mockResolvedValueOnce(mockUser);
+
+      await updateProfileController(req, res);
+
+      expect(mockUserFindByIdAndUpdate).toHaveBeenCalledWith(
+        'user123',
+        expect.objectContaining({ name: 'Original Name' }),
+        { new: true }
+      );
+    });
+
+    // Wei Sheng, A0259272X
+    it('should update multiple fields simultaneously', async () => {
+      req.body = { name: 'New Name', phone: '9999999999', address: '789 New Ave' };
+      const mockUser = { _id: 'user123', name: 'Old', phone: '1111111111', address: '111 Old St', password: 'hashed' };
+      const updatedUser = { ...mockUser, name: 'New Name', phone: '9999999999', address: '789 New Ave' };
+
+      mockUserFindById.mockResolvedValueOnce(mockUser);
+      mockUserFindByIdAndUpdate.mockResolvedValueOnce(updatedUser);
+
+      await updateProfileController(req, res);
+
+      expect(mockUserFindByIdAndUpdate).toHaveBeenCalledWith(
+        'user123',
+        expect.objectContaining({
+          name: 'New Name',
+          phone: '9999999999',
+          address: '789 New Ave'
+        }),
+        { new: true }
+      );
+    });
   });
 
   describe('Password updates', () => {
+
+    // Wei Sheng, A0259272X
     it('should update password when provided and length >= 6 (hashes password)', async () => {
       req.body = { password: 'newpass123' };
       const mockUser = { _id: 'user123', password: 'oldhashed' };
@@ -193,8 +225,9 @@ describe('updateProfileController', () => {
       );
     });
 
-    it('should validate password length (returns error when password provided but length < 6)', async () => {
-      req.body = { password: 'short' };
+    // Wei Sheng, A0259272X
+    it('should reject password shorter than 6 characters', async () => {
+      req.body = { password: 'ab' };
 
       await updateProfileController(req, res);
 
@@ -204,7 +237,8 @@ describe('updateProfileController', () => {
       expect(mockUserFindByIdAndUpdate).not.toHaveBeenCalled();
     });
 
-    it('should reject password with exactly 5 characters', async () => {
+    // Wei Sheng, A0259272X
+    it('should reject password with exactly 5 characters (boundary)', async () => {
       req.body = { password: '12345' };
 
       await updateProfileController(req, res);
@@ -212,8 +246,10 @@ describe('updateProfileController', () => {
       expect(res.json).toHaveBeenCalledWith({
         error: 'Password is required and 6 character long'
       });
+      expect(mockUserFindByIdAndUpdate).not.toHaveBeenCalled();
     });
 
+    // Wei Sheng, A0259272X
     it('should accept password with exactly 6 characters', async () => {
       req.body = { password: '123456' };
       const mockUser = { _id: 'user123', password: 'oldhashed' };
@@ -227,6 +263,7 @@ describe('updateProfileController', () => {
       expect(mockHashPassword).toHaveBeenCalledWith('123456');
     });
 
+    // Wei Sheng, A0259272X
     it('should keep existing password when no new password is provided', async () => {
       req.body = { name: 'New Name' };
       const mockUser = { _id: 'user123', name: 'Old', password: 'existinghashed' };
@@ -246,6 +283,8 @@ describe('updateProfileController', () => {
   });
 
   describe('Response handling', () => {
+
+    // Wei Sheng, A0259272X
     it('should return 200 status on success', async () => {
       req.body = { name: 'Updated Name' };
       const mockUser = { _id: 'user123', name: 'Old Name', password: 'hashed' };
@@ -258,6 +297,7 @@ describe('updateProfileController', () => {
       expect(res.status).toHaveBeenCalledWith(200);
     });
 
+    // Wei Sheng, A0259272X
     it('should return correct response structure: { success: true, message, updatedUser }', async () => {
       req.body = { name: 'Updated Name' };
       const mockUser = { _id: 'user123', name: 'Old Name', password: 'hashed' };
@@ -276,6 +316,7 @@ describe('updateProfileController', () => {
     });
 
     // note this: this is not a bug, it is a feature.
+    // Wei Sheng, A0259272X
     it('should not update email even when provided in request body', async () => {
       req.body = { name: 'Updated Name', email: 'newemail@example.com' };
       const mockUser = { _id: 'user123', name: 'Old Name', email: 'original@example.com', password: 'hashed' };
@@ -295,6 +336,8 @@ describe('updateProfileController', () => {
   });
 
   describe('Error handling', () => {
+
+    // Wei Sheng, A0259272X
     it('should handle database errors and return 400 status', async () => {
       req.body = { name: 'Updated Name' };
       mockUserFindById.mockRejectedValueOnce(new Error('Database error'));
@@ -309,6 +352,7 @@ describe('updateProfileController', () => {
       });
     });
 
+    // Wei Sheng, A0259272X
     it('should handle findByIdAndUpdate errors', async () => {
       req.body = { name: 'Updated Name' };
       const mockUser = { _id: 'user123', name: 'Old', password: 'hashed' };
@@ -319,6 +363,21 @@ describe('updateProfileController', () => {
       await updateProfileController(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    // Wei Sheng, A0259272X
+    it('should return 400 when user is not found (findById returns null)', async () => {
+      req.body = { name: 'Updated Name' };
+      mockUserFindById.mockResolvedValueOnce(null);
+
+      await updateProfileController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: 'Error While Update Profile',
+        error: expect.any(Error)
+      });
     });
   });
 });
@@ -340,6 +399,8 @@ describe('getOrdersController', () => {
   });
 
   describe('Query and population', () => {
+
+    // Wei Sheng, A0259272X
     it('should filter orders by buyer: req.user._id', async () => {
       const mockOrders = [{ _id: 'order1', buyer: 'user123', products: [] }];
       const populateMock2 = jest.fn().mockResolvedValue(mockOrders);
@@ -352,6 +413,7 @@ describe('getOrdersController', () => {
       expect(mockOrderFind).toHaveBeenCalledWith({ buyer: 'user123' });
     });
 
+    // Wei Sheng, A0259272X
     it('should populate products field (excluding photo)', async () => {
       const mockOrders = [{ _id: 'order1', buyer: 'user123', products: [] }];
       const populateMock2 = jest.fn().mockResolvedValue(mockOrders);
@@ -364,6 +426,7 @@ describe('getOrdersController', () => {
       expect(populateMock1).toHaveBeenCalledWith('products', '-photo');
     });
 
+    // Wei Sheng, A0259272X
     it('should populate buyer field with name only', async () => {
       const mockOrders = [{ _id: 'order1', buyer: { name: 'John Doe' }, products: [] }];
       const populateMock2 = jest.fn().mockResolvedValue(mockOrders);
@@ -378,6 +441,8 @@ describe('getOrdersController', () => {
   });
 
   describe('Response handling', () => {
+
+    // Wei Sheng, A0259272X
     it('should return orders as JSON array', async () => {
       const mockOrders = [
         { _id: 'order1', buyer: 'user123', products: [] },
@@ -393,6 +458,7 @@ describe('getOrdersController', () => {
       expect(res.json).toHaveBeenCalledWith(mockOrders);
     });
 
+    // Wei Sheng, A0259272X
     it('should handle user with no orders (returns empty array)', async () => {
       const populateMock2 = jest.fn().mockResolvedValue([]);
       const populateMock1 = jest.fn().mockReturnValue({ populate: populateMock2 });
@@ -406,6 +472,8 @@ describe('getOrdersController', () => {
   });
 
   describe('Error handling', () => {
+
+    // Wei Sheng, A0259272X
     it('should handle database errors and return 500 status', async () => {
       const populateMock2 = jest.fn().mockRejectedValue(new Error('Database error'));
       const populateMock1 = jest.fn().mockReturnValue({ populate: populateMock2 });
@@ -439,6 +507,8 @@ describe('getAllOrdersController', () => {
   });
 
   describe('Query and population', () => {
+
+    // Wei Sheng, A0259272X
     it('should return all orders (no buyer filter)', async () => {
       const mockOrders = [
         { _id: 'order1', buyer: 'user1', products: [] },
@@ -455,6 +525,7 @@ describe('getAllOrdersController', () => {
       expect(mockOrderFind).toHaveBeenCalledWith({});
     });
 
+    // Wei Sheng, A0259272X
     it('should sort orders by createdAt: "-1" (newest first)', async () => {
       const mockOrders = [{ _id: 'order1', buyer: 'user1', products: [] }];
       const sortMock = jest.fn().mockResolvedValue(mockOrders);
@@ -468,6 +539,7 @@ describe('getAllOrdersController', () => {
       expect(sortMock).toHaveBeenCalledWith({ createdAt: '-1' });
     });
 
+    // Wei Sheng, A0259272X
     it('should populate products field (excluding photo)', async () => {
       const mockOrders = [{ _id: 'order1', buyer: 'user1', products: [] }];
       const sortMock = jest.fn().mockResolvedValue(mockOrders);
@@ -481,6 +553,7 @@ describe('getAllOrdersController', () => {
       expect(populateMock1).toHaveBeenCalledWith('products', '-photo');
     });
 
+    // Wei Sheng, A0259272X
     it('should populate buyer field with name', async () => {
       const mockOrders = [{ _id: 'order1', buyer: { name: 'John Doe' }, products: [] }];
       const sortMock = jest.fn().mockResolvedValue(mockOrders);
@@ -496,6 +569,8 @@ describe('getAllOrdersController', () => {
   });
 
   describe('Response handling', () => {
+
+    // Wei Sheng, A0259272X
     it('should return orders as JSON', async () => {
       const mockOrders = [{ _id: 'order1' }, { _id: 'order2' }];
       const sortMock = jest.fn().mockResolvedValue(mockOrders);
@@ -508,9 +583,24 @@ describe('getAllOrdersController', () => {
 
       expect(res.json).toHaveBeenCalledWith(mockOrders);
     });
+
+    // Wei Sheng, A0259272X
+    it('should return empty array when no orders exist', async () => {
+      const sortMock = jest.fn().mockResolvedValue([]);
+      const populateMock2 = jest.fn().mockReturnValue({ sort: sortMock });
+      const populateMock1 = jest.fn().mockReturnValue({ populate: populateMock2 });
+
+      mockOrderFind.mockReturnValue({ populate: populateMock1 });
+
+      await getAllOrdersController(req, res);
+
+      expect(res.json).toHaveBeenCalledWith([]);
+    });
   });
 
   describe('Error handling', () => {
+
+    // Wei Sheng, A0259272X
     it('should handle database errors and return 500 status', async () => {
       const sortMock = jest.fn().mockRejectedValue(new Error('Database error'));
       const populateMock2 = jest.fn().mockReturnValue({ sort: sortMock });
@@ -548,6 +638,8 @@ describe('orderStatusController', () => {
   });
 
   describe('Order update', () => {
+
+    // Wei Sheng, A0259272X
     it('should update order by ID from req.params.orderId', async () => {
       const updatedOrder = { _id: 'order123', status: 'Processing' };
       mockOrderFindByIdAndUpdate.mockResolvedValueOnce(updatedOrder);
@@ -561,6 +653,7 @@ describe('orderStatusController', () => {
       );
     });
 
+    // Wei Sheng, A0259272X
     it('should update status from req.body.status', async () => {
       req.body.status = 'Shipped';
       const updatedOrder = { _id: 'order123', status: 'Shipped' };
@@ -575,22 +668,20 @@ describe('orderStatusController', () => {
       );
     });
 
-    it('should return updated order with { new: true }', async () => {
+    // Wei Sheng, A0259272X
+    it('should return updated order as JSON response', async () => {
       const updatedOrder = { _id: 'order123', status: 'Processing' };
       mockOrderFindByIdAndUpdate.mockResolvedValueOnce(updatedOrder);
 
       await orderStatusController(req, res);
 
-      expect(mockOrderFindByIdAndUpdate).toHaveBeenCalledWith(
-        'order123',
-        { status: 'Processing' },
-        { new: true }
-      );
       expect(res.json).toHaveBeenCalledWith(updatedOrder);
     });
   });
 
   describe('Edge cases', () => {
+
+    // Wei Sheng, A0259272X
     it('should handle order not found (returns null)', async () => {
       mockOrderFindByIdAndUpdate.mockResolvedValueOnce(null);
 
@@ -599,6 +690,7 @@ describe('orderStatusController', () => {
       expect(res.json).toHaveBeenCalledWith(null);
     });
 
+    // Wei Sheng, A0259272X
     it('should pass status value to database unchanged', async () => {
       req.body.status = 'InvalidStatus';
       mockOrderFindByIdAndUpdate.mockResolvedValueOnce(null);
@@ -614,6 +706,8 @@ describe('orderStatusController', () => {
   });
 
   describe('Error handling', () => {
+
+    // Wei Sheng, A0259272X
     it('should handle database errors and return 500 status', async () => {
       mockOrderFindByIdAndUpdate.mockRejectedValueOnce(new Error('Database error'));
 

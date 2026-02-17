@@ -1,37 +1,23 @@
-import { jest, describe, it, expect } from '@jest/globals';
-
-// Store the schema configuration passed to mongoose.Schema
-let capturedSchemaConfig = null;
-let capturedSchemaOptions = null;
-
-// Create a mock ObjectId for comparison
-const MockObjectId = Symbol('ObjectId');
-
-// Mock mongoose Schema constructor to capture the schema definition
-const MockSchema = jest.fn().mockImplementation((config, options) => {
-  capturedSchemaConfig = config;
-  capturedSchemaOptions = options;
-  return { config, options };
+jest.mock('mongoose', () => {
+  const Schema = jest.fn().mockImplementation((config, options) => ({ config, options }));
+  const model = jest.fn().mockImplementation((name, schema) => ({ modelName: name, schema }));
+  const ObjectId = {};
+  return {
+    __esModule: true,
+    default: { Schema, model, ObjectId },
+    Schema,
+    model,
+    ObjectId,
+  };
 });
 
-// Mock mongoose model function
-const mockModel = jest.fn().mockImplementation((name, schema) => {
-  return { modelName: name, schema };
-});
+require('./orderModel.js');
 
-await jest.unstable_mockModule('mongoose', () => ({
-  default: {
-    Schema: MockSchema,
-    model: mockModel,
-    ObjectId: MockObjectId
-  },
-  Schema: MockSchema,
-  model: mockModel,
-  ObjectId: MockObjectId
-}));
-
-// Import the model to trigger schema creation
-await import('./orderModel.js');
+const mongoose = require('mongoose').default;
+const capturedSchemaConfig = mongoose.Schema.mock.calls[0][0];
+const capturedSchemaOptions = mongoose.Schema.mock.calls[0][1];
+const MockObjectId = mongoose.ObjectId;
+const mockModel = mongoose.model;
 
 describe('orderModel Schema Definition', () => {
   describe('Products field', () => {
