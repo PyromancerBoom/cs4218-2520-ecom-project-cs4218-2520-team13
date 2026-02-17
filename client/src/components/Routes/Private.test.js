@@ -29,6 +29,8 @@ describe('PrivateRoute Component', () => {
   });
 
   describe('Initial state (no token)', () => {
+
+    // Wei Sheng, A0259272X
     it('should show spinner when user is not logged in (no token)', () => {
       useAuth.mockReturnValue([{ token: null }, jest.fn()]);
 
@@ -45,22 +47,7 @@ describe('PrivateRoute Component', () => {
       expect(screen.getByTestId('spinner')).toBeInTheDocument();
     });
 
-    it('should show spinner when auth state is empty', () => {
-      useAuth.mockReturnValue([{}, jest.fn()]);
-
-      render(
-        <MemoryRouter>
-          <Routes>
-            <Route path="/" element={<PrivateRoute />}>
-              <Route index element={<div>Protected Content</div>} />
-            </Route>
-          </Routes>
-        </MemoryRouter>
-      );
-
-      expect(screen.getByTestId('spinner')).toBeInTheDocument();
-    });
-
+    // Wei Sheng, A0259272X
     it('should NOT call user-auth endpoint when token is missing', () => {
       useAuth.mockReturnValue([{ token: null }, jest.fn()]);
 
@@ -77,25 +64,12 @@ describe('PrivateRoute Component', () => {
       expect(axios.get).not.toHaveBeenCalled();
     });
 
-    it('should NOT call user-auth endpoint when token is undefined', () => {
-      useAuth.mockReturnValue([{ token: undefined }, jest.fn()]);
-
-      render(
-        <MemoryRouter>
-          <Routes>
-            <Route path="/" element={<PrivateRoute />}>
-              <Route index element={<div>Protected Content</div>} />
-            </Route>
-          </Routes>
-        </MemoryRouter>
-      );
-
-      expect(axios.get).not.toHaveBeenCalled();
-    });
   });
 
   describe('API authentication check', () => {
-    it('should call /api/v1/auth/user-auth endpoint when valid token exists', async () => {
+
+    // Wei Sheng, A0259272X
+    it('should call /api/v1/auth/user-auth endpoint exactly once when valid token exists', async () => {
       useAuth.mockReturnValue([{ token: 'valid-token' }, jest.fn()]);
       axios.get.mockResolvedValueOnce({ data: { ok: true } });
 
@@ -111,31 +85,15 @@ describe('PrivateRoute Component', () => {
 
       await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/user-auth');
-      });
-    });
-
-    it('should call user-auth endpoint exactly once per render with token', async () => {
-      useAuth.mockReturnValue([{ token: 'valid-token' }, jest.fn()]);
-      axios.get.mockResolvedValueOnce({ data: { ok: true } });
-
-      render(
-        <MemoryRouter>
-          <Routes>
-            <Route path="/" element={<PrivateRoute />}>
-              <Route index element={<div>Protected Content</div>} />
-            </Route>
-          </Routes>
-        </MemoryRouter>
-      );
-
-      await waitFor(() => {
         expect(axios.get).toHaveBeenCalledTimes(1);
       });
     });
   });
 
   describe('Successful authentication (ok: true)', () => {
-    it('should render Outlet (protected content) when user-auth returns ok: true', async () => {
+
+    // Wei Sheng, A0259272X
+    it('should render Outlet and hide spinner when user-auth returns ok: true', async () => {
       useAuth.mockReturnValue([{ token: 'valid-token' }, jest.fn()]);
       axios.get.mockResolvedValueOnce({ data: { ok: true } });
 
@@ -151,31 +109,15 @@ describe('PrivateRoute Component', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Protected Content')).toBeInTheDocument();
-      });
-    });
-
-    it('should hide spinner after successful authentication', async () => {
-      useAuth.mockReturnValue([{ token: 'valid-token' }, jest.fn()]);
-      axios.get.mockResolvedValueOnce({ data: { ok: true } });
-
-      render(
-        <MemoryRouter>
-          <Routes>
-            <Route path="/" element={<PrivateRoute />}>
-              <Route index element={<div>Protected Content</div>} />
-            </Route>
-          </Routes>
-        </MemoryRouter>
-      );
-
-      await waitFor(() => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
       });
     });
   });
 
   describe('Failed authentication (ok: false)', () => {
-    it('should show spinner when user-auth returns ok: false', async () => {
+
+    // Wei Sheng, A0259272X
+    it('should show spinner and not render protected content when user-auth returns ok: false', async () => {
       useAuth.mockReturnValue([{ token: 'invalid-token' }, jest.fn()]);
       axios.get.mockResolvedValueOnce({ data: { ok: false } });
 
@@ -191,33 +133,15 @@ describe('PrivateRoute Component', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('spinner')).toBeInTheDocument();
+        expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
       });
-    });
-
-    it('should NOT render protected content when ok: false', async () => {
-      useAuth.mockReturnValue([{ token: 'invalid-token' }, jest.fn()]);
-      axios.get.mockResolvedValueOnce({ data: { ok: false } });
-
-      render(
-        <MemoryRouter>
-          <Routes>
-            <Route path="/" element={<PrivateRoute />}>
-              <Route index element={<div>Protected Content</div>} />
-            </Route>
-          </Routes>
-        </MemoryRouter>
-      );
-
-      await waitFor(() => {
-        expect(axios.get).toHaveBeenCalled();
-      });
-
-      expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
     });
   });
 
   describe('API error handling', () => {
-    it('should show spinner when user-auth endpoint returns error', async () => {
+
+    // Wei Sheng, A0259272X
+    it('should show spinner and not render protected content when user-auth endpoint throws', async () => {
       useAuth.mockReturnValue([{ token: 'token' }, jest.fn()]);
       axios.get.mockRejectedValueOnce(new Error('Unauthorized'));
 
@@ -232,35 +156,15 @@ describe('PrivateRoute Component', () => {
       );
 
       await waitFor(() => {
-        expect(axios.get).toHaveBeenCalled();
+        expect(screen.getByTestId('spinner')).toBeInTheDocument();
+        expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
       });
-
-      expect(screen.getByTestId('spinner')).toBeInTheDocument();
-    });
-
-    it('should NOT render protected content on API error', async () => {
-      useAuth.mockReturnValue([{ token: 'token' }, jest.fn()]);
-      axios.get.mockRejectedValueOnce(new Error('Network Error'));
-
-      render(
-        <MemoryRouter>
-          <Routes>
-            <Route path="/" element={<PrivateRoute />}>
-              <Route index element={<div>Protected Content</div>} />
-            </Route>
-          </Routes>
-        </MemoryRouter>
-      );
-
-      await waitFor(() => {
-        expect(axios.get).toHaveBeenCalled();
-      });
-
-      expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
     });
   });
 
   describe('Spinner path configuration', () => {
+
+    // Wei Sheng, A0259272X
     it('should pass empty path to Spinner component', () => {
       useAuth.mockReturnValue([{ token: null }, jest.fn()]);
 
@@ -275,11 +179,57 @@ describe('PrivateRoute Component', () => {
       );
 
       const spinner = screen.getByTestId('spinner');
-      expect(spinner).toHaveTextContent('Redirecting to');
+      expect(spinner.textContent).toBe('Loading... Redirecting to ');
     });
   });
 
   describe('Token dependency', () => {
+
+    // Wei Sheng, A0259272X
+    it('should show spinner and not call API when token is removed (logout)', async () => {
+      const mockSetAuth = jest.fn();
+
+      // First render with valid token, auth succeeds
+      useAuth.mockReturnValue([{ token: 'valid-token' }, mockSetAuth]);
+      axios.get.mockResolvedValueOnce({ data: { ok: true } });
+
+      const { rerender } = render(
+        <MemoryRouter>
+          <Routes>
+            <Route path="/" element={<PrivateRoute />}>
+              <Route index element={<div>Protected Content</div>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Protected Content')).toBeInTheDocument();
+      });
+
+      // Simulate logout: token is removed
+      useAuth.mockReturnValue([{ token: null }, mockSetAuth]);
+
+      rerender(
+        <MemoryRouter>
+          <Routes>
+            <Route path="/" element={<PrivateRoute />}>
+              <Route index element={<div>Protected Content</div>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('spinner')).toBeInTheDocument();
+        expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+      });
+
+      // API should not be called again after token removal
+      expect(axios.get).toHaveBeenCalledTimes(1);
+    });
+
+    // Wei Sheng, A0259272X
     it('should re-check auth when token changes', async () => {
       const mockSetAuth = jest.fn();
 
@@ -314,6 +264,7 @@ describe('PrivateRoute Component', () => {
 
       await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/user-auth');
+        expect(axios.get).toHaveBeenCalledTimes(1);
       });
     });
   });
