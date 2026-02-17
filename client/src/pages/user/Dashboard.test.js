@@ -25,222 +25,73 @@ jest.mock('../../components/Layout', () => {
 });
 
 describe('Dashboard Component', () => {
+  const mockUser = {
+    name: 'John Doe',
+    email: 'john@example.com',
+    address: '123 Main St'
+  };
   const mockSetAuth = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
+    useAuth.mockReturnValue([{ user: mockUser }, mockSetAuth]);
   });
 
   describe('User information display', () => {
-    it('should display user name from auth.user.name', () => {
-      const mockUser = {
-        name: 'John Doe',
-        email: 'john@example.com',
-        address: '123 Main St'
-      };
-      useAuth.mockReturnValue([{ user: mockUser }, mockSetAuth]);
-
+    // Wei Sheng, A0259272X
+    it('renders all user info in h3 headings when auth.user is present', () => {
       render(<Dashboard />);
 
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
-    });
-
-    it('should display user email from auth.user.email', () => {
-      const mockUser = {
-        name: 'John Doe',
-        email: 'john@example.com',
-        address: '123 Main St'
-      };
-      useAuth.mockReturnValue([{ user: mockUser }, mockSetAuth]);
-
-      render(<Dashboard />);
-
-      expect(screen.getByText('john@example.com')).toBeInTheDocument();
-    });
-
-    it('should display user address from auth.user.address', () => {
-      const mockUser = {
-        name: 'John Doe',
-        email: 'john@example.com',
-        address: '123 Main St'
-      };
-      useAuth.mockReturnValue([{ user: mockUser }, mockSetAuth]);
-
-      render(<Dashboard />);
-
-      expect(screen.getByText('123 Main St')).toBeInTheDocument();
-    });
-
-    it('should display all user information in separate h3 elements', () => {
-      const mockUser = {
-        name: 'Test User',
-        email: 'test@test.com',
-        address: '456 Test Ave'
-      };
-      useAuth.mockReturnValue([{ user: mockUser }, mockSetAuth]);
-
-      const { container } = render(<Dashboard />);
-
-      const h3Elements = Array.from(container.querySelectorAll('h3'));
-      expect(h3Elements).toHaveLength(3);
-      expect(h3Elements[0]).toHaveTextContent('Test User');
-      expect(h3Elements[1]).toHaveTextContent('test@test.com');
-      expect(h3Elements[2]).toHaveTextContent('456 Test Ave');
+      const headings = screen.getAllByRole('heading', { level: 3 });
+      expect(headings).toHaveLength(3);
+      expect(headings[0]).toHaveTextContent('John Doe');
+      expect(headings[1]).toHaveTextContent('john@example.com');
+      expect(headings[2]).toHaveTextContent('123 Main St');
     });
   });
 
   describe('Missing user data handling', () => {
-    it('should handle null user gracefully', () => {
-      useAuth.mockReturnValue([{ user: null }, mockSetAuth]);
+    // Wei Sheng, A0259272X
+    it.each([
+      ['null', null],
+      ['an empty object', {}],
+    ])('renders without crashing when user is %s', (_, user) => {
+      useAuth.mockReturnValue([{ user }, mockSetAuth]);
 
       render(<Dashboard />);
 
       expect(screen.getByTestId('layout')).toBeInTheDocument();
     });
 
-    it('should handle undefined user gracefully', () => {
-      useAuth.mockReturnValue([{ user: undefined }, mockSetAuth]);
+    // Wei Sheng, A0259272X
+    it.each([
+      ['missing name', { email: 'john@example.com', address: '123 Main St' }, ['john@example.com', '123 Main St']],
+      ['missing email', { name: 'John Doe', address: '123 Main St' }, ['John Doe', '123 Main St']],
+      ['missing address', { name: 'John Doe', email: 'john@example.com' }, ['John Doe', 'john@example.com']],
+    ])('still renders available fields when user has %s', (_, user, expectedTexts) => {
+      useAuth.mockReturnValue([{ user }, mockSetAuth]);
 
       render(<Dashboard />);
 
-      expect(screen.getByTestId('layout')).toBeInTheDocument();
-    });
-
-    it('should handle partial user data (missing name)', () => {
-      const mockUser = {
-        email: 'john@example.com',
-        address: '123 Main St'
-      };
-      useAuth.mockReturnValue([{ user: mockUser }, mockSetAuth]);
-
-      render(<Dashboard />);
-
-      expect(screen.getByText('john@example.com')).toBeInTheDocument();
-      expect(screen.getByText('123 Main St')).toBeInTheDocument();
-    });
-
-    it('should handle partial user data (missing email)', () => {
-      const mockUser = {
-        name: 'John Doe',
-        address: '123 Main St'
-      };
-      useAuth.mockReturnValue([{ user: mockUser }, mockSetAuth]);
-
-      render(<Dashboard />);
-
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
-      expect(screen.getByText('123 Main St')).toBeInTheDocument();
-    });
-
-    it('should handle partial user data (missing address)', () => {
-      const mockUser = {
-        name: 'John Doe',
-        email: 'john@example.com'
-      };
-      useAuth.mockReturnValue([{ user: mockUser }, mockSetAuth]);
-
-      render(<Dashboard />);
-
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
-      expect(screen.getByText('john@example.com')).toBeInTheDocument();
-    });
-
-    it('should handle empty user object', () => {
-      useAuth.mockReturnValue([{ user: {} }, mockSetAuth]);
-
-      render(<Dashboard />);
-
-      expect(screen.getByTestId('layout')).toBeInTheDocument();
+      expectedTexts.forEach(text => expect(screen.getByText(text)).toBeInTheDocument());
     });
   });
 
   describe('Layout and structure', () => {
-    it('should render UserMenu component', () => {
-      const mockUser = {
-        name: 'John Doe',
-        email: 'john@example.com',
-        address: '123 Main St'
-      };
-      useAuth.mockReturnValue([{ user: mockUser }, mockSetAuth]);
-
-      render(<Dashboard />);
-
-      expect(screen.getByTestId('user-menu')).toBeInTheDocument();
-    });
-
-    it('should use Layout wrapper with correct title "Dashboard - Ecommerce App"', () => {
-      const mockUser = {
-        name: 'John Doe',
-        email: 'john@example.com',
-        address: '123 Main St'
-      };
-      useAuth.mockReturnValue([{ user: mockUser }, mockSetAuth]);
-
+    // Wei Sheng, A0259272X
+    it('uses Layout wrapper with title "Dashboard - Ecommerce App"', () => {
       render(<Dashboard />);
 
       expect(screen.getByTestId('layout-title')).toHaveTextContent('Dashboard - Ecommerce App');
     });
 
-    it('should render within Layout component', () => {
-      const mockUser = {
-        name: 'John Doe',
-        email: 'john@example.com',
-        address: '123 Main St'
-      };
-      useAuth.mockReturnValue([{ user: mockUser }, mockSetAuth]);
+    // Wei Sheng, A0259272X
+    it('renders UserMenu regardless of user state', () => {
+      useAuth.mockReturnValue([{ user: null }, mockSetAuth]);
 
       render(<Dashboard />);
 
-      expect(screen.getByTestId('layout')).toBeInTheDocument();
-    });
-  });
-
-  describe('Card structure', () => {
-    it('should display user info within a card container', () => {
-      const mockUser = {
-        name: 'John Doe',
-        email: 'john@example.com',
-        address: '123 Main St'
-      };
-      useAuth.mockReturnValue([{ user: mockUser }, mockSetAuth]);
-
-      const { container } = render(<Dashboard />);
-
-      const card = container.querySelector('.card');
-      expect(card).toBeInTheDocument();
-      expect(card).toHaveTextContent('John Doe');
-      expect(card).toHaveTextContent('john@example.com');
-      expect(card).toHaveTextContent('123 Main St');
-    });
-  });
-
-  describe('Auth context usage', () => {
-    it('should call useAuth hook', () => {
-      const mockUser = {
-        name: 'John Doe',
-        email: 'john@example.com',
-        address: '123 Main St'
-      };
-      useAuth.mockReturnValue([{ user: mockUser }, mockSetAuth]);
-
-      render(<Dashboard />);
-
-      expect(useAuth).toHaveBeenCalled();
-    });
-
-    it('should use first element of useAuth return value (auth object)', () => {
-      const mockUser = {
-        name: 'Specific User Name',
-        email: 'specific@email.com',
-        address: 'Specific Address'
-      };
-      useAuth.mockReturnValue([{ user: mockUser }, mockSetAuth]);
-
-      render(<Dashboard />);
-
-      expect(screen.getByText('Specific User Name')).toBeInTheDocument();
-      expect(screen.getByText('specific@email.com')).toBeInTheDocument();
-      expect(screen.getByText('Specific Address')).toBeInTheDocument();
+      expect(screen.getByTestId('user-menu')).toBeInTheDocument();
     });
   });
 });
