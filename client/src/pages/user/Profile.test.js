@@ -29,7 +29,8 @@ jest.mock("./../../components/Layout", () => {
     };
 });
 
-describe("User Profile Component - Lifecycle and Interaction Tests", () => {
+//LOU,YING-WEN A0338250J
+describe("User Profile Component Lifecycle and Interaction Tests", () => {
     const mockUserData = {
         name: "Sandra Lou",
         email: "sandralou@u.nus.edu",
