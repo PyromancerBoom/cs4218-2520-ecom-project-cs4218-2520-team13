@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, waitFor, screen, within } from '@testing-library/react';
 import axios from 'axios';
 import '@testing-library/jest-dom';
 import Orders from './Orders';
@@ -33,13 +33,16 @@ jest.mock('../../components/Layout', () => {
 import { useAuth } from '../../context/auth';
 import moment from 'moment';
 
+// Wei Sheng, A0259272X
 describe('Orders Component', () => {
   const mockSetAuth = jest.fn();
+  // order1: index=0 → order number=1, 1 product (count=1)
+  // order2: index=1 → order number=2, 3 products (count=3); count differs from number for unambiguous scoped assertions
   const mockOrders = [
     {
       _id: 'order1',
       status: 'Not Process',
-      buyer: { name: 'John Doe' },
+      buyer: { name: 'Alice' },
       createAt: new Date('2024-01-01'),
       payment: { success: true },
       products: [
@@ -54,7 +57,7 @@ describe('Orders Component', () => {
     {
       _id: 'order2',
       status: 'Processing',
-      buyer: { name: 'John Doe' },
+      buyer: { name: 'Bob' },
       createAt: new Date('2024-01-02'),
       payment: { success: false },
       products: [
@@ -69,6 +72,12 @@ describe('Orders Component', () => {
           name: 'Product 3',
           description: 'Third product',
           price: 150
+        },
+        {
+          _id: 'product4',
+          name: 'Product 4',
+          description: 'Fourth product',
+          price: 300
         }
       ]
     }
@@ -79,7 +88,9 @@ describe('Orders Component', () => {
   });
 
   describe('Data fetching', () => {
-    it('should fetch orders from /api/v1/auth/orders when token exists', async () => {
+
+    // Wei Sheng, A0259272X
+    it('should fetch orders from /api/v1/auth/orders exactly once on mount when token exists', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
@@ -87,10 +98,12 @@ describe('Orders Component', () => {
 
       await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/orders');
+        expect(axios.get).toHaveBeenCalledTimes(1);
       });
     });
 
-    it('should only fetch orders when auth.token exists', () => {
+    // Wei Sheng, A0259272X
+    it('should not fetch orders when token does not exist', () => {
       useAuth.mockReturnValue([{ token: null }, mockSetAuth]);
 
       render(<Orders />);
@@ -98,153 +111,148 @@ describe('Orders Component', () => {
       expect(axios.get).not.toHaveBeenCalled();
     });
 
-    it('should NOT fetch orders when token is undefined', () => {
+    // Wei Sheng, A0259272X
+    it('should not fetch orders when token is undefined', () => {
       useAuth.mockReturnValue([{ token: undefined }, mockSetAuth]);
 
       render(<Orders />);
 
       expect(axios.get).not.toHaveBeenCalled();
     });
-
-    it('should fetch orders exactly once on mount with valid token', async () => {
-      useAuth.mockReturnValue([{ token: 'valid-token' }, mockSetAuth]);
-      axios.get.mockResolvedValueOnce({ data: mockOrders });
-
-      render(<Orders />);
-
-      await waitFor(() => {
-        expect(axios.get).toHaveBeenCalledTimes(1);
-      });
-    });
   });
 
   describe('Order display', () => {
-    it('should display order status correctly', async () => {
+
+    // Wei Sheng, A0259272X
+    it('should display order status from o.status', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        expect(screen.getByText('Not Process')).toBeInTheDocument();
-        expect(screen.getByText('Processing')).toBeInTheDocument();
-      });
+      await screen.findByText('Not Process');
+      expect(screen.getByText('Processing')).toBeInTheDocument();
     });
 
+    // Wei Sheng, A0259272X
     it('should display buyer name from o.buyer.name', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        const buyerNames = screen.getAllByText('John Doe');
-        expect(buyerNames.length).toBe(2);
-      });
+      await screen.findByText('Alice');
+      expect(screen.getByText('Bob')).toBeInTheDocument();
     });
 
-    it('should display formatted date using moment(o.createAt).fromNow()', async () => {
+    // Wei Sheng, A0259272X
+    it('should display formatted date from o.createAt using moment(o.createAt).fromNow()', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        expect(moment).toHaveBeenCalled();
-      });
-
-      expect(screen.getAllByText('3 days ago')).toHaveLength(2);
+      expect(await screen.findAllByText('3 days ago')).toHaveLength(2);
+      expect(moment).toHaveBeenCalledWith(mockOrders[0].createAt);
+      expect(moment).toHaveBeenCalledWith(mockOrders[1].createAt);
     });
 
+    // Wei Sheng, A0259272X
+    // Uses a single-order mock so "Success" and "Failed" cannot both be in the DOM simultaneously
     it('should display payment status as "Success" when o.payment.success is true', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
-      axios.get.mockResolvedValueOnce({ data: mockOrders });
+      axios.get.mockResolvedValueOnce({ data: [mockOrders[0]] });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        expect(screen.getByText('Success')).toBeInTheDocument();
-      });
+      await screen.findByText('Success');
+      expect(screen.queryByText('Failed')).not.toBeInTheDocument();
     });
 
+    // Wei Sheng, A0259272X
+    // Uses a single-order mock so "Success" and "Failed" cannot both be in the DOM simultaneously
     it('should display payment status as "Failed" when o.payment.success is false', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
-      axios.get.mockResolvedValueOnce({ data: mockOrders });
+      axios.get.mockResolvedValueOnce({ data: [mockOrders[1]] });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        expect(screen.getByText('Failed')).toBeInTheDocument();
-      });
+      await screen.findByText('Failed');
+      expect(screen.queryByText('Success')).not.toBeInTheDocument();
     });
 
+    // Wei Sheng, A0259272X
     it('should display product count from o.products.length', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        expect(screen.getByText('1')).toBeInTheDocument();
-        expect(screen.getByText('2')).toBeInTheDocument();
-      });
+      const tables = await screen.findAllByRole('table');
+      // order1 has 1 product; order2 has 3 products ('3' is unique in that table)
+      expect(within(tables[0]).getAllByText('1')[0]).toBeInTheDocument();
+      expect(within(tables[1]).getByText('3')).toBeInTheDocument();
     });
   });
 
   describe('Product display', () => {
+
+    // Wei Sheng, A0259272X
     it('should render product images from /api/v1/product/product-photo/${p._id}', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        const images = screen.getAllByRole('img');
-        expect(images.length).toBeGreaterThan(0);
-        expect(images[0]).toHaveAttribute('src', '/api/v1/product/product-photo/product1');
-      });
+      const images = await screen.findAllByRole('img');
+      expect(images).toHaveLength(4);
+      expect(images[0]).toHaveAttribute('src', '/api/v1/product/product-photo/product1');
+      expect(images[1]).toHaveAttribute('src', '/api/v1/product/product-photo/product2');
+      expect(images[2]).toHaveAttribute('src', '/api/v1/product/product-photo/product3');
+      expect(images[3]).toHaveAttribute('src', '/api/v1/product/product-photo/product4');
     });
 
+    // Wei Sheng, A0259272X
     it('should display product name', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        expect(screen.getByText('Product 1')).toBeInTheDocument();
-        expect(screen.getByText('Product 2')).toBeInTheDocument();
-        expect(screen.getByText('Product 3')).toBeInTheDocument();
-      });
+      await screen.findByText('Product 1');
+      expect(screen.getByText('Product 2')).toBeInTheDocument();
+      expect(screen.getByText('Product 3')).toBeInTheDocument();
+      expect(screen.getByText('Product 4')).toBeInTheDocument();
     });
 
+    // Wei Sheng, A0259272X
     it('should display product description truncated to 30 chars', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        // First 30 characters of "This is a long description that should be truncated..."
-        expect(screen.getByText('This is a long description tha')).toBeInTheDocument();
-      });
+      // First 30 characters of "This is a long description that should be truncated..."
+      expect(await screen.findByText('This is a long description tha')).toBeInTheDocument();
     });
 
+    // Wei Sheng, A0259272X
     it('should display product price with "Price : " prefix', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        expect(screen.getByText('Price : 100')).toBeInTheDocument();
-        expect(screen.getByText('Price : 200')).toBeInTheDocument();
-        expect(screen.getByText('Price : 150')).toBeInTheDocument();
-      });
+      await screen.findByText('Price : 100');
+      expect(screen.getByText('Price : 200')).toBeInTheDocument();
+      expect(screen.getByText('Price : 150')).toBeInTheDocument();
+      expect(screen.getByText('Price : 300')).toBeInTheDocument();
     });
   });
 
   describe('Error handling', () => {
+
+    // Wei Sheng, A0259272X
     it('should handle API errors gracefully', async () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
@@ -259,8 +267,9 @@ describe('Orders Component', () => {
       consoleSpy.mockRestore();
     });
 
-    it('should still render layout on API error', async () => {
-      jest.spyOn(console, 'log').mockImplementation();
+    // Wei Sheng, A0259272X
+    it('should still render layout and UserMenu on API error', async () => {
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockRejectedValueOnce(new Error('Network Error'));
 
@@ -271,97 +280,90 @@ describe('Orders Component', () => {
       });
 
       expect(screen.getByTestId('layout')).toBeInTheDocument();
+      expect(screen.getByTestId('user-menu')).toBeInTheDocument();
+      consoleSpy.mockRestore();
     });
   });
 
   describe('Empty state', () => {
-    it('should handle empty orders array', async () => {
+
+    // Wei Sheng, A0259272X
+    it('should display "All Orders" heading and UserMenu with no orders, and render no table', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: [] });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        expect(screen.getByText('All Orders')).toBeInTheDocument();
-      });
-    });
-
-    it('should display heading with no orders', async () => {
-      useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
-      axios.get.mockResolvedValueOnce({ data: [] });
-
-      render(<Orders />);
-
-      await waitFor(() => {
-        expect(screen.getByText('All Orders')).toBeInTheDocument();
-      });
-
+      await screen.findByText('All Orders');
+      expect(screen.getByTestId('user-menu')).toBeInTheDocument();
       expect(screen.queryByRole('table')).not.toBeInTheDocument();
     });
   });
 
   describe('Layout and structure', () => {
+
+    // Wei Sheng, A0259272X
     it('should render with Layout component and title "Your Orders"', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        expect(screen.getByTestId('layout-title')).toHaveTextContent('Your Orders');
-      });
+      expect(await screen.findByTestId('layout-title')).toHaveTextContent('Your Orders');
     });
 
+    // Wei Sheng, A0259272X
     it('should render UserMenu component', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        expect(screen.getByTestId('user-menu')).toBeInTheDocument();
-      });
+      expect(await screen.findByTestId('user-menu')).toBeInTheDocument();
     });
 
+    // Wei Sheng, A0259272X
     it('should display "All Orders" heading', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        expect(screen.getByText('All Orders')).toBeInTheDocument();
-      });
+      expect(await screen.findByText('All Orders')).toBeInTheDocument();
     });
   });
 
   describe('Table structure', () => {
+
+    // Wei Sheng, A0259272X
     it('should display table headers: #, Status, Buyer, date, Payment, Quantity', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        expect(screen.getAllByText('#').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('Status').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('Buyer').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('date').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('Payment').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('Quantity').length).toBeGreaterThan(0);
-      });
+      const [firstTable] = await screen.findAllByRole('table');
+      expect(within(firstTable).getByRole('columnheader', { name: '#' })).toBeInTheDocument();
+      expect(within(firstTable).getByRole('columnheader', { name: 'Status' })).toBeInTheDocument();
+      expect(within(firstTable).getByRole('columnheader', { name: 'Buyer' })).toBeInTheDocument();
+      expect(within(firstTable).getByRole('columnheader', { name: 'date' })).toBeInTheDocument();
+      expect(within(firstTable).getByRole('columnheader', { name: 'Payment' })).toBeInTheDocument();
+      expect(within(firstTable).getByRole('columnheader', { name: 'Quantity' })).toBeInTheDocument();
     });
 
-    it('should display order number starting from 1', async () => {
+    // Wei Sheng, A0259272X
+    it('should display 1-based index as order number for each order', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
       render(<Orders />);
 
-      await waitFor(() => {
-        const tableRows = screen.getAllByRole('row');
-        expect(tableRows.length).toBeGreaterThan(0);
-      });
+      const tables = await screen.findAllByRole('table');
+      expect(tables).toHaveLength(2);
+      // First order is numbered 1 (i + 1 where i = 0)
+      expect(within(tables[0]).getAllByText('1')[0]).toBeInTheDocument();
+      // Second order is numbered 2 (i + 1 where i = 1); '2' is unique in this table since product count is 3
+      expect(within(tables[1]).getByText('2')).toBeInTheDocument();
     });
   });
 });
