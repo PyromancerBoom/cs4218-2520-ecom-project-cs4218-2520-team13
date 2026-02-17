@@ -5,8 +5,9 @@ import axios from "axios";
 import "@testing-library/jest-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../context/auth";
+import exp from 'constants';
 
-// Mock external dependencies
+// --- Mock Dependencies ---
 jest.mock("axios");
 jest.mock("../../context/auth");
 jest.mock("react-hot-toast");
@@ -16,218 +17,225 @@ jest.mock("../../components/Layout", () => ({ children, title }) => (
 jest.mock("../../components/AdminMenu", () => () => <div>AdminMenu</div>);
 
 //LOU,YING-WEN A0338250J
-describe("Users Component Unit Tests", () => {
+describe("Users Component Unit Tests ", () => {
     const mockUsers = [
         { _id: "1", name: "User One", email: "one@test.com", phone: "123", role: 0 },
         { _id: "2", name: "Admin Two", email: "two@test.com", phone: "456", role: 1 },
         { _id: "3", name: "Admin Three", email: "three@test.com", phone: "789", role: 1 },
     ];
 
-
-
     beforeEach(() => {
         jest.clearAllMocks();
         useAuth.mockReturnValue([{ user: { _id: "admin_id" } }]);
         window.confirm = jest.fn();
-
     });
 
+    //  Rendering & UI Consistency 
+    describe("Initialization & UI Rendering", () => {
+        test("should fetch and render users successfully", async () => {
+            axios.get.mockResolvedValue({ data: { success: true, users: mockUsers } });
 
-    // Success Path Tests
-    test("should fetch and render users successfully", async () => {
-        // Arrange
-        axios.get.mockResolvedValue({ data: { success: true, users: mockUsers } });
+            render(<Users />);
 
-        // Act
-        render(<Users />);
+            await waitFor(() => {
+                expect(screen.getByText("User One")).toBeInTheDocument();
+                expect(screen.getByText("Admin Two")).toBeInTheDocument();
+                expect(screen.getByText("Admin Three")).toBeInTheDocument();
+            });
+        });
 
-        // Assert
-        await waitFor(() => {
-            expect(screen.getByText("User One")).toBeInTheDocument();
-            expect(screen.getByText("Admin Two")).toBeInTheDocument();
+        test("should render correct button styles based on user roles", async () => {
+            axios.get.mockResolvedValue({ data: { success: true, users: mockUsers } });
+
+            render(<Users />);
+
+            await waitFor(() => {
+                const adminBtns = screen.getAllByRole('button', { name: /^admin$/i });
+                const userBtn = screen.getByRole('button', { name: /^user$/i });
+
+                expect(adminBtns[0]).toHaveClass("btn-danger");
+                expect(userBtn).toHaveClass("btn-success");
+            });
+        });
+
+        test("should render empty state when user list is empty", async () => {
+            axios.get.mockResolvedValue({ data: { success: true, users: [] } });
+
+            render(<Users />);
+
+            await waitFor(() => {
+                expect(screen.getByText(/No users found/i)).toBeInTheDocument();
+            });
         });
     });
 
-    test("should delete user successfully", async () => {
-        // Arrange
-        axios.get.mockResolvedValue({ data: { success: true, users: [mockUsers[0]] } });
-        axios.delete.mockResolvedValue({ data: { success: true } });
-        window.confirm.mockReturnValue(true);
+    //  User Actions & Persistence 
+    describe("User Actions (Delete & Role Update)", () => {
+        test("should delete user successfully", async () => {
+            axios.get.mockResolvedValue({ data: { success: true, users: [mockUsers[0]] } });
+            axios.delete.mockResolvedValue({ data: { success: true } });
+            window.confirm.mockReturnValue(true);
 
-        render(<Users />);
-        const deleteBtn = await screen.findByRole('button', { name: /delete/i });
+            render(<Users />);
+            const deleteBtn = await screen.findByRole('button', { name: /delete/i });
+            await act(async () => { fireEvent.click(deleteBtn); });
 
-        // Act
-        await act(async () => {
-            fireEvent.click(deleteBtn);
+            expect(toast.success).toHaveBeenCalledWith("User deleted successfully");
+            expect(axios.get).toHaveBeenCalledTimes(2);
         });
 
-        // Assert
-        expect(toast.success).toHaveBeenCalledWith("User deleted successfully");
-        expect(axios.get).toHaveBeenCalledTimes(2);
-    });
+        test("should update role successfully", async () => {
+            const multipleAdmins = [mockUsers[1], mockUsers[2]];
+            axios.get.mockResolvedValue({ data: { success: true, users: multipleAdmins } });
+            axios.put.mockResolvedValue({ data: { success: true } });
+            render(<Users />);
 
-    test("should update role successfully", async () => {
-        // Arrange
-        axios.get.mockResolvedValue({ data: { success: true, users: [mockUsers[1], mockUsers[2]] } });
-        axios.put.mockResolvedValue({ data: { success: true } });
-        render(<Users />);
-
-        const adminBtns = await screen.findAllByRole('button', { name: /^admin$/i });
-
-        // Act
-        await act(async () => {
+            const adminBtns = await screen.findAllByRole('button', { name: /^admin$/i });
             fireEvent.click(adminBtns[0]);
+
+            await waitFor(() => {
+                expect(axios.put).toHaveBeenCalledWith(
+                    expect.stringContaining("/update-role/2"),
+                    { role: 0 }
+                );
+                expect(toast.success).toHaveBeenCalledWith("Role updated!");
+                expect(axios.get).toHaveBeenCalledTimes(2);
+            });
+
         });
 
-        // Assert
-        expect(axios.put).toHaveBeenCalledWith(expect.stringContaining("/update-role/2"), { role: 0 });
-        expect(toast.success).toHaveBeenCalledWith("Role updated!");
-        expect(axios.get).toHaveBeenCalledTimes(2);
-    });
+        test("should return early if deletion is cancelled by user", async () => {
+            axios.get.mockResolvedValue({ data: { success: true, users: [mockUsers[0]] } });
+            window.confirm.mockReturnValue(false);
 
-    // Branch & Logic Tests
-    test("should disable buttons according to safety logic", async () => {
-        // Arrange
-        const singleAdmin = [{ _id: "admin_id", name: "Me", role: 1 }];
-        useAuth.mockReturnValue([{ user: { _id: "admin_id" } }]);
-        axios.get.mockResolvedValue({ data: { success: true, users: singleAdmin } });
-
-        // Act
-        render(<Users />);
-
-        // Assert
-        await waitFor(() => {
-            expect(screen.getByRole('button', { name: /^admin$/i })).toBeDisabled();
-            expect(screen.getByRole('button', { name: /delete/i })).toBeDisabled();
-        });
-    });
-
-    test("should handle API success false for handleDelete", async () => {
-        // Arrange
-        axios.get.mockResolvedValue({ data: { success: true, users: [mockUsers[0]] } });
-        axios.delete.mockResolvedValue({ data: { success: false } });
-        window.confirm.mockReturnValue(true);
-        render(<Users />);
-
-        // Act
-        const deleteBtn = await screen.findByRole('button', { name: /delete/i });
-        await act(async () => { fireEvent.click(deleteBtn); });
-
-        // Assert
-        expect(toast.success).not.toHaveBeenCalled();
-    });
-
-    test("should handle API success false for handleUpdateRole", async () => {
-        // Arrange
-        axios.get.mockResolvedValue({ data: { success: true, users: [mockUsers[0]] } });
-        axios.put.mockResolvedValue({ data: { success: false } });
-        render(<Users />);
-
-        // Act
-        const roleBtn = await screen.findByRole('button', { name: /^user$/i });
-        await act(async () => { fireEvent.click(roleBtn); });
-
-        // Assert
-        expect(toast.success).not.toHaveBeenCalled();
-    });
-
-    test("should handle API success false for getUsers", async () => {
-        // Arrange
-        axios.get.mockResolvedValue({ data: { success: false, users: [mockUsers[0]] } });
-
-        // Act
-        render(<Users />);
-
-        // Assert
-        await waitFor(() => {
-            expect(axios.get).toHaveBeenCalled();
-        });
-        expect(screen.queryByText("User One")).not.toBeInTheDocument();
-    });
-
-    test("should return early if deletion is cancelled", async () => {
-        // Arrange
-        axios.get.mockResolvedValue({ data: { success: true, users: [mockUsers[0]] } });
-        window.confirm.mockReturnValue(false);
-        render(<Users />);
-        const deleteBtn = await screen.findByRole('button', { name: /delete/i });
-
-        // Act
-        fireEvent.click(deleteBtn);
-
-        // Assert
-        expect(axios.delete).not.toHaveBeenCalled();
-    });
-
-    test("should render empty state when user list is empty", async () => {
-        // Arrange
-        axios.get.mockResolvedValue({ data: { success: true, users: [] } });
-
-        // Act
-        render(<Users />);
-
-        // Assert
-        await waitFor(() => {
-            expect(screen.getByText(/No users found/i)).toBeInTheDocument();
-        });
-    });
-
-    // Error Handling Tests
-    test("should handle error in getUsers catch block", async () => {
-        // Arrange
-        axios.get.mockRejectedValueOnce(new Error("Fetch Failed"));
-        const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
-        // Act
-        render(<Users />);
-
-        // Assert
-        await waitFor(() => {
-            expect(consoleSpy).toHaveBeenCalled();
-            expect(toast.error).toHaveBeenCalledWith("Something went wrong in getting users");
-        });
-    });
-
-    test("should handle error in handleDelete catch block", async () => {
-        // Arrange
-        axios.get.mockResolvedValue({ data: { success: true, users: [mockUsers[0]] } });
-        axios.delete.mockRejectedValueOnce(new Error("Delete Failed"));
-        window.confirm.mockReturnValue(true);
-        const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
-
-        render(<Users />);
-        const deleteBtn = await screen.findByRole('button', { name: /delete/i });
-
-        // Act
-        await act(async () => {
+            render(<Users />);
+            const deleteBtn = await screen.findByRole('button', { name: /delete/i });
             fireEvent.click(deleteBtn);
-        });
 
-        // Assert
-        await waitFor(() => {
-            expect(consoleSpy).toHaveBeenCalled();
-            expect(toast.error).toHaveBeenCalledWith("Failed to delete user");
+            expect(axios.delete).not.toHaveBeenCalled();
         });
     });
 
-    test("should handle error in handleUpdateRole catch block", async () => {
-        // Arrange
-        axios.get.mockResolvedValue({ data: { success: true, users: [mockUsers[0]] } });
-        axios.put.mockRejectedValueOnce(new Error("Update Failed"));
-        const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+    // Safety Guard Logic
+    describe("Safety & Guard Logic Verification", () => {
+        test("should disable buttons according to safety logic (isMe & isLastAdmin)", async () => {
+            const singleAdmin = [{ _id: "admin_id", name: "Me", role: 1 }];
+            useAuth.mockReturnValue([{ user: { _id: "admin_id" } }]);
+            axios.get.mockResolvedValue({ data: { success: true, users: singleAdmin } });
 
-        render(<Users />);
-        const roleBtn = await screen.findByRole('button', { name: /^user$/i });
+            render(<Users />);
+            await waitFor(() => {
+                expect(screen.getByRole('button', { name: /^admin$/i })).toBeDisabled();
+                expect(screen.getByRole('button', { name: /delete/i })).toBeDisabled();
+            });
+        });
 
-        // Act
-        await act(async () => {
+        test("should display warning title when the last admin is disabled", async () => {
+            const singleAdmin = [{ _id: "admin_id", name: "SuperAdmin", role: 1 }];
+            axios.get.mockResolvedValue({ data: { success: true, users: singleAdmin } });
+
+            render(<Users />);
+            const adminBtn = await screen.findByRole('button', { name: /^admin$/i });
+            expect(adminBtn).toBeDisabled();
+            expect(adminBtn).toHaveAttribute("title", "Cannot demote the last admin");
+        });
+    });
+
+    describe("Error Handling Scenarios", () => {
+        // Line 16 coverage: Catch block of getUsers
+        test("should handle catch block during getUsers", async () => {
+            const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+            axios.get.mockRejectedValueOnce(new Error("Fetch Failed"));
+
+            render(<Users />);
+
+            await waitFor(() => {
+                expect(toast.error).toHaveBeenCalledWith("Something went wrong in getting users");
+                expect(consoleSpy).toHaveBeenCalled();
+            });
+            consoleSpy.mockRestore();
+        });
+
+        // Lines 32-35 coverage: Catch block of handleDelete
+        test("should not show success toast when delete API returns success: false", async () => {
+            const targetUser = { _id: "123", name: "Test User", role: 0 };
+            axios.get.mockResolvedValueOnce({ data: { success: true, users: [targetUser] } });
+            axios.delete.mockResolvedValueOnce({ data: { success: false } });
+            window.confirm.mockReturnValue(true);
+
+            render(<Users />);
+            const deleteBtn = await screen.findByRole('button', { name: /delete/i });
+            fireEvent.click(deleteBtn);
+
+            await waitFor(() => {
+                expect(toast.success).not.toHaveBeenCalled();
+                expect(axios.get).toHaveBeenCalledTimes(1);
+            });
+        });
+
+        test("should not show success toast when update role API returns success: false", async () => {
+            const targetUser = { _id: "123", name: "Test User", role: 0 };
+            axios.get.mockResolvedValueOnce({ data: { success: true, users: [targetUser] } });
+            axios.put.mockResolvedValueOnce({ data: { success: false } });
+
+            render(<Users />);
+            const roleBtn = await screen.findByRole('button', { name: /^user$/i });
             fireEvent.click(roleBtn);
+
+            await waitFor(() => {
+                expect(toast.success).not.toHaveBeenCalled();
+                expect(axios.get).toHaveBeenCalledTimes(1);
+            });
         });
 
-        // Assert
-        await waitFor(() => {
-            expect(consoleSpy).toHaveBeenCalled();
-            expect(toast.error).toHaveBeenCalledWith("Failed to update role");
+        test("should do nothing when getUsers API returns success: false", async () => {
+            axios.get.mockResolvedValueOnce({ data: { success: false } });
+
+            render(<Users />);
+
+            await waitFor(() => {
+                expect(toast.success).not.toHaveBeenCalled();
+                expect(screen.getByText(/No users found/i)).toBeInTheDocument();
+            });
+        });
+
+        test("should show error toast when delete API throws an error", async () => {
+            const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+            const targetUser = { _id: "123", name: "Test User", role: 0 };
+
+            axios.get.mockResolvedValueOnce({ data: { success: true, users: [targetUser] } });
+            axios.delete.mockRejectedValueOnce(new Error("Network Error"));
+            window.confirm.mockReturnValue(true);
+
+            render(<Users />);
+            const deleteBtn = await screen.findByRole('button', { name: /delete/i });
+            fireEvent.click(deleteBtn);
+
+            await waitFor(() => {
+                expect(consoleSpy).toHaveBeenCalled();
+                expect(toast.error).toHaveBeenCalledWith("Failed to delete user");
+            });
+
+            consoleSpy.mockRestore();
+        });
+
+        test("should show error toast when update role API throws an error", async () => {
+            const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+            const targetUser = { _id: "123", name: "Test User", role: 0 };
+            axios.get.mockResolvedValueOnce({ data: { success: true, users: [targetUser] } });
+            axios.put.mockRejectedValueOnce(new Error("Update Failed"));
+
+            render(<Users />);
+            const roleBtn = await screen.findByRole('button', { name: /^user$/i });
+            fireEvent.click(roleBtn);
+
+            await waitFor(() => {
+                expect(consoleSpy).toHaveBeenCalled();
+                expect(toast.error).toHaveBeenCalledWith("Failed to update role");
+            });
+
+            consoleSpy.mockRestore();
         });
     });
+
 });
