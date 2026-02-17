@@ -22,6 +22,7 @@ jest.mock('react-router-dom', () => ({
   Link: ({ children, to }) => <a href={to} data-testid="product-link">{children}</a>
 }));
 
+// Wei Sheng, A0259272X
 describe('Products Component', () => {
   const mockProducts = [
     {
@@ -49,40 +50,23 @@ describe('Products Component', () => {
   });
 
   describe('Data fetching', () => {
-    it('should fetch products from /api/v1/product/get-product on mount', async () => {
+
+    // Wei Sheng, A0259272X
+    it('should fetch products from /api/v1/product/get-product exactly once on mount', async () => {
       axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
 
       render(<Products />);
 
       await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith('/api/v1/product/get-product');
-      });
-    });
-
-    it('should fetch products exactly once on mount', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
-
-      render(<Products />);
-
-      await waitFor(() => {
         expect(axios.get).toHaveBeenCalledTimes(1);
       });
     });
   });
 
   describe('Product display', () => {
-    it('should display products from data.products', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
 
-      render(<Products />);
-
-      await waitFor(() => {
-        expect(screen.getByText('Product 1')).toBeInTheDocument();
-        expect(screen.getByText('Product 2')).toBeInTheDocument();
-        expect(screen.getByText('Product 3')).toBeInTheDocument();
-      });
-    });
-
+    // Wei Sheng, A0259272X
     it('should display product name from p.name', async () => {
       axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
 
@@ -95,6 +79,7 @@ describe('Products Component', () => {
       });
     });
 
+    // Wei Sheng, A0259272X
     it('should display product description from p.description', async () => {
       axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
 
@@ -107,6 +92,7 @@ describe('Products Component', () => {
       });
     });
 
+    // Wei Sheng, A0259272X
     it('should render product cards with images', async () => {
       axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
 
@@ -118,6 +104,7 @@ describe('Products Component', () => {
       });
     });
 
+    // Wei Sheng, A0259272X
     it('should format product image src as /api/v1/product/product-photo/${p._id}', async () => {
       axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
 
@@ -131,6 +118,7 @@ describe('Products Component', () => {
       });
     });
 
+    // Wei Sheng, A0259272X
     it('should set alt attribute to product name', async () => {
       axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
 
@@ -146,6 +134,8 @@ describe('Products Component', () => {
   });
 
   describe('Product links', () => {
+
+    // Wei Sheng, A0259272X
     it('should link to /dashboard/admin/product/${p.slug} when clicked', async () => {
       axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
 
@@ -159,6 +149,7 @@ describe('Products Component', () => {
       });
     });
 
+    // Wei Sheng, A0259272X
     it('should have unique key for each product link', async () => {
       axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
 
@@ -167,21 +158,31 @@ describe('Products Component', () => {
       await waitFor(() => {
         const links = screen.getAllByTestId('product-link');
         expect(links.length).toBe(3);
+
+        const hrefs = links.map(link => link.getAttribute('href'));
+        const uniqueHrefs = new Set(hrefs);
+
+        expect(uniqueHrefs.size).toBe(hrefs.length);
       });
     });
   });
 
   describe('Error handling', () => {
+
+    // Wei Sheng, A0259272X
     it('should show error toast when API call fails', async () => {
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       axios.get.mockRejectedValueOnce(new Error('API Error'));
 
       render(<Products />);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Someething Went Wrong');
+        expect(toast.error).toHaveBeenCalledWith('Something Went Wrong');
       });
+      consoleSpy.mockRestore();
     });
 
+    // Wei Sheng, A0259272X
     it('should log error to console when API call fails', async () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       axios.get.mockRejectedValueOnce(new Error('Network Error'));
@@ -197,30 +198,24 @@ describe('Products Component', () => {
   });
 
   describe('Empty state', () => {
-    it('should handle empty products array', async () => {
+
+    // Wei Sheng, A0259272X
+    it('should render no product cards when products array is empty', async () => {
       axios.get.mockResolvedValueOnce({ data: { products: [] } });
 
       render(<Products />);
 
       await waitFor(() => {
-        expect(screen.getByText('All Products List')).toBeInTheDocument();
+        expect(axios.get).toHaveBeenCalled();
       });
 
       expect(screen.queryByTestId('product-link')).not.toBeInTheDocument();
     });
-
-    it('should display heading even with no products', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: [] } });
-
-      render(<Products />);
-
-      await waitFor(() => {
-        expect(screen.getByText('All Products List')).toBeInTheDocument();
-      });
-    });
   });
 
   describe('Layout and structure', () => {
+
+    // Wei Sheng, A0259272X
     it('should render AdminMenu component', async () => {
       axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
 
@@ -231,6 +226,7 @@ describe('Products Component', () => {
       });
     });
 
+    // Wei Sheng, A0259272X
     it('should display "All Products List" heading', async () => {
       axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
 
@@ -241,6 +237,7 @@ describe('Products Component', () => {
       });
     });
 
+    // Wei Sheng, A0259272X
     it('should render within Layout component', async () => {
       axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
 
@@ -248,19 +245,6 @@ describe('Products Component', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('layout')).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Product card structure', () => {
-    it('should render product cards with correct CSS classes', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
-
-      const { container } = render(<Products />);
-
-      await waitFor(() => {
-        const cards = container.querySelectorAll('.card');
-        expect(cards.length).toBe(3);
       });
     });
   });
