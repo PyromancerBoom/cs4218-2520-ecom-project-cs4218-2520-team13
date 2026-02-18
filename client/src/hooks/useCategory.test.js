@@ -17,6 +17,7 @@ describe("useCategory Custom Hook Unit Test", () => {
         consoleSpy.mockRestore();
     });
 
+    //LOU,YING-WEN A0338250J
     it("should fetch and set categories on mount", async () => {
         const mockData = {
             category: [
@@ -35,6 +36,7 @@ describe("useCategory Custom Hook Unit Test", () => {
         expect(axios.get).toHaveBeenCalledWith("/api/v1/category/get-category");
     });
 
+    //LOU,YING-WEN A0338250J
     it("should handle API error and log to console", async () => {
         const mockError = new Error("Network Error");
         axios.get.mockRejectedValue(mockError);
@@ -47,6 +49,7 @@ describe("useCategory Custom Hook Unit Test", () => {
         expect(result.current).toEqual([]);
     });
 
+    //LOU,YING-WEN A0338250J
     it("should handle empty category list from API", async () => {
         axios.get.mockResolvedValue({ data: { category: [] } });
 
@@ -57,6 +60,7 @@ describe("useCategory Custom Hook Unit Test", () => {
         });
     });
 
+    //LOU,YING-WEN A0338250J
     it("should handle null or undefined data response gracefully", async () => {
         axios.get.mockResolvedValue({ data: null });
 
@@ -68,6 +72,7 @@ describe("useCategory Custom Hook Unit Test", () => {
         expect(consoleSpy).not.toHaveBeenCalled();
     });
 
+    //LOU,YING-WEN A0338250J
     it("should not update state after component unmounts", async () => {
         let resolveRequest;
         const promise = new Promise((resolve) => {
