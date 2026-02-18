@@ -11,13 +11,15 @@ jest.mock('mongoose', () => ({
 
 const mockUserFindByIdAndUpdate = jest.fn();
 const mockUserFindByIdAndDelete = jest.fn();
+const mockUserFind = jest.fn();
 
 jest.mock('../models/userModel.js', () => ({
     findByIdAndUpdate: mockUserFindByIdAndUpdate,
-    findByIdAndDelete: mockUserFindByIdAndDelete
+    findByIdAndDelete: mockUserFindByIdAndDelete,
+    find: mockUserFind
 }));
 
-const { updateRoleController, deleteUserController } = require('./authController.js');
+const { updateRoleController, deleteUserController, getAllUsersController } = require('./authController.js');
 
 
 describe('updateRoleController', () => {
@@ -138,4 +140,61 @@ describe('deleteUserController', () => {
             consoleSpy.mockRestore();
         });
     });
+    //LOU,YING-WEN A0338250J
+    describe('getAllUsersController', () => {
+        let req, res;
+
+        beforeEach(() => {
+            req = {}; // getAllUsers 不需要 params 或 body
+            res = {
+                status: jest.fn().mockReturnThis(),
+                send: jest.fn(),
+            };
+            jest.clearAllMocks();
+        });
+
+        describe('Success path', () => {
+            //LOU,YING-WEN A0338250J
+            it('should get all users successfully and exclude password', async () => {
+                const mockUsers = [
+                    { _id: '1', name: 'User 1', email: 'u1@test.com' },
+                    { _id: '2', name: 'User 2', email: 'u2@test.com' }
+                ];
+                const selectMock = jest.fn().mockResolvedValue(mockUsers);
+                mockUserFind.mockReturnValue({ select: selectMock });
+
+                await getAllUsersController(req, res);
+
+                expect(mockUserFind).toHaveBeenCalledWith({});
+                expect(selectMock).toHaveBeenCalledWith("-password");
+                expect(res.status).toHaveBeenCalledWith(200);
+                expect(res.send).toHaveBeenCalledWith({
+                    success: true,
+                    message: "All Users List",
+                    users: mockUsers,
+                });
+            });
+        });
+
+        describe('Error handling', () => {
+            //LOU,YING-WEN A0338250J
+            it('should return 500 when database error occurs during fetch', async () => {
+                const dbError = new Error('Fetch Failed');
+
+                mockUserFind.mockImplementation(() => { throw dbError; });
+                const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+
+                await getAllUsersController(req, res);
+
+                expect(res.status).toHaveBeenCalledWith(500);
+                expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+                    success: false,
+                    message: "Error while getting all users",
+                }));
+
+                consoleSpy.mockRestore();
+            });
+        });
+    });
 });
+
