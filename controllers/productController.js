@@ -1,3 +1,5 @@
+//Aashim Mahindroo, A0265890R
+
 import productModel from "../models/productModel.js";
 import categoryModel from "../models/categoryModel.js";
 import orderModel from "../models/orderModel.js";
@@ -9,7 +11,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-//payment gateway
 var gateway = new braintree.BraintreeGateway({
   environment: braintree.Environment.Sandbox,
   merchantId: process.env.BRAINTREE_MERCHANT_ID,
@@ -22,7 +23,6 @@ export const createProductController = async (req, res) => {
     const { name, description, price, category, quantity, shipping } =
       req.fields;
     const { photo } = req.files;
-    //alidation
     switch (true) {
       case !name:
         return res.status(500).send({ error: "Name is Required" });
@@ -359,7 +359,10 @@ export const brainTreePaymentController = async (req, res) => {
         },
       },
       function (error, result) {
-        if (result) {
+        if (error) {
+          return res.status(500).send(error);
+        }
+        if (result && result.success) {
           const order = new orderModel({
             products: cart,
             payment: result,
@@ -367,11 +370,12 @@ export const brainTreePaymentController = async (req, res) => {
           }).save();
           res.json({ ok: true });
         } else {
-          res.status(500).send(error);
+          res.status(500).send(result);
         }
       }
     );
   } catch (error) {
     console.log(error);
+    res.status(500).send({ success: false, message: "Payment processing error", error: error.message });
   }
 };
