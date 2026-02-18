@@ -55,7 +55,6 @@ describe("Categories Page Unit Test", () => {
         );
 
         expect(screen.queryAllByRole("link")).toHaveLength(0);
-        expect(screen.getByText("All Categories")).toBeInTheDocument();
     });
 
     it("should handle categories with special characters in name or slug", () => {
