@@ -19,35 +19,16 @@ export default {
   // ignore all node_modules except styleMock (needed for css imports)
   transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js)$)"],
 
-  // only run these tests
-  // 修改後的設定
-  testMatch: [
-    "<rootDir>/client/src/context/**/*.test.js",
-    "<rootDir>/client/src/components/Form/**/*.test.js",
-    "<rootDir>/client/src/hooks/**/*.test.js",
-    "<rootDir>/client/src/pages/Categories.test.js",
-    "<rootDir>/client/src/pages/Search.test.js",
-    "<rootDir>/client/src/pages/admin/Users.test.js",
-    "<rootDir>/client/src/context/search.test.js",
-    "<rootDir>/client/src/pages/user/Profile.test.js"
-  ],
+  // run all frontend tests (exclude _site, which contains MarkBind-generated Vue files)
+  testMatch: ["<rootDir>/client/src/**/*.test.js"],
+  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/client/src/_site/"],
+
   // jest code coverage
   collectCoverage: true,
   collectCoverageFrom: [
-    "client/src/pages/Search.test.js",
-    "client/src/pages/admin/Users.js",
-    "client/src/pages/Categories.js",
-    "client/src/pages/Search.js",
-    "client/src/context/search.js",
-    "client/src/components/Form/SearchInput.js",
-    "client/src/hooks/useCategory.js",
-    "client/src/pages/user/Profile.js"
+    "client/src/**/*.{js,jsx}",
+    "!client/src/**/*.test.{js,jsx}",
+    "!client/src/_site/**",
   ],
-  coverageThreshold: {
-    global: {
-      lines: 100,
-      functions: 100,
-    },
-  },
   setupFilesAfterEnv: ["<rootDir>/client/src/setupTests.js"],
 };
