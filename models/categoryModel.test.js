@@ -27,9 +27,10 @@ jest.mock('mongoose', () => {
 
 const Category = require('./categoryModel').default;
 
-//LOU,YING-WEN A0338250J
+
 describe("Category Model Unit Test", () => {
 
+    //LOU,YING-WEN A0338250J
     it("should have the correct schema structure", () => {
         const { name, slug } = Category.schema.obj;
 
@@ -40,6 +41,7 @@ describe("Category Model Unit Test", () => {
         expect(slug.lowercase).toBe(true);
     });
 
+    //LOU,YING-WEN A0338250J
     it("should create a model instance with correct values", () => {
         const categoryData = {
             name: "Electronics",
@@ -51,6 +53,7 @@ describe("Category Model Unit Test", () => {
         expect(category.slug).toBe(categoryData.slug.toLowerCase());
     });
 
+    //LOU,YING-WEN A0338250J
     it("should fail validation when name is missing", async () => {
         const category = new Category({});
 
@@ -58,6 +61,7 @@ describe("Category Model Unit Test", () => {
         expect(validationError.errors.name).toBeDefined();
     });
 
+    //LOU,YING-WEN A0338250J
     it("should cast non-string values to string for the name field", () => {
         const category = new Category({ name: 12345 });
 
@@ -65,6 +69,7 @@ describe("Category Model Unit Test", () => {
         expect(category.name).toBe("12345");
     });
 
+    //LOU,YING-WEN A0338250J
     it("should exclude fields that are not in the schema", () => {
         const category = new Category({
             name: "Tech",

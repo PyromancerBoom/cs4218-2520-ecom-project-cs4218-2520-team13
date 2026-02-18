@@ -19,7 +19,7 @@ jest.mock('../models/userModel.js', () => ({
 
 const { updateRoleController, deleteUserController } = require('./authController.js');
 
-//LOU,YING-WEN A0338250J
+
 describe('updateRoleController', () => {
     let req, res;
 
@@ -36,6 +36,8 @@ describe('updateRoleController', () => {
     });
 
     describe('Success path', () => {
+
+        //LOU,YING-WEN A0338250J
         it('should update user role successfully', async () => {
             const mockUser = { _id: 'user_123', name: 'John', role: 1 };
             const selectMock = jest.fn().mockResolvedValue(mockUser);
@@ -48,6 +50,7 @@ describe('updateRoleController', () => {
             expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         });
 
+        //LOU,YING-WEN A0338250J
         it('should correctly exclude password from the result', async () => {
             const selectMock = jest.fn().mockResolvedValue({});
             mockUserFindByIdAndUpdate.mockReturnValue({ select: selectMock });
@@ -59,6 +62,8 @@ describe('updateRoleController', () => {
     });
 
     describe('Error handling & Edge cases', () => {
+
+        //LOU,YING-WEN A0338250J
         it('should return 200 even if user to update is not found', async () => {
             const selectMock = jest.fn().mockResolvedValue(null);
             mockUserFindByIdAndUpdate.mockReturnValue({ select: selectMock });
@@ -69,6 +74,7 @@ describe('updateRoleController', () => {
             expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ user: null }));
         });
 
+        //LOU,YING-WEN A0338250J
         it('should return 500 when database error occurs', async () => {
             const dbError = new Error('DB Error');
             mockUserFindByIdAndUpdate.mockImplementation(() => { throw dbError; });
@@ -93,6 +99,8 @@ describe('deleteUserController', () => {
     });
 
     describe('Success path', () => {
+
+        //LOU,YING-WEN A0338250J
         it('should delete user and return 200', async () => {
             const mockDeletedUser = { _id: 'user_999', name: 'Deleted User' };
             const selectMock = jest.fn().mockResolvedValue(mockDeletedUser);
@@ -108,6 +116,8 @@ describe('deleteUserController', () => {
     });
 
     describe('Error handling', () => {
+
+        //LOU,YING-WEN A0338250J
         it('should return 500 on database failure', async () => {
             const dbError = new Error('Delete Failed');
             mockUserFindByIdAndDelete.mockImplementation(() => { throw dbError; });

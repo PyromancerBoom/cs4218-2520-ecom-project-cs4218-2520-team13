@@ -16,7 +16,7 @@ jest.mock("react-router-dom", () => ({
     useNavigate: () => mockNavigate,
 }));
 
-//LOU,YING-WEN A0338250J
+
 describe("SearchInput Component Unit Test", () => {
     const mockSetValues = jest.fn();
     const mockValues = { keyword: "", results: [] };
@@ -26,6 +26,7 @@ describe("SearchInput Component Unit Test", () => {
         useSearch.mockReturnValue([mockValues, mockSetValues]);
     });
 
+    //LOU,YING-WEN A0338250J
     it("should update keyword value on input change", () => {
         render(
             <MemoryRouter>
@@ -42,6 +43,7 @@ describe("SearchInput Component Unit Test", () => {
         });
     });
 
+    //LOU,YING-WEN A0338250J
     it("should call API and navigate on successful submit", async () => {
         const mockResults = [{ _id: "1", name: "Laptop" }];
         axios.get.mockResolvedValue({ data: mockResults });
@@ -65,6 +67,7 @@ describe("SearchInput Component Unit Test", () => {
         });
     });
 
+    //LOU,YING-WEN A0338250J
     it("should handle API error gracefully", async () => {
         const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
         axios.get.mockRejectedValue(new Error("API Error"));
@@ -85,6 +88,7 @@ describe("SearchInput Component Unit Test", () => {
         consoleSpy.mockRestore();
     });
 
+    //LOU,YING-WEN A0338250J
     it("should have correct accessibility attributes and input type", () => {
         render(
             <MemoryRouter>
@@ -100,6 +104,7 @@ describe("SearchInput Component Unit Test", () => {
         expect(button).toHaveAttribute("type", "submit");
     });
 
+    //LOU,YING-WEN A0338250J
     it("should prevent default form submission behavior", () => {
         const { createEvent } = require("@testing-library/react");
 
@@ -117,6 +122,7 @@ describe("SearchInput Component Unit Test", () => {
         expect(submitEvent.preventDefault).toHaveBeenCalled();
     });
 
+    //LOU,YING-WEN A0338250J
     it("should handle submission with an empty keyword correctly", async () => {
         axios.get.mockResolvedValue({ data: [] });
         useSearch.mockReturnValue([{ keyword: "", results: [] }, mockSetValues]);

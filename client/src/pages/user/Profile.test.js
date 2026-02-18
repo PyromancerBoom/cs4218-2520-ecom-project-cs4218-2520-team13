@@ -29,7 +29,6 @@ jest.mock("./../../components/Layout", () => {
     };
 });
 
-//LOU,YING-WEN A0338250J
 describe("User Profile Component Lifecycle and Interaction Tests", () => {
     const mockUserData = {
         name: "Sandra Lou",
@@ -66,6 +65,8 @@ describe("User Profile Component Lifecycle and Interaction Tests", () => {
 
     // Mounting and Initial Consistency
     describe("A) Component Mounting & State Initialization", () => {
+
+        //LOU,YING-WEN A0338250J
         test("should sync input fields with Auth Context on load", () => {
             render(<Profile />);
 
@@ -76,6 +77,7 @@ describe("User Profile Component Lifecycle and Interaction Tests", () => {
             expect(screen.getByPlaceholderText(/Enter Your Password/i)).toHaveValue("");
         });
 
+        //LOU,YING-WEN A0338250J
         test("should enforce security by disabling the email field", () => {
 
             render(<Profile />);
@@ -83,6 +85,7 @@ describe("User Profile Component Lifecycle and Interaction Tests", () => {
             expect(screen.getByPlaceholderText(/Enter Your Email/i)).toBeDisabled();
         });
 
+        //LOU,YING-WEN A0338250J
         test("should render empty input fields when auth user data is absent", () => {
             useAuth.mockReturnValue([{ user: null }, mockSetAuth]);
 
@@ -95,6 +98,7 @@ describe("User Profile Component Lifecycle and Interaction Tests", () => {
             expect(screen.getByPlaceholderText(/Enter Your Password/i)).toHaveValue("");
         });
 
+        //LOU,YING-WEN A0338250J
         test("should correctly display UI components (Layout and Menu)", () => {
 
             render(<Profile />);
@@ -106,6 +110,7 @@ describe("User Profile Component Lifecycle and Interaction Tests", () => {
 
     // Real-time Field Interactions (State updates)
     describe(" User Interaction and Real-time Validation", () => {
+        //LOU,YING-WEN A0338250J
         test("should capture changes in the Password field", () => {
             render(<Profile />);
             const passwordField = screen.getByPlaceholderText(/Enter Your Password/i);
@@ -115,6 +120,7 @@ describe("User Profile Component Lifecycle and Interaction Tests", () => {
             expect(passwordField.value).toBe("newPass123");
         });
 
+        //LOU,YING-WEN A0338250J
         test("should capture changes in the Phone field", () => {
             render(<Profile />);
             const phoneField = screen.getByPlaceholderText(/Enter Your Phone/i);
@@ -124,6 +130,7 @@ describe("User Profile Component Lifecycle and Interaction Tests", () => {
             expect(phoneField.value).toBe("99988877");
         });
 
+        //LOU,YING-WEN A0338250J
         test("should capture changes in the Address field", () => {
             render(<Profile />);
 
@@ -133,6 +140,7 @@ describe("User Profile Component Lifecycle and Interaction Tests", () => {
             expect(addressField.value).toBe("123 Main St");
         });
 
+        //LOU,YING-WEN A0338250J
         test("should block the submission if name is erased", async () => {
             render(<Profile />);
             const nameField = screen.getByPlaceholderText(/Enter Your Name/i);
@@ -147,6 +155,7 @@ describe("User Profile Component Lifecycle and Interaction Tests", () => {
 
     // Persistence and API Data Sync
     describe(" Data Persistence and Server Communication", () => {
+        //LOU,YING-WEN A0338250J
         test("should execute successful update and preserve session token", async () => {
             const updatedProfile = { ...mockUserData, name: "Sandra Lou (Updated)" };
             axios.put.mockResolvedValue({ data: { updatedUser: updatedProfile } });
@@ -166,6 +175,7 @@ describe("User Profile Component Lifecycle and Interaction Tests", () => {
             });
         });
 
+        //LOU,YING-WEN A0338250J
         test("should forward updated password and phone in the request payload", async () => {
             axios.put.mockResolvedValue({ data: { updatedUser: mockUserData } });
             render(<Profile />);
@@ -182,6 +192,7 @@ describe("User Profile Component Lifecycle and Interaction Tests", () => {
             });
         });
 
+        //LOU,YING-WEN A0338250J
         test("should handle API validation failures returned in the body", async () => {
             const errorMessage = "Update rejected";
             axios.put.mockResolvedValue({ data: { error: errorMessage } });
@@ -194,6 +205,7 @@ describe("User Profile Component Lifecycle and Interaction Tests", () => {
             });
         });
 
+        //LOU,YING-WEN A0338250J
         test("should manage network exceptions using the catch block", async () => {
             const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
             axios.put.mockRejectedValue(new Error("Connection Timeout"));

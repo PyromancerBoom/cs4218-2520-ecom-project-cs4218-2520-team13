@@ -19,12 +19,13 @@ const TestComponent = () => {
         </div>
     );
 };
-//LOU,YING-WEN A0338250J
+
 describe("Search Context Unit Test", () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
+    //LOU,YING-WEN A0338250J
     it("should provide default values", () => {
         render(
             <SearchProvider>
@@ -36,6 +37,7 @@ describe("Search Context Unit Test", () => {
         expect(screen.getByTestId("results-count")).toHaveTextContent("0");
     });
 
+    //LOU,YING-WEN A0338250J
     it("should update state when setValues is called", () => {
         render(
             <SearchProvider>
@@ -49,6 +51,7 @@ describe("Search Context Unit Test", () => {
         expect(screen.getByTestId("results-count")).toHaveTextContent("2");
     });
 
+    //LOU,YING-WEN A0338250J
     it("should preserve previous results when only keyword is updated", () => {
         render(
             <SearchProvider>
@@ -63,6 +66,7 @@ describe("Search Context Unit Test", () => {
         expect(screen.getByTestId("results-count")).toHaveTextContent("2");
     });
 
+    //LOU,YING-WEN A0338250J
     it("should share state between multiple components", () => {
         render(
             <SearchProvider>
@@ -81,6 +85,7 @@ describe("Search Context Unit Test", () => {
         expect(keywords[1]).toHaveTextContent("laptop");
     });
 
+    //LOU,YING-WEN A0338250J
     it("should handle transition to empty states correctly", () => {
         const ResetComponent = () => {
             const [values, setValues] = useSearch();

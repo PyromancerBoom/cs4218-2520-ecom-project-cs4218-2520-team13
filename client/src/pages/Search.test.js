@@ -23,7 +23,6 @@ jest.mock("../context/search");
 jest.mock("../context/cart");
 jest.mock("./../components/Layout", () => ({ children }) => <div>{children}</div>);
 
-//LOU,YING-WEN A0338250J
 describe("Search Component Unit Test", () => {
     const mockSetCart = jest.fn();
     const mockProducts = [
@@ -48,6 +47,7 @@ describe("Search Component Unit Test", () => {
         });
     });
 
+    //LOU,YING-WEN A0338250J
     test("should display 'No Products Found' when search results are empty", () => {
         useSearch.mockReturnValue([{ results: [] }, jest.fn()]);
         useCart.mockReturnValue([[], mockSetCart]);
@@ -61,6 +61,7 @@ describe("Search Component Unit Test", () => {
         expect(screen.getByText(/No Products Found/i)).toBeInTheDocument();
     });
 
+    //LOU,YING-WEN A0338250J
     test("should render product card when results exist", () => {
         useSearch.mockReturnValue([{ results: mockProducts }, jest.fn()]);
         useCart.mockReturnValue([[], mockSetCart]);
@@ -76,6 +77,7 @@ describe("Search Component Unit Test", () => {
         expect(screen.getByText(/\$1,500.00/i)).toBeInTheDocument();
     });
 
+    //LOU,YING-WEN A0338250J
     test("should add product to cart when 'ADD TO CART' is clicked", () => {
         const existingCart = [];
         useSearch.mockReturnValue([{ results: mockProducts }, jest.fn()]);
@@ -93,6 +95,8 @@ describe("Search Component Unit Test", () => {
         expect(localStorage.setItem).toHaveBeenCalled();
         expect(toast.success).toHaveBeenCalledWith("Item Added to cart");
     });
+
+    //LOU,YING-WEN A0338250J
     test("should navigate to product details page when 'More Details' is clicked", () => {
         useSearch.mockReturnValue([{ results: mockProducts }, jest.fn()]);
         useCart.mockReturnValue([[], mockSetCart]);
@@ -107,6 +111,8 @@ describe("Search Component Unit Test", () => {
 
         expect(mockNavigate).toHaveBeenCalledWith(`/product/${mockProducts[0].slug}`);
     });
+
+    //LOU,YING-WEN A0338250J
     test("should handle multiple search results and long descriptions", () => {
         const multipleProducts = [
             {
@@ -138,6 +144,7 @@ describe("Search Component Unit Test", () => {
         expect(screen.getByText(/Short desc\.\.\./i)).toBeInTheDocument();
     });
 
+    //LOU,YING-WEN A0338250J
     test("should append to existing cart items", () => {
         const existingItem = { _id: "0", name: "Existing", price: 10, description: "desc", slug: "existing" };
         const newItem = mockProducts[0];
@@ -159,6 +166,7 @@ describe("Search Component Unit Test", () => {
         );
     });
 
+    //LOU,YING-WEN A0338250J
     test("should handle cases where results property is missing", () => {
         // values exists but results is missing/undefined
         useSearch.mockReturnValue([{}, jest.fn()]);

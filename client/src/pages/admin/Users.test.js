@@ -15,7 +15,6 @@ jest.mock("../../components/Layout", () => ({ children, title }) => (
 ));
 jest.mock("../../components/AdminMenu", () => () => <div>AdminMenu</div>);
 
-//LOU,YING-WEN A0338250J
 describe("Users Component Unit Tests ", () => {
     const mockUsers = [
         { _id: "1", name: "User One", email: "one@test.com", phone: "123", role: 0 },
@@ -31,6 +30,8 @@ describe("Users Component Unit Tests ", () => {
 
     //  Rendering & UI Consistency 
     describe("Initialization & UI Rendering", () => {
+
+        //LOU,YING-WEN A0338250J
         test("should fetch and render users successfully", async () => {
             axios.get.mockResolvedValue({ data: { success: true, users: mockUsers } });
 
@@ -43,6 +44,7 @@ describe("Users Component Unit Tests ", () => {
             });
         });
 
+        //LOU,YING-WEN A0338250J
         test("should render correct button styles based on user roles", async () => {
             axios.get.mockResolvedValue({ data: { success: true, users: mockUsers } });
 
@@ -57,6 +59,7 @@ describe("Users Component Unit Tests ", () => {
             });
         });
 
+        //LOU,YING-WEN A0338250J
         test("should render empty state when user list is empty", async () => {
             axios.get.mockResolvedValue({ data: { success: true, users: [] } });
 
@@ -76,6 +79,7 @@ describe("Users Component Unit Tests ", () => {
 
     //  User Actions & Persistence 
     describe("User Actions (Delete & Role Update)", () => {
+        //LOU,YING-WEN A0338250J
         test("should delete user successfully", async () => {
             axios.get.mockResolvedValue({ data: { success: true, users: [mockUsers[0]] } });
             axios.delete.mockResolvedValue({ data: { success: true } });
@@ -89,6 +93,7 @@ describe("Users Component Unit Tests ", () => {
             expect(axios.get).toHaveBeenCalledTimes(2);
         });
 
+        //LOU,YING-WEN A0338250J
         test("should update role successfully", async () => {
             const multipleAdmins = [mockUsers[1], mockUsers[2]];
             axios.get.mockResolvedValue({ data: { success: true, users: multipleAdmins } });
@@ -109,6 +114,7 @@ describe("Users Component Unit Tests ", () => {
 
         });
 
+        //LOU,YING-WEN A0338250J
         test("should return early if deletion is cancelled by user", async () => {
             axios.get.mockResolvedValue({ data: { success: true, users: [mockUsers[0]] } });
             window.confirm.mockReturnValue(false);
@@ -123,6 +129,7 @@ describe("Users Component Unit Tests ", () => {
 
     // Safety Guard Logic
     describe("Safety & Guard Logic Verification", () => {
+        //LOU,YING-WEN A0338250J
         test("should disable buttons according to safety logic (isMe & isLastAdmin)", async () => {
             const singleAdmin = [{ _id: "admin_id", name: "Me", role: 1 }];
             useAuth.mockReturnValue([{ user: { _id: "admin_id" } }]);
@@ -135,6 +142,7 @@ describe("Users Component Unit Tests ", () => {
             });
         });
 
+        //LOU,YING-WEN A0338250J
         test("should display warning title when the last admin is disabled", async () => {
             const singleAdmin = [{ _id: "admin_id", name: "SuperAdmin", role: 1 }];
             axios.get.mockResolvedValue({ data: { success: true, users: singleAdmin } });
@@ -148,6 +156,7 @@ describe("Users Component Unit Tests ", () => {
 
     describe("Error Handling Scenarios", () => {
         // Line 16 coverage: Catch block of getUsers
+        //LOU,YING-WEN A0338250J
         test("should handle catch block during getUsers", async () => {
             const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
             axios.get.mockRejectedValueOnce(new Error("Fetch Failed"));
@@ -161,7 +170,7 @@ describe("Users Component Unit Tests ", () => {
             consoleSpy.mockRestore();
         });
 
-        // Lines 32-35 coverage: Catch block of handleDelete
+        //LOU,YING-WEN A0338250J
         test("should not show success toast when delete API returns success: false", async () => {
             const targetUser = { _id: "123", name: "Test User", role: 0 };
             axios.get.mockResolvedValueOnce({ data: { success: true, users: [targetUser] } });
@@ -178,6 +187,7 @@ describe("Users Component Unit Tests ", () => {
             });
         });
 
+        //LOU,YING-WEN A0338250J
         test("should not show success toast when update role API returns success: false", async () => {
             const targetUser = { _id: "123", name: "Test User", role: 0 };
             axios.get.mockResolvedValueOnce({ data: { success: true, users: [targetUser] } });
@@ -193,6 +203,7 @@ describe("Users Component Unit Tests ", () => {
             });
         });
 
+        //LOU,YING-WEN A0338250J
         test("should show specific error message from API when success is false", async () => {
             axios.get.mockResolvedValueOnce({
                 data: { success: false, message: "Custom Backend Error" }
@@ -205,7 +216,7 @@ describe("Users Component Unit Tests ", () => {
             });
         });
 
-
+        //LOU,YING-WEN A0338250J
         test("should show default error message when success is false and no message provided", async () => {
             axios.get.mockResolvedValueOnce({
                 data: { success: false }
@@ -218,6 +229,7 @@ describe("Users Component Unit Tests ", () => {
             });
         });
 
+        //LOU,YING-WEN A0338250J
         test("should show error toast when delete API throws an error", async () => {
             const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
             const targetUser = { _id: "123", name: "Test User", role: 0 };
@@ -238,6 +250,7 @@ describe("Users Component Unit Tests ", () => {
             consoleSpy.mockRestore();
         });
 
+        //LOU,YING-WEN A0338250J
         test("should show error toast when update role API throws an error", async () => {
             const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
             const targetUser = { _id: "123", name: "Test User", role: 0 };
