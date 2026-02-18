@@ -83,6 +83,10 @@ describe('updateRoleController', () => {
             await updateRoleController(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+                success: false,
+                message: 'Error while updating role',
+            }));
             expect(consoleSpy).toHaveBeenCalledWith(dbError);
             consoleSpy.mockRestore();
         });

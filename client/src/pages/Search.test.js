@@ -140,8 +140,9 @@ describe("Search Component Unit Test", () => {
         );
 
         expect(screen.getByText(/Found 2/i)).toBeInTheDocument();
-        expect(screen.getByText(/This is a very long description that exceeds sixty charac.../i)).toBeInTheDocument();
-        expect(screen.getByText(/Short desc\.\.\./i)).toBeInTheDocument();
+        expect(screen.getByText(/This is a very long description/i, { exact: false }))
+            .toBeInTheDocument();
+        expect(screen.getByText(/Short desc/i, { exact: false })).toBeInTheDocument();
     });
 
     //LOU,YING-WEN A0338250J

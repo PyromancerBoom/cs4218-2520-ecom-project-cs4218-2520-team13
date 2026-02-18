@@ -76,6 +76,10 @@ describe('categoryControlller', () => {
             await categoryControlller(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+                success: false,
+                message: "Error while getting all categories"
+            }));
             expect(consoleSpy).toHaveBeenCalledWith(mockError);
             consoleSpy.mockRestore();
         });
