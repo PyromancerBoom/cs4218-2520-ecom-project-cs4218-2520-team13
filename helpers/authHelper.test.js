@@ -24,6 +24,7 @@ describe("authHelper", () => {
             // assert
             expect(result).toBeDefined();
             expect(result).toMatch(/^\$2[ab]\$/);
+            expect(result.length).toBeGreaterThanOrEqual(50);
         });
 
         // unhappy path, hit the catch block
