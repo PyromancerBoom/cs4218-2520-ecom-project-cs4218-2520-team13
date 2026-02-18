@@ -1,0 +1,36 @@
+name: Run Frontend Tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      matrix:
+        node-version: [24.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Install Root Dependencies
+        run: npm install
+
+      - name: Install Client Dependencies
+        working-directory: ./client
+        run: npm install
+
+      - name: Run Frontend Tests
+        run: npm run test:frontend

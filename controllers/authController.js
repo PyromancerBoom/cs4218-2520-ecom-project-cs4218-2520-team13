@@ -255,3 +255,70 @@ export const orderStatusController = async (req, res) => {
     });
   }
 };
+
+//all users
+export const getAllUsersController = async (req, res) => {
+  try {
+    const users = await userModel.find({}).select("-password");
+    res.status(200).send({
+      success: true,
+      message: "All Users List",
+      users,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error while getting all users",
+      error,
+    });
+  }
+};
+
+//LOU,YING-WEN A0338250J
+//update user role
+export const updateRoleController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+    const user = await userModel.findByIdAndUpdate(
+      id,
+      { role },
+      { new: true }
+    ).select("-password");
+
+    res.status(200).send({
+      success: true,
+      message: "User Role Updated Successfully",
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error while updating role",
+      error,
+    });
+  }
+};
+
+//LOU,YING-WEN A0338250J
+// delete user controller
+export const deleteUserController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await userModel.findByIdAndDelete(id).select("-password");
+    res.status(200).send({
+      success: true,
+      message: "User Deleted Successfully",
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error while deleting user",
+      error,
+    });
+  }
+};
