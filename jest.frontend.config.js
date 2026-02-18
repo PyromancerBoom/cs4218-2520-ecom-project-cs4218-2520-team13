@@ -31,6 +31,11 @@ export default {
     "<rootDir>/client/src/context/search.test.js",
     "<rootDir>/client/src/pages/user/Profile.test.js"
   ],
+  testMatch: [
+    "<rootDir>/client/src/pages/Auth/*.test.js",
+    "<rootDir>/client/src/context/*.test.js",
+  ],
+
   // jest code coverage
   collectCoverage: true,
   collectCoverageFrom: [
@@ -43,6 +48,7 @@ export default {
     "client/src/hooks/useCategory.js",
     "client/src/pages/user/Profile.js"
   ],
+  collectCoverageFrom: ["client/src/pages/Auth/**", "client/src/context/**"],
   coverageThreshold: {
     global: {
       lines: 100,
