@@ -1,3 +1,4 @@
+// Priyansh Bimbisariye, A0265903B
 import JWT from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 
