@@ -1,9 +1,8 @@
+// Priyansh Bimbisariye, A0265903B
 import React from "react";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import axios from "axios";
 import { AuthProvider, useAuth } from "./auth";
-
-// Priyansh Bimbisariye, A0265903B
 
 // Mock axios
 jest.mock("axios");
