@@ -11,23 +11,20 @@ jest.mock('mongoose', () => ({
 
 const mockUserFindByIdAndUpdate = jest.fn();
 const mockUserFindByIdAndDelete = jest.fn();
+const mockUserFind = jest.fn();
 
 jest.mock('../models/userModel.js', () => ({
     findByIdAndUpdate: mockUserFindByIdAndUpdate,
-    findByIdAndDelete: mockUserFindByIdAndDelete
+    findByIdAndDelete: mockUserFindByIdAndDelete,
+    find: mockUserFind
 }));
 
-const { updateRoleController, deleteUserController } = require('./authController.js');
-
-
-describe('updateRoleController', () => {
-    let req, res;
+const { updateRoleController, deleteUserController, getAllUsersController } = require('./authController.js');
+describe('authController Management Tests', () => {
+    let req, res, consoleSpy;
 
     beforeEach(() => {
-        req = {
-            params: { id: 'user_123' },
-            body: { role: 1 },
-        };
+        consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
         res = {
             status: jest.fn().mockReturnThis(),
             send: jest.fn(),
@@ -35,107 +32,161 @@ describe('updateRoleController', () => {
         jest.clearAllMocks();
     });
 
-    describe('Success path', () => {
+    afterEach(() => {
+        consoleSpy.mockRestore();
+    });
 
-        //LOU,YING-WEN A0338250J
-        it('should update user role successfully', async () => {
-            const mockUser = { _id: 'user_123', name: 'John', role: 1 };
-            const selectMock = jest.fn().mockResolvedValue(mockUser);
-            mockUserFindByIdAndUpdate.mockReturnValue({ select: selectMock });
-
-            await updateRoleController(req, res);
-
-            expect(mockUserFindByIdAndUpdate).toHaveBeenCalledWith('user_123', { role: 1 }, { new: true });
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
+    describe('updateRoleController', () => {
+        beforeEach(() => {
+            req = {
+                params: { id: 'user_123' },
+                body: { role: 1 },
+            };
         });
 
-        //LOU,YING-WEN A0338250J
-        it('should correctly exclude password from the result', async () => {
-            const selectMock = jest.fn().mockResolvedValue({});
-            mockUserFindByIdAndUpdate.mockReturnValue({ select: selectMock });
+        describe('Success path', () => {
 
-            await updateRoleController(req, res);
+            //LOU,YING-WEN A0338250J
+            it('should update user role successfully', async () => {
+                const mockUser = { _id: 'user_123', name: 'John', role: 1 };
+                const selectMock = jest.fn().mockResolvedValue(mockUser);
+                mockUserFindByIdAndUpdate.mockReturnValue({ select: selectMock });
 
-            expect(selectMock).toHaveBeenCalledWith("-password");
+                await updateRoleController(req, res);
+
+                expect(mockUserFindByIdAndUpdate).toHaveBeenCalledWith('user_123', { role: 1 }, { new: true });
+                expect(res.status).toHaveBeenCalledWith(200);
+                expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
+            });
+
+            //LOU,YING-WEN A0338250J
+            it('should correctly exclude password from the result', async () => {
+                const selectMock = jest.fn().mockResolvedValue({});
+                mockUserFindByIdAndUpdate.mockReturnValue({ select: selectMock });
+
+                await updateRoleController(req, res);
+
+                expect(selectMock).toHaveBeenCalledWith("-password");
+            });
+        });
+
+        describe('Error handling & Edge cases', () => {
+
+            //LOU,YING-WEN A0338250J
+            it('should return 200 even if user to update is not found', async () => {
+                const selectMock = jest.fn().mockResolvedValue(null);
+                mockUserFindByIdAndUpdate.mockReturnValue({ select: selectMock });
+
+                await updateRoleController(req, res);
+
+                expect(res.status).toHaveBeenCalledWith(200);
+                expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ user: null }));
+            });
+
+            //LOU,YING-WEN A0338250J
+            it('should return 500 when database error occurs', async () => {
+                const dbError = new Error('DB Error');
+                mockUserFindByIdAndUpdate.mockImplementation(() => { throw dbError; });
+
+                await updateRoleController(req, res);
+
+                expect(res.status).toHaveBeenCalledWith(500);
+                expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+                    success: false,
+                    message: 'Error while updating role',
+                }));
+                expect(consoleSpy).toHaveBeenCalledWith(dbError);
+            });
+        });
+    });
+    //LOU,YING-WEN A0338250J
+    describe('deleteUserController', () => {
+        beforeEach(() => {
+            req = { params: { id: 'user_999' } };
+        });
+
+        describe('Success path', () => {
+
+            //LOU,YING-WEN A0338250J
+            it('should delete user and return 200', async () => {
+                const mockDeletedUser = { _id: 'user_999', name: 'Deleted User' };
+                const selectMock = jest.fn().mockResolvedValue(mockDeletedUser);
+                mockUserFindByIdAndDelete.mockReturnValue({ select: selectMock });
+
+                await deleteUserController(req, res);
+
+                expect(mockUserFindByIdAndDelete).toHaveBeenCalledWith('user_999');
+                expect(selectMock).toHaveBeenCalledWith("-password");
+                expect(res.status).toHaveBeenCalledWith(200);
+                expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+                    success: true,
+                    message: "User Deleted Successfully"
+                }));
+            });
+        });
+
+        describe('Error handling', () => {
+
+            //LOU,YING-WEN A0338250J
+            it('should return 500 on database failure', async () => {
+                const dbError = new Error('Delete Failed');
+                mockUserFindByIdAndDelete.mockImplementation(() => { throw dbError; });
+
+                await deleteUserController(req, res);
+
+                expect(res.status).toHaveBeenCalledWith(500);
+                expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+                    success: false,
+                    message: 'Error while deleting user',
+                }));
+                expect(consoleSpy).toHaveBeenCalledWith(dbError);
+            });
         });
     });
 
-    describe('Error handling & Edge cases', () => {
-
-        //LOU,YING-WEN A0338250J
-        it('should return 200 even if user to update is not found', async () => {
-            const selectMock = jest.fn().mockResolvedValue(null);
-            mockUserFindByIdAndUpdate.mockReturnValue({ select: selectMock });
-
-            await updateRoleController(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ user: null }));
+    describe('getAllUsersController', () => {
+        beforeEach(() => {
+            req = {};
         });
 
-        //LOU,YING-WEN A0338250J
-        it('should return 500 when database error occurs', async () => {
-            const dbError = new Error('DB Error');
-            mockUserFindByIdAndUpdate.mockImplementation(() => { throw dbError; });
-            const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+        describe('Success path', () => {
+            //LOU,YING-WEN A0338250J
+            it('should get all users successfully and exclude password', async () => {
+                const mockUsers = [
+                    { _id: '1', name: 'User 1', email: 'u1@test.com' },
+                    { _id: '2', name: 'User 2', email: 'u2@test.com' }
+                ];
+                const selectMock = jest.fn().mockResolvedValue(mockUsers);
+                mockUserFind.mockReturnValue({ select: selectMock });
 
-            await updateRoleController(req, res);
+                await getAllUsersController(req, res);
 
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
-                success: false,
-                message: 'Error while updating role',
-            }));
-            expect(consoleSpy).toHaveBeenCalledWith(dbError);
-            consoleSpy.mockRestore();
+                expect(mockUserFind).toHaveBeenCalledWith({});
+                expect(selectMock).toHaveBeenCalledWith("-password");
+                expect(res.status).toHaveBeenCalledWith(200);
+                expect(res.send).toHaveBeenCalledWith({
+                    success: true,
+                    message: "All Users List",
+                    users: mockUsers,
+                });
+            });
         });
-    });
-});
-//LOU,YING-WEN A0338250J
-describe('deleteUserController', () => {
-    let req, res;
 
-    beforeEach(() => {
-        req = { params: { id: 'user_999' } };
-        res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
-        jest.clearAllMocks();
-    });
+        describe('Error handling', () => {
+            //LOU,YING-WEN A0338250J
+            it('should return 500 when database error occurs during fetch', async () => {
+                const dbError = new Error('Fetch Failed');
 
-    describe('Success path', () => {
+                mockUserFind.mockImplementation(() => { throw dbError; });
+                await getAllUsersController(req, res);
 
-        //LOU,YING-WEN A0338250J
-        it('should delete user and return 200', async () => {
-            const mockDeletedUser = { _id: 'user_999', name: 'Deleted User' };
-            const selectMock = jest.fn().mockResolvedValue(mockDeletedUser);
-            mockUserFindByIdAndDelete.mockReturnValue({ select: selectMock });
-
-            await deleteUserController(req, res);
-
-            expect(mockUserFindByIdAndDelete).toHaveBeenCalledWith('user_999');
-            expect(selectMock).toHaveBeenCalledWith("-password");
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
-        });
-    });
-
-    describe('Error handling', () => {
-
-        //LOU,YING-WEN A0338250J
-        it('should return 500 on database failure', async () => {
-            const dbError = new Error('Delete Failed');
-            mockUserFindByIdAndDelete.mockImplementation(() => { throw dbError; });
-            const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
-
-            await deleteUserController(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
-                success: false,
-                message: 'Error while deleting user',
-            }));
-
-            consoleSpy.mockRestore();
+                expect(res.status).toHaveBeenCalledWith(500);
+                expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+                    success: false,
+                    message: "Error while getting all users",
+                }));
+                expect(consoleSpy).toHaveBeenCalledWith(dbError);
+            });
         });
     });
 });
