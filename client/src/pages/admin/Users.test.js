@@ -5,7 +5,6 @@ import axios from "axios";
 import "@testing-library/jest-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../context/auth";
-import exp from 'constants';
 
 // --- Mock Dependencies ---
 jest.mock("axios");
@@ -65,6 +64,12 @@ describe("Users Component Unit Tests ", () => {
 
             await waitFor(() => {
                 expect(screen.getByText(/No users found/i)).toBeInTheDocument();
+                expect(screen.getByText("All Users List")).toBeInTheDocument();
+                expect(screen.getByText("#")).toBeInTheDocument();
+                expect(screen.getByText("Name")).toBeInTheDocument();
+                expect(screen.getByText("Email")).toBeInTheDocument();
+                expect(screen.getByText("Phone")).toBeInTheDocument();
+                expect(screen.getByText("Actions")).toBeInTheDocument();
             });
         });
     });
@@ -168,7 +173,7 @@ describe("Users Component Unit Tests ", () => {
             fireEvent.click(deleteBtn);
 
             await waitFor(() => {
-                expect(toast.success).not.toHaveBeenCalled();
+                expect(toast.error).toHaveBeenCalledWith("Failed to delete user");
                 expect(axios.get).toHaveBeenCalledTimes(1);
             });
         });
@@ -183,19 +188,33 @@ describe("Users Component Unit Tests ", () => {
             fireEvent.click(roleBtn);
 
             await waitFor(() => {
-                expect(toast.success).not.toHaveBeenCalled();
+                expect(toast.error).toHaveBeenCalledWith("Failed to update role");
                 expect(axios.get).toHaveBeenCalledTimes(1);
             });
         });
 
-        test("should do nothing when getUsers API returns success: false", async () => {
-            axios.get.mockResolvedValueOnce({ data: { success: false } });
+        test("should show specific error message from API when success is false", async () => {
+            axios.get.mockResolvedValueOnce({
+                data: { success: false, message: "Custom Backend Error" }
+            });
 
             render(<Users />);
 
             await waitFor(() => {
-                expect(toast.success).not.toHaveBeenCalled();
-                expect(screen.getByText(/No users found/i)).toBeInTheDocument();
+                expect(toast.error).toHaveBeenCalledWith("Custom Backend Error");
+            });
+        });
+
+
+        test("should show default error message when success is false and no message provided", async () => {
+            axios.get.mockResolvedValueOnce({
+                data: { success: false }
+            });
+
+            render(<Users />);
+
+            await waitFor(() => {
+                expect(toast.error).toHaveBeenCalledWith("Failed to fetch users");
             });
         });
 

@@ -135,22 +135,7 @@ describe("Search Component Unit Test", () => {
 
         expect(screen.getByText(/Found 2/i)).toBeInTheDocument();
         expect(screen.getByText(/This is a very long description that exceeds sixty charac.../i)).toBeInTheDocument();
-        expect(screen.getByText(/Short desc.../i)).toBeInTheDocument();
-    });
-
-    test("should handle undefined search values gracefully", () => {
-
-        useSearch.mockReturnValue([undefined, jest.fn()]);
-        useCart.mockReturnValue([[], mockSetCart]);
-
-        render(
-            <MemoryRouter>
-                <Search />
-            </MemoryRouter>
-        );
-
-        expect(screen.getByText("Search Results")).toBeInTheDocument();
-        expect(screen.queryByRole("img")).not.toBeInTheDocument();
+        expect(screen.getByText(/Short desc\.\.\./i)).toBeInTheDocument();
     });
 
     test("should append to existing cart items", () => {
@@ -187,5 +172,6 @@ describe("Search Component Unit Test", () => {
 
         // Should default to "No Products Found" because undefined < 1 is false in this ternary
         expect(screen.getByText(/No Products Found/i)).toBeInTheDocument();
+        expect(screen.queryByRole("img")).not.toBeInTheDocument();
     });
 });

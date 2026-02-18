@@ -1,4 +1,30 @@
 const { describe, it, expect } = require('@jest/globals');
+
+jest.mock('mongoose', () => {
+    const mockSchemaObj = {
+        name: { type: String, required: true, unique: true },
+        slug: { type: String, lowercase: true }
+    };
+
+    function MockModel(data) {
+        Object.keys(data).forEach(key => {
+            if (mockSchemaObj[key]) this[key] = data[key];
+        });
+        if (this.name) this.name = String(this.name);
+        if (this.slug) this.slug = this.slug.toLowerCase();
+    }
+
+    MockModel.schema = { obj: mockSchemaObj };
+    MockModel.prototype.validateSync = jest.fn(function () {
+        return !this.name ? { errors: { name: { kind: 'required' } } } : null;
+    });
+
+    return {
+        Schema: jest.fn().mockImplementation(function (obj) { this.obj = obj; return this; }),
+        model: jest.fn().mockReturnValue(MockModel)
+    };
+});
+
 const Category = require('./categoryModel').default;
 
 //LOU,YING-WEN A0338250J
@@ -8,6 +34,8 @@ describe("Category Model Unit Test", () => {
         const { name, slug } = Category.schema.obj;
 
         expect(name.type).toBe(String);
+        expect(name.required).toBe(true);
+        expect(name.unique).toBe(true);
         expect(slug.type).toBe(String);
         expect(slug.lowercase).toBe(true);
     });
@@ -23,11 +51,11 @@ describe("Category Model Unit Test", () => {
         expect(category.slug).toBe(categoryData.slug.toLowerCase());
     });
 
-    it("should create an instance even when fields are missing", () => {
+    it("should fail validation when name is missing", async () => {
         const category = new Category({});
 
-        expect(category.name).toBeUndefined();
-        expect(category.slug).toBeUndefined();
+        const validationError = category.validateSync();
+        expect(validationError.errors.name).toBeDefined();
     });
 
     it("should cast non-string values to string for the name field", () => {

@@ -83,10 +83,16 @@ describe("User Profile Component Lifecycle and Interaction Tests", () => {
             expect(screen.getByPlaceholderText(/Enter Your Email/i)).toBeDisabled();
         });
 
-        test("should handle scenarios where auth user data is absent", () => {
+        test("should render empty input fields when auth user data is absent", () => {
             useAuth.mockReturnValue([{ user: null }, mockSetAuth]);
 
-            expect(() => render(<Profile />)).not.toThrow();
+            render(<Profile />);
+
+            expect(screen.getByPlaceholderText(/Enter Your Name/i)).toHaveValue("");
+            expect(screen.getByPlaceholderText(/Enter Your Email/i)).toHaveValue("");
+            expect(screen.getByPlaceholderText(/Enter Your Phone/i)).toHaveValue("");
+            expect(screen.getByPlaceholderText(/Enter Your Address/i)).toHaveValue("");
+            expect(screen.getByPlaceholderText(/Enter Your Password/i)).toHaveValue("");
         });
 
         test("should correctly display UI components (Layout and Menu)", () => {

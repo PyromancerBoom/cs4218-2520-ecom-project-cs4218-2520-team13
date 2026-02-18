@@ -15,6 +15,8 @@ const Users = () => {
       const { data } = await axios.get("/api/v1/auth/all-users");
       if (data?.success) {
         setUsers(data?.users);
+      } else {
+        toast.error(data?.message || "Failed to fetch users");
       }
     } catch (error) {
       console.log(error);
@@ -32,6 +34,8 @@ const Users = () => {
       if (data?.success) {
         toast.success("User deleted successfully");
         getUsers(); // Refresh the list to reflect changes
+      } else {
+        toast.error(data?.message || "Failed to delete user");
       }
     } catch (error) {
       console.log(error);
@@ -48,6 +52,8 @@ const Users = () => {
       if (data?.success) {
         toast.success("Role updated!");
         getUsers(); // Refresh the list to reflect changes
+      } else {
+        toast.error(data?.message || "Failed to update role");
       }
     } catch (error) {
       console.log(error);

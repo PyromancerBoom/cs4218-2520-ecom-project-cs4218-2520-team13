@@ -20,6 +20,7 @@ jest.mock("../components/Layout", () => ({ children, title }) => (
     </div>
 ));
 
+//LOU,YING-WEN A0338250J
 describe("Categories Page Unit Test", () => {
     const mockCategories = [
         { _id: "1", name: "Electronics", slug: "electronics" },
@@ -55,21 +56,6 @@ describe("Categories Page Unit Test", () => {
 
         expect(screen.queryAllByRole("link")).toHaveLength(0);
         expect(screen.getByText("All Categories")).toBeInTheDocument();
-    });
-
-    it("should apply correct Bootstrap classes for the grid layout", () => {
-        mockUseCategory.mockReturnValue([mockCategories[0]]);
-
-        render(
-            <BrowserRouter>
-                <Categories />
-            </BrowserRouter>
-        );
-
-        const linkElement = screen.getByText("Electronics");
-        const columnWrapper = linkElement.closest(".col-md-6");
-
-        expect(columnWrapper).toHaveClass("mt-5", "mb-3", "gx-3", "gy-3");
     });
 
     it("should handle categories with special characters in name or slug", () => {

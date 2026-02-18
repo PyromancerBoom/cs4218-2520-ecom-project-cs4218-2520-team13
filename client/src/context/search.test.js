@@ -5,21 +5,20 @@ const { SearchProvider, useSearch } = require("./search");
 require("@testing-library/jest-dom");
 
 const TestComponent = () => {
-    const [auth, setAuth] = useSearch();
+    const [values, setValues] = useSearch();
     return (
         <div>
-            <div data-testid="keyword">{auth.keyword}</div>
-            <div data-testid="results-count">{auth.results.length}</div>
-            <button onClick={() => setAuth({ ...auth, keyword: "laptop", results: [1, 2] })}>
+            <div data-testid="keyword">{values.keyword}</div>
+            <div data-testid="results-count">{values.results.length}</div>
+            <button onClick={() => setValues({ ...values, keyword: "laptop", results: [1, 2] })}>
                 Search
             </button>
-            <button onClick={() => setAuth({ ...auth, keyword: "new-key" })}>
+            <button onClick={() => setValues({ ...values, keyword: "new-key" })}>
                 Update Keyword Only
             </button>
         </div>
     );
 };
-
 //LOU,YING-WEN A0338250J
 describe("Search Context Unit Test", () => {
     beforeEach(() => {
@@ -84,8 +83,8 @@ describe("Search Context Unit Test", () => {
 
     it("should handle transition to empty states correctly", () => {
         const ResetComponent = () => {
-            const [auth, setAuth] = useSearch();
-            return <button onClick={() => setAuth({ keyword: "", results: [] })}>Reset</button>;
+            const [values, setValues] = useSearch();
+            return <button onClick={() => setValues({ keyword: "", results: [] })}>Reset</button>;
         };
 
         render(

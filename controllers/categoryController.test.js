@@ -29,7 +29,10 @@ describe('categoryControlller', () => {
         req = { params: {} };
         res = {
             status: jest.fn().mockReturnThis(),
-            send: jest.fn(),
+            send: jest.fn().mockImplementation((data) => {
+                res.body = data;
+                return res;
+            }),
         };
         jest.clearAllMocks();
     });
@@ -83,7 +86,10 @@ describe('singleCategoryController', () => {
         req = { params: {} };
         res = {
             status: jest.fn().mockReturnThis(),
-            send: jest.fn(),
+            send: jest.fn().mockImplementation((data) => {
+                res.body = data;
+                return res;
+            }),
         };
         jest.clearAllMocks();
     });
@@ -128,6 +134,8 @@ describe('singleCategoryController', () => {
             await singleCategoryController(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.body).toHaveProperty("success", false);
+            expect(res.body).toHaveProperty("message", "Error While getting Single Category");
             expect(consoleSpy).toHaveBeenCalledWith(mockError);
             consoleSpy.mockRestore();
         });
