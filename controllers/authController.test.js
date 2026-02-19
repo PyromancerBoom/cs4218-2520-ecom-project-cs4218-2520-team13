@@ -11,13 +11,26 @@ jest.mock('mongoose', () => ({
 
 const mockUserFindByIdAndUpdate = jest.fn();
 const mockUserFindByIdAndDelete = jest.fn();
+const mockUserFindOne = jest.fn();
 
 jest.mock('../models/userModel.js', () => ({
     findByIdAndUpdate: mockUserFindByIdAndUpdate,
-    findByIdAndDelete: mockUserFindByIdAndDelete
+    findByIdAndDelete: mockUserFindByIdAndDelete,
+    findOne: mockUserFindOne
 }));
 
-const { updateRoleController, deleteUserController, testController } = require('./authController.js');
+// Priyansh Bimbisariye, A0265903B
+const mockComparePassword = jest.fn();
+jest.mock('./../helpers/authHelper.js', () => ({
+    comparePassword: mockComparePassword
+}));
+
+const mockJwtSign = jest.fn();
+jest.mock('jsonwebtoken', () => ({
+    sign: mockJwtSign
+}));
+
+const { updateRoleController, deleteUserController, testController, loginController } = require('./authController.js');
 
 
 describe('updateRoleController', () => {
@@ -170,6 +183,153 @@ describe('testController', () => {
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
         expect(() => testController(req, res)).toThrow('send failed');
         expect(consoleSpy).toHaveBeenCalledWith(error);
+        consoleSpy.mockRestore();
+    });
+});
+
+// Priyansh Bimbisariye, A0265903B
+describe('loginController', () => {
+    let req, res;
+
+    const mockUser = {
+        _id: 'user_001',
+        name: 'John Snow',
+        email: 'john@example.com',
+        phone: '91234567',
+        address: '123 Street',
+        role: 0,
+        password: 'hashedPassword123',
+    };
+
+    beforeEach(() => {
+        req = { body: {} };
+        res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+        };
+        process.env.JWT_SECRET = 'test-secret';
+        jest.clearAllMocks();
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep partition- missing required field (email) should reject with 404
+    it('should return 404 when email is not provided', async () => {
+        // arrange
+        req.body = { password: 'password123' };
+
+        // act
+        await loginController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+            success: false,
+            message: 'Invalid email or password',
+        }));
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep partition- missing required field (password) should reject with 404
+    it('should return 404 when password is not provided', async () => {
+        // arrange
+        req.body = { email: 'john@example.com' };
+
+        // act
+        await loginController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+            success: false,
+            message: 'Invalid email or password',
+        }));
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep partition - non-existent user, email not registered
+    it('should return 404 when user is not found', async () => {
+        // arrange
+        req.body = { email: 'iqhdqhdlqwhljk@example.com', password: 'lqdhiqwudhoi2i27' };
+        mockUserFindOne.mockResolvedValue(null); // db returns no user
+
+        // act
+        await loginController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+            success: false,
+            message: 'Email is not registerd',
+        }));
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep partition - wrong credential
+    // password does not match
+    it('should return 200 with success false when password is incorrect', async () => {
+        // arrange
+        req.body = { email: 'john@example.com', password: 'wrongpassword' };
+        mockUserFindOne.mockResolvedValue(mockUser);
+        mockComparePassword.mockResolvedValue(false);
+
+        // act
+        await loginController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+            success: false,
+            message: 'Invalid Password',
+        }));
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep partition - valid partition
+    // successful login returns user info and token
+    it('should return 200 with user and token on successful login', async () => {
+        // arrange
+        req.body = { email: 'john@example.com', password: 'correctpassword' };
+        mockUserFindOne.mockResolvedValue(mockUser); // user exists
+        mockComparePassword.mockResolvedValue(true); // passwrod matches
+        mockJwtSign.mockResolvedValue('mocked-jwt-token'); // token generated
+
+        // act
+        await loginController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+            success: true,
+            message: 'login successfully',
+            token: 'mocked-jwt-token',
+            user: {
+                _id: mockUser._id,
+                name: mockUser.name,
+                email: mockUser.email,
+                phone: mockUser.phone,
+                address: mockUser.address,
+                role: mockUser.role,
+            },
+        }));
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // system should fail gracefully, not crash
+    it('should return 500 when a database error occurs', async () => {
+        // arrange
+        req.body = { email: 'john@example.com', password: 'password123' };
+        mockUserFindOne.mockRejectedValue(new Error('DB connection lost'));
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+
+        // act
+        await loginController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+            success: false,
+            message: 'Error in login',
+        }));
         consoleSpy.mockRestore();
     });
 });
