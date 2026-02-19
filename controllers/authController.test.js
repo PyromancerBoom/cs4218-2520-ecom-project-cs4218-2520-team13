@@ -266,7 +266,7 @@ describe('loginController', () => {
         expect(res.status).toHaveBeenCalledWith(404);
         expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
             success: false,
-            message: 'Email is not registerd',
+            message: 'Email is not registered',
         }));
     });
 
@@ -483,7 +483,7 @@ describe('registerController', () => {
         expect(res.status).toHaveBeenCalledWith(201);
         expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
             success: true,
-            message: 'User Register Successfully',
+            message: 'User Registered Successfully',
             user: savedUser,
         }));
     });
@@ -505,7 +505,7 @@ describe('registerController', () => {
         expect(res.status).toHaveBeenCalledWith(500);
         expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
             success: false,
-            message: 'Errro in Registeration',
+            message: 'Error in Registration',
         }));
         consoleSpy.mockRestore();
     });
