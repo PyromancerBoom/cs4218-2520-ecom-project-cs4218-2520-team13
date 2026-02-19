@@ -88,10 +88,14 @@ describe('Login Component', () => {
     expect(getByPlaceholderText('Enter Your Password').value).toBe('password123');
   });
 
+  // Priyansh Bimbisariye, A0265903B
+  // updated spec: toast must show the server's message, not undefined
+  // added msg in arrange accordignly.
   it('should login the user successfully', async () => {
     axios.post.mockResolvedValueOnce({
       data: {
         success: true,
+        message: 'Login successful',
         user: { id: 1, name: 'John Doe', email: 'test@example.com' },
         token: 'mockToken'
       }
@@ -110,7 +114,7 @@ describe('Login Component', () => {
     fireEvent.click(getByText('LOGIN'));
 
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
-    expect(toast.success).toHaveBeenCalledWith(undefined, {
+    expect(toast.success).toHaveBeenCalledWith('Login successful', {
       duration: 5000,
       icon: '🙏',
       style: {
