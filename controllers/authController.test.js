@@ -17,7 +17,7 @@ jest.mock('../models/userModel.js', () => ({
     findByIdAndDelete: mockUserFindByIdAndDelete
 }));
 
-const { updateRoleController, deleteUserController } = require('./authController.js');
+const { updateRoleController, deleteUserController, testController } = require('./authController.js');
 
 
 describe('updateRoleController', () => {
@@ -137,5 +137,39 @@ describe('deleteUserController', () => {
 
             consoleSpy.mockRestore();
         });
+    });
+});
+
+// Priyansh Bimbisariye, A0265903B
+describe('testController', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = {};
+        res = {
+            send: jest.fn(),
+        };
+        jest.clearAllMocks();
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    it('should send "Protected Routes" on success', () => {
+        testController(req, res);
+
+        expect(res.send).toHaveBeenCalledTimes(1);
+        expect(res.send).toHaveBeenCalledWith('Protected Routes');
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    it('should propagate the error if res.send throws', () => {
+        const error = new Error('send failed');
+        res.send.mockImplementation(() => {
+            throw error;
+        });
+
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+        expect(() => testController(req, res)).toThrow('send failed');
+        expect(consoleSpy).toHaveBeenCalledWith(error);
+        consoleSpy.mockRestore();
     });
 });
