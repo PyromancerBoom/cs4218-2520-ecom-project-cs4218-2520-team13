@@ -1,3 +1,5 @@
+//Aashim Mahindroo, A0265890R
+
 import React, { useState, useEffect } from "react";
 import Layout from "./../components/Layout";
 import { useCart } from "../context/cart";
@@ -17,7 +19,6 @@ const CartPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  //total price
   const totalPrice = () => {
     try {
       let total = 0;
@@ -32,7 +33,6 @@ const CartPage = () => {
       console.log(error);
     }
   };
-  //detele item
   const removeCartItem = (pid) => {
     try {
       let myCart = [...cart];
@@ -45,7 +45,6 @@ const CartPage = () => {
     }
   };
 
-  //get payment gateway token
   const getToken = async () => {
     try {
       const { data } = await axios.get("/api/v1/product/braintree/token");
@@ -55,10 +54,11 @@ const CartPage = () => {
     }
   };
   useEffect(() => {
-    getToken();
+    if (auth?.token) {
+      getToken();
+    }
   }, [auth?.token]);
 
-  //handle payments
   const handlePayment = async () => {
     try {
       setLoading(true);
@@ -112,7 +112,11 @@ const CartPage = () => {
                   </div>
                   <div className="col-md-4">
                     <p>{p.name}</p>
-                    <p>{p.description.substring(0, 30)}</p>
+                    <p>
+                      {p.description
+                        ? p.description.substring(0, 30)
+                        : "No description available"}
+                    </p>
                     <p>Price : {p.price}</p>
                   </div>
                   <div className="col-md-4 cart-remove-btn">
