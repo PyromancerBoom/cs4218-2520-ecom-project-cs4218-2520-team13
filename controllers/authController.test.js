@@ -37,7 +37,7 @@ jest.mock('jsonwebtoken', () => ({
     sign: mockJwtSign
 }));
 
-const { updateRoleController, deleteUserController, testController, loginController, registerController } = require('./authController.js');
+const { updateRoleController, deleteUserController, testController, loginController, registerController, forgotPasswordController } = require('./authController.js');
 
 
 describe('updateRoleController', () => {
@@ -523,5 +523,132 @@ describe('registerController', () => {
         // assert ,  no explicit status set, implicit 200
         expect(res.status).not.toHaveBeenCalled();
         expect(res.send).toHaveBeenCalledWith({ message: 'Name is Required' });
+    });
+});
+
+// Priyansh Bimbisariye, A0265903B
+describe('forgotPasswordController', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = {
+            body: {
+                email: 'jane@example.com',
+                answer: 'random_answer',
+                newPassword: 'newSecurePass123'
+            }
+        };
+        res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+        };
+        jest.clearAllMocks();
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep - invalid partition (missing email)
+    it('should return 400 when email is missing', async () => {
+        // arrange
+        delete req.body.email;
+
+        // act
+        await forgotPasswordController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.send).toHaveBeenCalledWith({ message: 'Email is required' });
+        expect(res.send).toHaveBeenCalledTimes(1);
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep - invalid partition (missing answer)
+    it('should return 400 when answer is missing', async () => {
+        // arrange
+        delete req.body.answer;
+
+        // act
+        await forgotPasswordController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.send).toHaveBeenCalledWith({ message: 'answer is required' });
+        expect(res.send).toHaveBeenCalledTimes(1);
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep - invalid partition (missing newPassword)
+    it('should return 400 when newPassword is missing', async () => {
+        // arrange
+        delete req.body.newPassword;
+
+        // act
+        await forgotPasswordController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.send).toHaveBeenCalledWith({ message: 'New Password is required' });
+        expect(res.send).toHaveBeenCalledTimes(1);
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep - non-existent user partition
+    // mock findOne to return null
+    it('should return 404 when email or answer is incorrect', async () => {
+        // arrange
+        mockUserFindOne.mockResolvedValue(null);
+
+        // act
+        await forgotPasswordController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+            success: false,
+            message: 'Wrong Email Or Answer'
+        }));
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep - valid partition (successful reset)
+    // mocks user found, hash success, update success
+    // state-based verification
+    it('should reset password successfully and return 200', async () => {
+        // arrange
+        const mockUser = { _id: 'user_123', email: 'jane@example.com' };
+        mockUserFindOne.mockResolvedValue(mockUser);
+        mockHashPassword.mockResolvedValue('hashedNewPass');
+        mockUserFindByIdAndUpdate.mockResolvedValue({});
+
+        // act
+        await forgotPasswordController(req, res);
+
+        // assert
+        expect(mockUserFindOne).toHaveBeenCalledWith({ email: 'jane@example.com', answer: 'random_answer' });
+        expect(mockHashPassword).toHaveBeenCalledWith('newSecurePass123');
+        expect(mockUserFindByIdAndUpdate).toHaveBeenCalledWith('user_123', { password: 'hashedNewPass' });
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+            success: true,
+            message: 'Password Reset Successfully'
+        }));
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // resilience - database error / exception path
+    it('should return 500 when something goes wrong', async () => {
+        // arrange
+        mockUserFindOne.mockRejectedValue(new Error('DB Error'));
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+
+        // act
+        await forgotPasswordController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+            success: false,
+            message: 'Something went wrong'
+        }));
+        consoleSpy.mockRestore();
     });
 });
