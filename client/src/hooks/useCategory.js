@@ -8,7 +8,7 @@ export default function useCategory() {
   const getCategories = async () => {
     try {
       const { data } = await axios.get("/api/v1/category/get-category");
-      setCategories(data?.category);
+      setCategories(data?.category || []); //bugfix: if data.category is undefined, set to empty array
     } catch (error) {
       console.log(error);
     }

@@ -171,7 +171,7 @@ export const updateProfileController = async (req, res) => {
     const user = await userModel.findById(req.user._id);
     //password
     if (password && password.length < 6) {
-      return res.json({ error: "Passsword is required and 6 character long" });
+      return res.json({ error: "Password is required and 6 character long" });
     }
     const hashedPassword = password ? await hashPassword(password) : undefined;
     const updatedUser = await userModel.findByIdAndUpdate(
@@ -186,14 +186,14 @@ export const updateProfileController = async (req, res) => {
     );
     res.status(200).send({
       success: true,
-      message: "Profile Updated SUccessfully",
+      message: "Profile Updated Successfully",
       updatedUser,
     });
   } catch (error) {
     console.log(error);
     res.status(400).send({
       success: false,
-      message: "Error WHile Update profile",
+      message: "Error While Update Profile",
       error,
     });
   }
@@ -211,7 +211,7 @@ export const getOrdersController = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Error WHile Geting Orders",
+      message: "Error While Getting Orders",
       error,
     });
   }
@@ -229,7 +229,7 @@ export const getAllOrdersController = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Error WHile Geting Orders",
+      message: "Error While Getting Orders",
       error,
     });
   }
@@ -250,7 +250,75 @@ export const orderStatusController = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Error While Updateing Order",
+      message: "Error While Updating Order",
+      error,
+    });
+  }
+};
+
+//all users
+//LOU,YING-WEN A0338250J
+export const getAllUsersController = async (req, res) => {
+  try {
+    const users = await userModel.find({}).select("-password");
+    res.status(200).send({
+      success: true,
+      message: "All Users List",
+      users,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error while getting all users",
+      error,
+    });
+  }
+};
+
+//LOU,YING-WEN A0338250J
+//update user role
+export const updateRoleController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+    const user = await userModel.findByIdAndUpdate(
+      id,
+      { role },
+      { new: true }
+    ).select("-password");
+
+    res.status(200).send({
+      success: true,
+      message: "User Role Updated Successfully",
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error while updating role",
+      error,
+    });
+  }
+};
+
+//LOU,YING-WEN A0338250J
+// delete user controller
+export const deleteUserController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await userModel.findByIdAndDelete(id).select("-password");
+    res.status(200).send({
+      success: true,
+      message: "User Deleted Successfully",
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error while deleting user",
       error,
     });
   }

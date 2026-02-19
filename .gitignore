@@ -3,3 +3,11 @@ node_modules
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+coverage/
+tests/
+.github/
+.env*
+
+# Playwright
+/playwright/.auth/
