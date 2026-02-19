@@ -12,17 +12,24 @@ jest.mock('mongoose', () => ({
 const mockUserFindByIdAndUpdate = jest.fn();
 const mockUserFindByIdAndDelete = jest.fn();
 const mockUserFindOne = jest.fn();
+const mockSave = jest.fn();
 
-jest.mock('../models/userModel.js', () => ({
-    findByIdAndUpdate: mockUserFindByIdAndUpdate,
-    findByIdAndDelete: mockUserFindByIdAndDelete,
-    findOne: mockUserFindOne
-}));
+jest.mock('../models/userModel.js', () => {
+    const fn = jest.fn().mockImplementation(() => ({
+        save: mockSave
+    }));
+    fn.findByIdAndUpdate = mockUserFindByIdAndUpdate;
+    fn.findByIdAndDelete = mockUserFindByIdAndDelete;
+    fn.findOne = mockUserFindOne;
+    return fn;
+});
 
 // Priyansh Bimbisariye, A0265903B
 const mockComparePassword = jest.fn();
+const mockHashPassword = jest.fn();
 jest.mock('./../helpers/authHelper.js', () => ({
-    comparePassword: mockComparePassword
+    comparePassword: mockComparePassword,
+    hashPassword: mockHashPassword
 }));
 
 const mockJwtSign = jest.fn();
@@ -30,7 +37,7 @@ jest.mock('jsonwebtoken', () => ({
     sign: mockJwtSign
 }));
 
-const { updateRoleController, deleteUserController, testController, loginController } = require('./authController.js');
+const { updateRoleController, deleteUserController, testController, loginController, registerController } = require('./authController.js');
 
 
 describe('updateRoleController', () => {
@@ -315,6 +322,7 @@ describe('loginController', () => {
 
     // Priyansh Bimbisariye, A0265903B
     // system should fail gracefully, not crash
+    // cft - exception path
     it('should return 500 when a database error occurs', async () => {
         // arrange
         req.body = { email: 'john@example.com', password: 'password123' };
@@ -331,5 +339,189 @@ describe('loginController', () => {
             message: 'Error in login',
         }));
         consoleSpy.mockRestore();
+    });
+});
+
+// Priyansh Bimbisariye, A0265903B
+describe('registerController', () => {
+    let req, res;
+
+    const validBody = {
+        name: 'Jane Snow',
+        email: 'jane@example.com',
+        password: 'securePass123',
+        phone: '91234568',
+        address: 'Kent Ridge',
+        answer: 'mango',
+    };
+
+    beforeEach(() => {
+        req = { body: { ...validBody } };
+        res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+        };
+        jest.clearAllMocks();
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep - missing required field (name)
+    // expected: 'message' key so frontend can catch it
+    it('should return message when name is not provided', async () => {
+        // arrange
+        req.body = { ...validBody, name: undefined };
+
+        // act
+        await registerController(req, res);
+
+        // assert ,  no explicit status set, implicit 200
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.send).toHaveBeenCalledWith({ message: 'Name is Required' });
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep - missing required field (email)
+    it('should return message when email is not provided', async () => {
+        // arrange
+        req.body = { ...validBody, email: undefined };
+
+        // act
+        await registerController(req, res);
+
+        // assert ,  no explicit status set, implicit 200
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.send).toHaveBeenCalledWith({ message: 'Email is Required' });
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep - missing required field (password)
+    it('should return message when password is not provided', async () => {
+        // arrange
+        req.body = { ...validBody, password: undefined };
+
+        // act
+        await registerController(req, res);
+
+        // assert ,  no explicit status set, implicit 200
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.send).toHaveBeenCalledWith({ message: 'Password is Required' });
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep - missing required field (phone)
+    it('should return message when phone is not provided', async () => {
+        // arrange
+        req.body = { ...validBody, phone: undefined };
+
+        // act
+        await registerController(req, res);
+
+        // assert ,  no explicit status set, implicit 200
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.send).toHaveBeenCalledWith({ message: 'Phone no is Required' });
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep - missing required field (address)
+    it('should return message when address is not provided', async () => {
+        // arrange
+        req.body = { ...validBody, address: undefined };
+
+        // act
+        await registerController(req, res);
+
+        // assert ,  no explicit status set, implicit 200
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.send).toHaveBeenCalledWith({ message: 'Address is Required' });
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep - missing required field (answer)
+    it('should return message when answer is not provided', async () => {
+        // arrange
+        req.body = { ...validBody, answer: undefined };
+
+        // act
+        await registerController(req, res);
+
+        // assert ,  no explicit status set, implicit 200
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.send).toHaveBeenCalledWith({ message: 'Answer is Required' });
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep - duplicate user partition
+    it('should return 200 with success false when user already exists', async () => {
+        // arrange
+        mockUserFindOne.mockResolvedValue({ _id: 'existing_user' });
+
+        // act
+        await registerController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+            success: false,
+            message: 'Already Register please login',
+        }));
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // ep - valid partition (happy path)
+    // verifies 201 status, success flag, and user object in response
+    it('should register user successfully and return 201', async () => {
+        // arrange
+        const savedUser = { ...validBody, _id: 'new_user_001', password: 'hashedPass' };
+        mockUserFindOne.mockResolvedValue(null);
+        mockHashPassword.mockResolvedValue('hashedPass');
+        mockSave.mockResolvedValue(savedUser);
+
+        // act
+        await registerController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+            success: true,
+            message: 'User Register Successfully',
+            user: savedUser,
+        }));
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // resilience - database error on save
+    // cft - exception path
+    it('should return 500 when a database error occurs during save', async () => {
+        // arrange
+        mockUserFindOne.mockResolvedValue(null);
+        mockHashPassword.mockResolvedValue('hashedPass');
+        mockSave.mockRejectedValue(new Error('DB write failed'));
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+
+        // act
+        await registerController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
+            success: false,
+            message: 'Errro in Registeration',
+        }));
+        consoleSpy.mockRestore();
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    // bva - zero input boundary
+    // empty body should trigger first validation guard
+    it('should return message when body is empty', async () => {
+        // arrange
+        req.body = {};
+
+        // act
+        await registerController(req, res);
+
+        // assert ,  no explicit status set, implicit 200
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.send).toHaveBeenCalledWith({ message: 'Name is Required' });
     });
 });
