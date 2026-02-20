@@ -2,7 +2,10 @@
 
 //Based on the directions of my user stories and recommended testing methods like equivalence partitioning and boundary value analysis, Github Copilot generates initial test code for this file.
 //Then I manually review the code and make necessary adjustments like adjusting mocks and assertions, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
-jest.mock("../models/orderModel.js");
+jest.mock("../models/orderModel.js", () => ({
+  __esModule: true,
+  default: jest.fn()
+}));
 
 const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 jest.mock("braintree", () => {
@@ -198,22 +201,6 @@ jest.mock('../models/categoryModel.js', () => ({
   default: { findOne: jest.fn() }
 }));
 
-jest.mock('../models/orderModel.js', () => ({
-  __esModule: true,
-  default: jest.fn()
-}));
-
-jest.mock('braintree', () => ({
-  __esModule: true,
-  default: {
-    BraintreeGateway: jest.fn().mockImplementation(() => ({
-      clientToken: { generate: jest.fn() },
-      transaction: { sale: jest.fn() }
-    })),
-    Environment: { Sandbox: 'sandbox' }
-  }
-}));
-
 jest.mock('dotenv', () => ({
   __esModule: true,
   default: { config: jest.fn() }
@@ -225,7 +212,6 @@ const MockProductModel = require('../models/productModel.js').default;
 const mockReadFileSync = require('fs').readFileSync;
 const mockSlugify = require('slugify').default;
 
-// Mock save function shared across all product instances
 const mockProductSave = jest.fn();
 const mockProductFindByIdAndUpdate = jest.fn();
 const mockProductFindByIdAndDelete = jest.fn();
@@ -237,14 +223,6 @@ MockProductModel.mockImplementation((data) => ({
 }));
 MockProductModel.findByIdAndUpdate = mockProductFindByIdAndUpdate;
 MockProductModel.findByIdAndDelete = mockProductFindByIdAndDelete;
-
-beforeAll(() => {
-  jest.spyOn(console, 'log').mockImplementation(() => {});
-});
-
-afterAll(() => {
-  console.log.mockRestore();
-});
 
 // Wei Sheng, A0259272X
 describe('createProductController', () => {
