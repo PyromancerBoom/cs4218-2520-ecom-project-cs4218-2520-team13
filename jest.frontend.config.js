@@ -28,6 +28,7 @@ export default {
     "<rootDir>/client/src/pages/Categories.test.js",
     "<rootDir>/client/src/pages/Search.test.js",
     "<rootDir>/client/src/pages/admin/Users.test.js",
+    "<rootDir>/client/src/pages/admin/AdminDashboard.test.js",
     "<rootDir>/client/src/context/search.test.js",
     "<rootDir>/client/src/pages/user/Profile.test.js",
     "<rootDir>/client/src/pages/Auth/*.test.js"

@@ -69,4 +69,24 @@ describe('AdminMenu Component', () => {
             expect(link).toHaveAttribute('href', route);
         });
     });
+
+    // Priyansh Bimbisariye, A0265903B
+    // partition, styling contract partition
+    it('all navigation links have the correct CSS classes', () => {
+        // arrange
+        render(
+            <MemoryRouter>
+                <AdminMenu />
+            </MemoryRouter>
+        );
+
+        // act
+        const links = screen.getAllByRole('link');
+
+        // assert
+        links.forEach((link) => {
+            expect(link).toHaveClass('list-group-item');
+            expect(link).toHaveClass('list-group-item-action');
+        });
+    });
 });
