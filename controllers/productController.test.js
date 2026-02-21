@@ -59,6 +59,7 @@ describe("Braintree Controllers", () => {
 
   describe("braintreeTokenController", () => {
     
+    //Aashim Mahindroo, A0265890R
     test("Success: Should send client token when gateway generates it", async () => {
       const mockResponse = { clientToken: "fake-client-token" };
       
@@ -72,6 +73,7 @@ describe("Braintree Controllers", () => {
       expect(res.send).toHaveBeenCalledWith(mockResponse);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("Failure: Should send 500 status when gateway fails", async () => {
       const mockError = new Error("Braintree Error");
       
@@ -98,6 +100,7 @@ describe("Braintree Controllers", () => {
       req.body = { cart, nonce };
     });
 
+    //Aashim Mahindroo, A0265890R
     test("Success: Should process payment and save order", async () => {
       const mockTransactionResult = { success: true, transaction: { id: "trans123" } };
       mockGatewayInstance.transaction.sale.mockImplementation((data, callback) => {
@@ -132,6 +135,7 @@ describe("Braintree Controllers", () => {
       expect(res.json).toHaveBeenCalledWith({ ok: true });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("Failure: Should handle transaction decline (Gateway Error)", async () => {
       const mockError = new Error("Card Declined");
       mockGatewayInstance.transaction.sale.mockImplementation((data, callback) => {
@@ -145,6 +149,7 @@ describe("Braintree Controllers", () => {
       expect(res.send).toHaveBeenCalledWith(mockError);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("Failure: Should handle transaction result success=false", async () => {
       const mockResult = { success: false, message: "Limit Exceeded" };
       mockGatewayInstance.transaction.sale.mockImplementation((data, callback) => {
@@ -158,6 +163,7 @@ describe("Braintree Controllers", () => {
       expect(res.send).toHaveBeenCalledWith(mockResult); 
     });
 
+    //Aashim Mahindroo, A0265890R
     test("Internal Error: Should handle crash inside controller", async () => {
       req.body.cart = null;
 

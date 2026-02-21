@@ -15,6 +15,7 @@ jest.mock('./../components/Layout', () => ({ children, title }) => (
 
 describe('PageNotFound Logic', () => {
   
+  //Aashim Mahindroo, A0265890R
   test('Configuration Logic: Passes correct title to Layout', () => {
     render(
       <BrowserRouter>
@@ -26,6 +27,7 @@ describe('PageNotFound Logic', () => {
     expect(layout).toHaveAttribute('title', 'go back- page not found');
   });
 
+  //Aashim Mahindroo, A0265890R
   test('Navigation Logic: "Go Back" link points to Home ("/")', () => {
     render(
       <BrowserRouter>

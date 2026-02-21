@@ -18,6 +18,7 @@ jest.mock('react-hot-toast', () => ({ Toaster: () => <div /> }));
 
 describe('Layout Logic Tests', () => {
 
+  //Aashim Mahindroo, A0265890R
   test('Partition 1 (Defaults): Should use all defaultProps for SEO when no inputs provided', () => {
     render(<Layout>Content</Layout>);
     
@@ -30,6 +31,7 @@ describe('Layout Logic Tests', () => {
     expect(helmetContent.querySelector('meta[name="author"][content="Techinfoyt"]')).toBeInTheDocument();
   });
 
+  //Aashim Mahindroo, A0265890R
   test('Partition 2 (Custom): Should override ALL SEO defaults when props are provided', () => {
     const customProps = {
       title: "My Custom Title",
@@ -51,6 +53,7 @@ describe('Layout Logic Tests', () => {
     expect(helmetContent.querySelector('meta[name="author"][content="Techinfoyt"]')).not.toBeInTheDocument();
   });
 
+  //Aashim Mahindroo, A0265890R
   test('Wrapper Logic: Should correctly inject children into the main container', () => {
     render(
       <Layout>
