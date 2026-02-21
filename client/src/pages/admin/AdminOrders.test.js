@@ -140,6 +140,16 @@ describe('AdminOrders Component', () => {
       });
       consoleSpy.mockRestore();
     });
+
+    // Priyansh Bimbisariye, A0265903B
+    // null partition
+    it('should not fetch when auth itself is null', () => {
+      useAuth.mockReturnValue([null, mockSetAuth]);
+
+      render(<AdminOrders />);
+
+      expect(axios.get).not.toHaveBeenCalled();
+    });
   });
 
   describe('Order display', () => {
@@ -351,6 +361,72 @@ describe('AdminOrders Component', () => {
       await renderWithOrders([]);
       expect(screen.getByText('All Orders')).toBeInTheDocument();
       expect(screen.queryByTestId('status-select')).not.toBeInTheDocument();
+    });
+  });
+
+  // Priyansh Bimbisariye, A0265903B
+  describe('Resilience', () => {
+    // Priyansh Bimbisariye, A0265903B
+    // undefined boundary bva
+    it('should render order info when order.products is undefined', async () => {
+      const orderWithUndefinedProducts = {
+        _id: 'order-no-products',
+        status: 'Processing',
+        buyer: { name: 'Test User' },
+        createAt: new Date('2024-01-01'),
+        payment: { success: true },
+        products: undefined
+      };
+      await renderWithOrders([orderWithUndefinedProducts]);
+
+      expect(screen.getByText('Test User')).toBeInTheDocument();
+      expect(screen.getByText('Processing')).toBeInTheDocument();
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    it('should handle product with undefined description', async () => {
+      const orderWithUndefinedDescription = {
+        _id: 'order-undefined-desc',
+        status: 'Not Process',
+        buyer: { name: 'Bug Test User' },
+        createAt: new Date('2024-01-01'),
+        payment: { success: true },
+        products: [
+          {
+            _id: 'product-no-desc',
+            name: 'Product Without Description',
+            description: undefined,
+            price: 50
+          }
+        ]
+      };
+      await renderWithOrders([orderWithUndefinedDescription]);
+
+      expect(screen.getByText('Product Without Description')).toBeInTheDocument();
+      expect(screen.getByText('Price : 50')).toBeInTheDocument();
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    it('should render safely when order.buyer is undefined', async () => {
+      const orderWithUndefinedBuyer = {
+        _id: 'order-no-buyer',
+        status: 'Shipped',
+        buyer: undefined,
+        createAt: new Date('2024-01-01'),
+        payment: { success: true },
+        products: [
+          {
+            _id: 'product-valid',
+            name: 'Valid Product',
+            description: 'A valid product description',
+            price: 75
+          }
+        ]
+      };
+      await renderWithOrders([orderWithUndefinedBuyer]);
+
+      expect(screen.getByText('Valid Product')).toBeInTheDocument();
+      expect(screen.getByTestId('status-select')).toHaveValue('Shipped');
     });
   });
 });
