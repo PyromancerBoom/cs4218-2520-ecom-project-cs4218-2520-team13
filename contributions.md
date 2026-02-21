@@ -35,9 +35,10 @@
 - Category - `controllers/categoryController.js`
 1. categoryControlller
 2. singleCategoryController
-- Payment - `controllers/productController.js`
-1. braintreeTokenController
-2. brainTreePaymentControlle
+- Order - `controllers/authController.js`
+1. getAllUsersController
+2. updateRoleController
+3. deleteUserController
 
 ## Yik Seng
 - Product - `pages/ProductDetails.js`, `pages/CategoryProduct.js`, `models/productModel.js`
@@ -58,3 +59,6 @@
 - General - `components/Layout.js`, `components/Header.js`, `components/Footer.js`, `components/Spinner.js`, `pages/Pagenotfound.js`, `pages/About.js`, `config/db.js`
 - Home - `pages/HomePage.js`
 - Cart - `pages/CartPage.js`, `context/cart.js`
+- Payment - `controllers/productController.js`
+1. braintreeTokenController
+2. brainTreePaymentControlle
