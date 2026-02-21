@@ -32,11 +32,13 @@ describe('Cart Context - Logic & Persistence', () => {
 
   describe('Initialization Logic', () => {
     
+    //Aashim Mahindroo, A0265890R
     test('Init 1: Should initialize with empty array if localStorage is null', () => {
       const { result } = renderHook(() => useCart(), { wrapper: CartProvider });
       expect(result.current[0]).toEqual([]);
     });
 
+    //Aashim Mahindroo, A0265890R
     test('Init 2: Should initialize with data from localStorage', () => {
       store['cart'] = JSON.stringify([{ id: 1, name: 'Product' }]);
       
@@ -45,6 +47,7 @@ describe('Cart Context - Logic & Persistence', () => {
       expect(result.current[0][0].name).toBe('Product');
     });
 
+    //Aashim Mahindroo, A0265890R
     test('Init 3: Should handle corrupt JSON gracefully (No Crash)', () => {
       store['cart'] = 'INVALID_JSON_{{';
       
@@ -61,6 +64,7 @@ describe('Cart Context - Logic & Persistence', () => {
 
   describe('Persistence Logic', () => {
     
+    //Aashim Mahindroo, A0265890R
     test('Persist 1: Updates should auto-save to localStorage', async () => {
       store['cart'] = JSON.stringify([]);
       const { result } = renderHook(() => useCart(), { wrapper: CartProvider });
@@ -75,6 +79,7 @@ describe('Cart Context - Logic & Persistence', () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test('Persist 2: Clearing cart should auto-save empty array', async () => {
       store['cart'] = JSON.stringify([{ id: 1 }]);
       const { result } = renderHook(() => useCart(), { wrapper: CartProvider });
@@ -92,6 +97,7 @@ describe('Cart Context - Logic & Persistence', () => {
 
   describe('Hook Behavior', () => {
     
+    //Aashim Mahindroo, A0265890R
     test('Hook 1: Should throw error if used outside Provider', () => {
       const originalError = console.error;
       console.error = jest.fn();

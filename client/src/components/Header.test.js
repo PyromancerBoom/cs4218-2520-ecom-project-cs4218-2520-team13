@@ -32,6 +32,7 @@ describe('Header Component Logic', () => {
   });
 
   describe('Authentication Partitions', () => {
+    //Aashim Mahindroo, A0265890R
     test('Guest View: Shows Login/Register, hides Logout/UserDropdown', () => {
       useAuth.mockReturnValue([{ user: null }, jest.fn()]);
       renderHeader();
@@ -41,6 +42,7 @@ describe('Header Component Logic', () => {
       expect(screen.queryByText(/logout/i)).not.toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test('Authenticated View: Shows User Name/Logout, hides Login/Register', () => {
       useAuth.mockReturnValue([{ user: { name: 'Aashim', role: 0 } }, jest.fn()]);
       renderHeader();
@@ -52,6 +54,7 @@ describe('Header Component Logic', () => {
   });
 
   describe('Role-Based Dashboard Routing', () => {
+    //Aashim Mahindroo, A0265890R
     test('Role 0 (User): Navigates to /dashboard/user', () => {
       useAuth.mockReturnValue([{ user: { name: 'User', role: 0 } }, jest.fn()]);
       renderHeader();
@@ -59,6 +62,7 @@ describe('Header Component Logic', () => {
       expect(links[0].closest('a')).toHaveAttribute('href', '/dashboard/user');
     });
 
+    //Aashim Mahindroo, A0265890R
     test('Role 1 (Admin): Navigates to /dashboard/admin', () => {
       useAuth.mockReturnValue([{ user: { name: 'Admin', role: 1 } }, jest.fn()]);
       renderHeader();
@@ -68,6 +72,7 @@ describe('Header Component Logic', () => {
   });
 
   describe('Dynamic Data (Cart & Categories)', () => {
+    //Aashim Mahindroo, A0265890R
     test('Cart Badge: Displays correct count', () => {
       useAuth.mockReturnValue([{ user: null }, jest.fn()]);
       useCart.mockReturnValue([ [1, 2, 3] ]);
@@ -76,6 +81,7 @@ describe('Header Component Logic', () => {
       expect(screen.getByTestId('badge')).toHaveTextContent('3');
     });
 
+    //Aashim Mahindroo, A0265890R
     test('Categories: Renders list dynamically from hook', () => {
       useAuth.mockReturnValue([{ user: null }, jest.fn()]);
       useCategory.mockReturnValue([
@@ -89,6 +95,7 @@ describe('Header Component Logic', () => {
     });
   });
 
+  //Aashim Mahindroo, A0265890R
   test('Logout Action: Clears state and localstorage', () => {
     const setAuth = jest.fn();
     useAuth.mockReturnValue([{ user: { name: 'User' } }, setAuth]);

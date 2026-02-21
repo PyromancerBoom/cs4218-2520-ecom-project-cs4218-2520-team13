@@ -204,6 +204,7 @@ describe("HomePage", () => {
   });
 
   describe("Initial Rendering & Data Loading", () => {
+    //Aashim Mahindroo, A0265890R
     test("should render Layout with correct title prop", async () => {
       setupMocks();
       await renderHomePage();
@@ -213,6 +214,7 @@ describe("HomePage", () => {
       );
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should render banner image with correct src and alt", async () => {
       setupMocks();
       await renderHomePage();
@@ -221,6 +223,7 @@ describe("HomePage", () => {
       expect(banner).toHaveAttribute("width", "100%");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should display filter and product headings", async () => {
       setupMocks();
       await renderHomePage();
@@ -229,6 +232,7 @@ describe("HomePage", () => {
       expect(screen.getByText("All Products")).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should fetch categories, product count, and page 1 products on mount", async () => {
       setupMocks();
       await renderHomePage();
@@ -239,6 +243,7 @@ describe("HomePage", () => {
       );
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should render RESET FILTERS button", async () => {
       setupMocks();
       await renderHomePage();
@@ -249,12 +254,14 @@ describe("HomePage", () => {
   });
 
   describe("Category Rendering - EP", () => {
+    //Aashim Mahindroo, A0265890R
     test("EP(0 categories): should render no checkboxes when API returns empty", async () => {
       setupMocks({ categories: [] });
       await renderHomePage();
       expect(screen.queryAllByRole("checkbox")).toHaveLength(0);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(1 category): should render exactly one category checkbox", async () => {
       setupMocks({ categories: [mockCategories[0]] });
       await renderHomePage();
@@ -264,6 +271,7 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(3 categories): should render all category checkboxes", async () => {
       setupMocks();
       await renderHomePage();
@@ -274,6 +282,7 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should render all price filter radio options from Prices data", async () => {
       setupMocks();
       await renderHomePage();
@@ -284,6 +293,7 @@ describe("HomePage", () => {
   });
 
   describe("Product Rendering - EP", () => {
+    //Aashim Mahindroo, A0265890R
     test("EP(0 products): should render no product cards", async () => {
       setupMocks({ products: [], total: 0 });
       await renderHomePage();
@@ -291,6 +301,7 @@ describe("HomePage", () => {
       expect(screen.queryByText("ADD TO CART")).not.toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(1 product): should render exactly one product card", async () => {
       setupMocks({ products: [mockProducts[0]], total: 1 });
       await renderHomePage();
@@ -301,6 +312,7 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(2 products): should render all product cards with buttons", async () => {
       setupMocks();
       await renderHomePage();
@@ -312,6 +324,7 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should render product image with API photo URL", async () => {
       setupMocks({ products: [mockProducts[0]], total: 1 });
       await renderHomePage();
@@ -334,6 +347,7 @@ describe("HomePage", () => {
         description: desc,
       });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(length=59): should show full 59-char text with trailing '...'", async () => {
       const desc = "A".repeat(59);
       setupMocks({ products: [makeProduct(desc)], total: 1 });
@@ -343,6 +357,7 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(length=60): should show full 60-char text with trailing '...'", async () => {
       const desc = "B".repeat(60);
       setupMocks({ products: [makeProduct(desc)], total: 1 });
@@ -352,6 +367,7 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(length=61): should truncate to 60 chars with trailing '...'", async () => {
       const desc = "C".repeat(61);
       setupMocks({ products: [makeProduct(desc)], total: 1 });
@@ -361,6 +377,7 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(empty string): should render product without crashing", async () => {
       setupMocks({ products: [makeProduct("")], total: 1 });
       await renderHomePage();
@@ -369,12 +386,14 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BUG: should handle null description without crashing", async () => {
       setupMocks({ products: [makeProduct(null)], total: 1 });
       await renderHomePage();
       expect(screen.getByText("DescTest")).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BUG: should handle undefined description without crashing", async () => {
       const product = createProduct({
         _id: "pUndef",
@@ -398,6 +417,7 @@ describe("HomePage", () => {
         price,
       });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(price=0): should display $0.00", async () => {
       setupMocks({ products: [makeProduct(0)], total: 1 });
       await renderHomePage();
@@ -406,6 +426,7 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(price=0.01): should display $0.01", async () => {
       setupMocks({ products: [makeProduct(0.01)], total: 1 });
       await renderHomePage();
@@ -414,6 +435,7 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(price=49.99): should display $49.99", async () => {
       setupMocks({ products: [makeProduct(49.99)], total: 1 });
       await renderHomePage();
@@ -422,6 +444,7 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(price=9999.99): should display $9,999.99 with comma", async () => {
       setupMocks({ products: [makeProduct(9999.99)], total: 1 });
       await renderHomePage();
@@ -430,12 +453,14 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BUG: should handle null price without crashing", async () => {
       setupMocks({ products: [makeProduct(null)], total: 1 });
       await renderHomePage();
       expect(screen.getByText("PriceTest")).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BUG: should handle undefined price without crashing", async () => {
       const product = createProduct({
         _id: "pUndefP",
@@ -451,6 +476,7 @@ describe("HomePage", () => {
   });
 
   describe("Navigation", () => {
+    //Aashim Mahindroo, A0265890R
     test("should navigate to /product/:slug on 'More Details' click", async () => {
       setupMocks({ products: [mockProducts[0]], total: 1 });
       await renderHomePage();
@@ -460,6 +486,7 @@ describe("HomePage", () => {
       expect(mockNavigate).toHaveBeenCalledWith("/product/laptop");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should navigate to correct slug for each product", async () => {
       setupMocks();
       await renderHomePage();
@@ -474,6 +501,7 @@ describe("HomePage", () => {
   });
 
   describe("Add to Cart - EP", () => {
+    //Aashim Mahindroo, A0265890R
     test("EP(empty cart): should add product and show success toast", async () => {
       setupMocks({ cart: [] });
       await renderHomePage();
@@ -490,6 +518,7 @@ describe("HomePage", () => {
       expect(toast.success).toHaveBeenCalledWith("Item Added to cart");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(existing cart, new item): should append new product to cart", async () => {
       setupMocks({ cart: [mockProducts[0]] });
       await renderHomePage();
@@ -505,6 +534,7 @@ describe("HomePage", () => {
       expect(toast.success).toHaveBeenCalledWith("Item Added to cart");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BUG: should prevent adding duplicate product to cart", async () => {
       setupMocks({ cart: [mockProducts[0]] });
       await renderHomePage();
@@ -517,6 +547,7 @@ describe("HomePage", () => {
   });
 
   describe("Pagination - BVA", () => {
+    //Aashim Mahindroo, A0265890R
     test("BVA(products < total): should show Loadmore button", async () => {
       setupMocks({ products: mockProducts, total: 6 });
       await renderHomePage();
@@ -525,6 +556,7 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(products === total): should NOT show Loadmore button", async () => {
       setupMocks({ products: mockProducts, total: 2 });
       await renderHomePage();
@@ -533,6 +565,7 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(products === total - 1): should show Loadmore button", async () => {
       setupMocks({ products: mockProducts, total: 3 });
       await renderHomePage();
@@ -541,6 +574,7 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(products > total): should NOT show Loadmore button", async () => {
       setupMocks({ products: mockProducts, total: 1 });
       await renderHomePage();
@@ -549,12 +583,14 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(0 products, total=0): should NOT show Loadmore button", async () => {
       setupMocks({ products: [], total: 0 });
       await renderHomePage();
       expect(screen.queryByText(/loadmore/i)).not.toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should fetch page 2 when Loadmore is clicked once", async () => {
       setupMocks({ total: 6 });
       await renderHomePage();
@@ -566,6 +602,7 @@ describe("HomePage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should append page 2 products to existing list", async () => {
       setupMocks({ total: 6 });
       await renderHomePage();
@@ -584,6 +621,7 @@ describe("HomePage", () => {
   });
 
   describe("Category Filter", () => {
+    //Aashim Mahindroo, A0265890R
     test("should call filter API when a category checkbox is checked", async () => {
       setupMocks();
       await renderHomePage();
@@ -604,6 +642,7 @@ describe("HomePage", () => {
   });
 
   describe("Price Filter", () => {
+    //Aashim Mahindroo, A0265890R
     test("should call filter API when a price radio is selected", async () => {
       setupMocks();
       await renderHomePage();
@@ -625,6 +664,7 @@ describe("HomePage", () => {
   });
 
   describe("Reset Filters", () => {
+    //Aashim Mahindroo, A0265890R
     test("BUG: RESET FILTERS should clear filter state without page reload", async () => {
       setupMocks();
       await renderHomePage();
@@ -657,6 +697,7 @@ describe("HomePage", () => {
   });
 
   describe("Filter Race Condition", () => {
+    //Aashim Mahindroo, A0265890R
     test("BUG: should NOT call getAllProducts when only category filter is active", async () => {
       setupMocks();
       await renderHomePage();
@@ -683,6 +724,7 @@ describe("HomePage", () => {
   });
 
   describe("Load More with Active Filters", () => {
+    //Aashim Mahindroo, A0265890R
     test("BUG: should hide Loadmore button when filters are active", async () => {
       setupMocks({
         total: 6,
@@ -706,6 +748,7 @@ describe("HomePage", () => {
   });
 
   describe("API Error Handling", () => {
+    //Aashim Mahindroo, A0265890R
     test("should handle category API failure gracefully", async () => {
       setupMocks();
       axios.get.mockImplementation((url) => {
@@ -725,6 +768,7 @@ describe("HomePage", () => {
       expect(screen.getByText("All Products")).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should handle product list API failure gracefully", async () => {
       setupMocks();
       axios.get.mockImplementation((url) => {
@@ -746,6 +790,7 @@ describe("HomePage", () => {
       expect(screen.getByText("All Products")).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should handle product count API failure gracefully", async () => {
       setupMocks();
       axios.get.mockImplementation((url) => {
@@ -767,6 +812,7 @@ describe("HomePage", () => {
       expect(screen.getByText("All Products")).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should handle filter API failure gracefully", async () => {
       setupMocks();
       axios.post.mockRejectedValue(new Error("Filter Error"));
@@ -780,6 +826,7 @@ describe("HomePage", () => {
       expect(screen.getByText("All Products")).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should not render categories when API returns success=false", async () => {
       setupMocks();
       axios.get.mockImplementation((url) => {

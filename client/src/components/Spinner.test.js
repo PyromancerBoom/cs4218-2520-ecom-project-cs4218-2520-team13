@@ -23,6 +23,7 @@ describe('Spinner Logic Tests', () => {
     jest.useRealTimers();
   });
 
+  //Aashim Mahindroo, A0265890R
   test('Countdown Logic: Decrements count visible to user', () => {
     render(<Spinner />);
     
@@ -32,6 +33,7 @@ describe('Spinner Logic Tests', () => {
     expect(screen.getByText(/2 second/i)).toBeInTheDocument();
   });
 
+  //Aashim Mahindroo, A0265890R
   test('Default Partition: Redirects to /login with state after 3 seconds', () => {
     render(<Spinner />);
 
@@ -42,6 +44,7 @@ describe('Spinner Logic Tests', () => {
     });
   });
 
+  //Aashim Mahindroo, A0265890R
   test('Custom Partition: Redirects to /{path} prop after 3 seconds', () => {
     render(<Spinner path="dashboard" />);
 
@@ -52,6 +55,7 @@ describe('Spinner Logic Tests', () => {
     });
   });
 
+  //Aashim Mahindroo, A0265890R
   test('Cleanup Logic: Does not redirect if component unmounts early', () => {
     const { unmount } = render(<Spinner />);
 

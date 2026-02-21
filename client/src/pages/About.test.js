@@ -14,6 +14,7 @@ jest.mock('./../components/Layout', () => {
 
 describe('About Page Logic', () => {
   
+  //Aashim Mahindroo, A0265890R
   test('Configuration Logic: Should pass specific title to Layout wrapper', () => {
     render(<About />);
 

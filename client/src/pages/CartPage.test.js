@@ -160,12 +160,14 @@ describe("CartPage", () => {
   });
 
   describe("Greeting Display - EP", () => {
+    //Aashim Mahindroo, A0265890R
     test("EP(guest): should display 'Hello Guest'", async () => {
       setupMocks({ auth: { user: null, token: "" } });
       await renderCartPage();
       expect(screen.getByText("Hello Guest")).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(authenticated): should display user name in greeting", async () => {
       setupMocks({
         auth: { user: { name: "Aashim", address: "123 St" }, token: "tok123" },
@@ -177,12 +179,14 @@ describe("CartPage", () => {
   });
 
   describe("Cart Items Count - EP & BVA", () => {
+    //Aashim Mahindroo, A0265890R
     test("EP(0 items): should display 'Your Cart Is Empty'", async () => {
       setupMocks({ auth: { user: null, token: "" }, cart: [] });
       await renderCartPage();
       expect(screen.getByText(/Your Cart Is Empty/)).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(1 item): should display '1 items in your cart'", async () => {
       setupMocks({
         auth: { user: { name: "User" }, token: "tok" },
@@ -194,6 +198,7 @@ describe("CartPage", () => {
       ).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(3 items): should display '3 items in your cart'", async () => {
       setupMocks({
         auth: { user: { name: "User" }, token: "tok" },
@@ -205,6 +210,7 @@ describe("CartPage", () => {
       ).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(guest with items): should show 'please login to checkout'", async () => {
       setupMocks({
         auth: { user: null, token: "" },
@@ -214,6 +220,7 @@ describe("CartPage", () => {
       expect(screen.getByText(/please login to checkout/)).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(auth with items): should NOT show login prompt", async () => {
       setupMocks({
         auth: { user: { name: "User" }, token: "tok" },
@@ -227,12 +234,14 @@ describe("CartPage", () => {
   });
 
   describe("Cart Product Rendering - EP", () => {
+    //Aashim Mahindroo, A0265890R
     test("EP(0 items): should render no product cards", async () => {
       setupMocks({ cart: [] });
       await renderCartPage();
       expect(screen.queryByText("Remove")).not.toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(1 item): should render product details", async () => {
       setupMocks({ cart: [mockProducts[0]] });
       await renderCartPage();
@@ -245,6 +254,7 @@ describe("CartPage", () => {
       expect(screen.getByText("Remove")).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(3 items): should render all product cards with Remove buttons", async () => {
       setupMocks({ cart: mockProducts });
       await renderCartPage();
@@ -259,6 +269,7 @@ describe("CartPage", () => {
     const makeProduct = (desc) =>
       createProduct({ _id: "pDesc", name: "DescTest", description: desc });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(length=29): should show full 29-char text", async () => {
       const desc = "A".repeat(29);
       setupMocks({ cart: [makeProduct(desc)] });
@@ -266,6 +277,7 @@ describe("CartPage", () => {
       expect(screen.getByText(desc)).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(length=30): should show full 30-char text", async () => {
       const desc = "B".repeat(30);
       setupMocks({ cart: [makeProduct(desc)] });
@@ -273,6 +285,7 @@ describe("CartPage", () => {
       expect(screen.getByText(desc)).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(length=31): should truncate to 30 chars", async () => {
       const desc = "C".repeat(31);
       setupMocks({ cart: [makeProduct(desc)] });
@@ -280,18 +293,21 @@ describe("CartPage", () => {
       expect(screen.getByText("C".repeat(30))).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(empty string): should render product without crashing", async () => {
       setupMocks({ cart: [makeProduct("")] });
       await renderCartPage();
       expect(screen.getByText("DescTest")).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BUG: should handle null description without crashing", async () => {
       setupMocks({ cart: [makeProduct(null)] });
       await renderCartPage();
       expect(screen.getByText("DescTest")).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BUG: should handle undefined description without crashing", async () => {
       const product = createProduct({ _id: "pUndef", name: "UndefDesc" });
       delete product.description;
@@ -302,12 +318,14 @@ describe("CartPage", () => {
   });
 
   describe("Total Price Calculation - EP & BVA", () => {
+    //Aashim Mahindroo, A0265890R
     test("EP(0 items): should display $0.00", async () => {
       setupMocks({ cart: [] });
       await renderCartPage();
       expect(screen.getByText(/Total :/)).toHaveTextContent("$0.00");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(price=0): should display $0.00 for zero-priced item", async () => {
       setupMocks({
         cart: [createProduct({ _id: "p0", price: 0, description: "Valid desc for testing purposes" })],
@@ -316,6 +334,7 @@ describe("CartPage", () => {
       expect(screen.getByText(/Total :/)).toHaveTextContent("$0.00");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(1 item, price=49.99): should display $49.99", async () => {
       setupMocks({
         cart: [
@@ -326,6 +345,7 @@ describe("CartPage", () => {
       expect(screen.getByText(/Total :/)).toHaveTextContent("$49.99");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(2 items): should display sum of prices", async () => {
       setupMocks({
         cart: [
@@ -337,6 +357,7 @@ describe("CartPage", () => {
       expect(screen.getByText(/Total :/)).toHaveTextContent("$300.00");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BVA(large total): should format with commas", async () => {
       setupMocks({
         cart: [
@@ -348,6 +369,7 @@ describe("CartPage", () => {
       expect(screen.getByText(/Total :/)).toHaveTextContent("$10,000.00");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BUG: totalPrice should handle item with null price gracefully", async () => {
       setupMocks({
         cart: [
@@ -361,6 +383,7 @@ describe("CartPage", () => {
   });
 
   describe("Remove Cart Item - EP", () => {
+    //Aashim Mahindroo, A0265890R
     test("EP(valid item): should call setCart and update localStorage", async () => {
       setupMocks({ cart: [mockProducts[0], mockProducts[1]] });
       await renderCartPage();
@@ -380,6 +403,7 @@ describe("CartPage", () => {
       );
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(single item): should result in empty cart", async () => {
       setupMocks({ cart: [mockProducts[0]] });
       await renderCartPage();
@@ -390,6 +414,7 @@ describe("CartPage", () => {
       expect(setItemSpy).toHaveBeenCalledWith("cart", "[]");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BUG: removeCartItem should not remove any item if pid is not found", async () => {
       const cart = [mockProducts[0], mockProducts[1]];
       setupMocks({ cart });
@@ -403,6 +428,7 @@ describe("CartPage", () => {
       ]);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("BUG: Remove specific instance of duplicate item", async () => {
       const laptop = createProduct({ _id: "prod1", name: "Laptop" });
       setupMocks({ cart: [laptop, laptop] });
@@ -416,6 +442,7 @@ describe("CartPage", () => {
   });
 
   describe("Address & Navigation - EP", () => {
+    //Aashim Mahindroo, A0265890R
     test("EP(guest): should show login button", async () => {
       setupMocks({ auth: { user: null, token: "" }, cart: [mockProducts[0]] });
       await renderCartPage();
@@ -424,6 +451,7 @@ describe("CartPage", () => {
       ).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(guest): login button should navigate to /login with state '/cart'", async () => {
       setupMocks({ auth: { user: null, token: "" }, cart: [mockProducts[0]] });
       await renderCartPage();
@@ -433,6 +461,7 @@ describe("CartPage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(auth, no address): should show 'Update Address' button", async () => {
       setupMocks({
         auth: { user: { name: "User" }, token: "tok" },
@@ -442,6 +471,7 @@ describe("CartPage", () => {
       expect(screen.getByText("Update Address")).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(auth, no address): Update Address navigates to profile", async () => {
       setupMocks({
         auth: { user: { name: "User" }, token: "tok" },
@@ -452,6 +482,7 @@ describe("CartPage", () => {
       expect(mockNavigate).toHaveBeenCalledWith("/dashboard/user/profile");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(auth, with address): should display current address", async () => {
       setupMocks({
         auth: {
@@ -467,6 +498,7 @@ describe("CartPage", () => {
   });
 
   describe("Payment Gateway - EP", () => {
+    //Aashim Mahindroo, A0265890R
     test("EP(no clientToken): should not render DropIn or Make Payment", async () => {
       setupMocks({
         auth: { user: { name: "User", address: "123 St" }, token: "tok" },
@@ -479,6 +511,7 @@ describe("CartPage", () => {
       expect(screen.queryByText("Make Payment")).not.toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(no auth token): should not render DropIn", async () => {
       setupMocks({
         auth: { user: null, token: "" },
@@ -488,6 +521,7 @@ describe("CartPage", () => {
       expect(screen.queryByTestId("dropin")).not.toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(empty cart): should not render DropIn", async () => {
       setupMocks({
         auth: { user: { name: "User", address: "123 St" }, token: "tok" },
@@ -497,6 +531,7 @@ describe("CartPage", () => {
       expect(screen.queryByTestId("dropin")).not.toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(all conditions met): should render DropIn and Make Payment", async () => {
       setupMocks({
         auth: { user: { name: "User", address: "123 St" }, token: "tok" },
@@ -509,6 +544,7 @@ describe("CartPage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(no address): Make Payment should be disabled", async () => {
       setupMocks({
         auth: { user: { name: "User" }, token: "tok" },
@@ -525,6 +561,7 @@ describe("CartPage", () => {
   });
 
   describe("Handle Payment - EP", () => {
+    //Aashim Mahindroo, A0265890R
     test("EP(success): should clear cart, navigate to orders, show toast", async () => {
       setupMocks({
         auth: { user: { name: "User", address: "123 St" }, token: "tok" },
@@ -558,6 +595,7 @@ describe("CartPage", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("EP(payment API failure): should log error and set loading false", async () => {
       setupMocks({
         auth: { user: { name: "User", address: "123 St" }, token: "tok" },
@@ -589,6 +627,7 @@ describe("CartPage", () => {
   });
 
   describe("Braintree Token Fetch", () => {
+    //Aashim Mahindroo, A0265890R
     test("should fetch braintree token on mount", async () => {
       setupMocks({
         auth: { user: { name: "User" }, token: "tok" },
@@ -599,6 +638,7 @@ describe("CartPage", () => {
       );
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should handle braintree token API failure gracefully", async () => {
       setupMocks({
         auth: { user: { name: "User" }, token: "tok" },
@@ -608,6 +648,7 @@ describe("CartPage", () => {
       expect(screen.getByText("Cart Summary")).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("Should NOT fetch token if auth token is missing", async () => {
       setupMocks({ auth: { user: null, token: "" } });
       await renderCartPage();
@@ -616,12 +657,14 @@ describe("CartPage", () => {
   });
 
   describe("Cart Summary Display", () => {
+    //Aashim Mahindroo, A0265890R
     test("should render Cart Summary heading", async () => {
       setupMocks();
       await renderCartPage();
       expect(screen.getByText("Cart Summary")).toBeInTheDocument();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should render 'Total | Checkout | Payment' text", async () => {
       setupMocks();
       await renderCartPage();
@@ -632,6 +675,7 @@ describe("CartPage", () => {
   });
 
   describe("Price Display in Cart Items", () => {
+    //Aashim Mahindroo, A0265890R
     test("should display price for each cart item", async () => {
       setupMocks({ cart: [mockProducts[0]] });
       await renderCartPage();
@@ -640,6 +684,7 @@ describe("CartPage", () => {
   });
 
   describe("Product Image in Cart", () => {
+    //Aashim Mahindroo, A0265890R
     test("should render product image with correct API URL", async () => {
       setupMocks({ cart: [mockProducts[0]] });
       await renderCartPage();
