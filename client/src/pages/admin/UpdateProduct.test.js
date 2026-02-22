@@ -29,6 +29,26 @@ jest.mock("../../components/Layout", () => ({ children }) => (
 
 jest.mock("../../components/AdminMenu", () => () => <div>AdminMenu</div>);
 
+jest.mock("antd", () => {
+  const Select = ({
+    children,
+    onChange,
+    value,
+    bordered,
+    showSearch,
+    size,
+    ...props
+  }) => (
+    <select value={value} onChange={(e) => onChange(e.target.value)} {...props}>
+      {children}
+    </select>
+  );
+  Select.Option = ({ children, value }) => (
+    <option value={value}>{children}</option>
+  );
+  return { Select };
+});
+
 const mockNavigate = jest.fn();
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),

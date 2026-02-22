@@ -34,7 +34,8 @@ export default {
     "<rootDir>/client/src/pages/admin/CreateProduct.test.js",
     "<rootDir>/client/src/context/search.test.js",
     "<rootDir>/client/src/pages/user/Profile.test.js",
-    "<rootDir>/client/src/pages/Auth/*.test.js"
+    "<rootDir>/client/src/pages/Auth/*.test.js",
+    "<rootDir>/client/src/pages/admin/UpdateProduct.test.js",
   ],
 
   // jest code coverage
@@ -52,7 +53,8 @@ export default {
     "client/src/hooks/useCategory.js",
     "client/src/pages/user/Profile.js",
     "client/src/pages/Auth/**",
-    "client/src/context/**"
+    "client/src/context/**",
+    "client/src/pages/admin/UpdateProduct.js",
   ],
   coverageThreshold: {
     global: {
