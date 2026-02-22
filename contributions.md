@@ -50,7 +50,7 @@
 5. productCountController
 6. productListController
 7. searchProductController
-8. realtedProductController
+8. relatedProductController
 9. productCategoryController
 - Contact - `pages/Contact.js`
 - Policy - `pages/Policy.js`
