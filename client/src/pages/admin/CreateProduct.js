@@ -43,6 +43,7 @@ const CreateProduct = () => {
     try {
       // Validation
       if (!name || !description || !price || !quantity || !photo || !category || !shipping) {
+        toast.error("Please fill all the fields");
         return;
       }
 
