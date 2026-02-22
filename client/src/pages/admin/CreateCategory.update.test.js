@@ -5,7 +5,7 @@ import axios from "axios";
 import CreateCategory from "./CreateCategory";
 import toast from "react-hot-toast";
 
-
+// suppressing react act warnings here for now so the terminal stays clean
 const originalError = console.error;
 beforeAll(() => {
     console.error = (...args) => {
@@ -72,7 +72,6 @@ describe("CreateCategory Component - Update Logic", () => {
     describe("Modal State Management", () => {
         // Priyansh Bimbisariye, A0265903B
         it("should open modal and set state when Edit button is clicked", async () => {
-            // state-based testing
             // arrange
             render(<CreateCategory />);
             await waitFor(() => expect(axios.get).toHaveBeenCalled());
@@ -91,7 +90,6 @@ describe("CreateCategory Component - Update Logic", () => {
 
         // Priyansh Bimbisariye, A0265903B
         it("should close modal when cancel is triggered", async () => {
-            // state-based testing
             // arrange
             render(<CreateCategory />);
             await waitFor(() => expect(axios.get).toHaveBeenCalled());

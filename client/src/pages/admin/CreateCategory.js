@@ -85,7 +85,7 @@ const CreateCategory = () => {
         `/api/v1/category/delete-category/${pId}`
       );
       if (data.success) {
-        toast.success(`category is deleted`);
+        toast.success(`Category is deleted`);
 
         getAllCategory();
       } else {

@@ -43,8 +43,6 @@ describe("CreateCategory Component - Category Creation (Form Logic)", () => {
 
     // Priyansh Bimbisariye, A0265903B
     describe("When submitting valid category", () => {
-        // using ep and state-based
-
         // Priyansh Bimbisariye, A0265903B
         it("should create category successfully and refresh list", async () => {
             // arrange
@@ -74,7 +72,6 @@ describe("CreateCategory Component - Category Creation (Form Logic)", () => {
         });
 
         // Priyansh Bimbisariye, A0265903B
-        // ep
         it("should clear input field after successful creation", async () => {
             // arrange
             axios.post.mockResolvedValue({
@@ -100,7 +97,6 @@ describe("CreateCategory Component - Category Creation (Form Logic)", () => {
 
         // Priyansh Bimbisariye, A0265903B
         it("should handle special characters in category name", async () => {
-            // ep - valid variation
             // arrange
             axios.post.mockResolvedValue({
                 data: { success: true }
@@ -129,8 +125,6 @@ describe("CreateCategory Component - Category Creation (Form Logic)", () => {
 
     // Priyansh Bimbisariye, A0265903B
     describe("When submitting duplicate or invalid category", () => {
-        // using ep and negative testing
-
         // Priyansh Bimbisariye, A0265903B
         it("should handle duplicate category error from server", async () => {
             // arrange
@@ -161,7 +155,6 @@ describe("CreateCategory Component - Category Creation (Form Logic)", () => {
 
         // Priyansh Bimbisariye, A0265903B
         it("should handle server validation error", async () => {
-            // ep and negative testing
             // arrange
             axios.post.mockResolvedValue({
                 data: { success: false, message: "Invalid category name" }
@@ -187,8 +180,6 @@ describe("CreateCategory Component - Category Creation (Form Logic)", () => {
 
     // Priyansh Bimbisariye, A0265903B
     describe("When submitting empty or invalid input", () => {
-        // using bva and spec-based
-
         // Priyansh Bimbisariye, A0265903B
         it("should prevent empty string submission", async () => {
             // arrange
@@ -212,7 +203,6 @@ describe("CreateCategory Component - Category Creation (Form Logic)", () => {
 
         // Priyansh Bimbisariye, A0265903B
         it("should prevent whitespace-only submission", async () => {
-            // bva and spec-based
             // arrange
             axios.post.mockResolvedValue({
                 data: { success: true }

@@ -37,7 +37,6 @@ describe("CreateCategory Component - Initial State and Data Fetching", () => {
     });
 
     // Priyansh Bimbisariye, A0265903B
-    // using ep and state-based
     it("should fetch and display categories on mount", async () => {
         // arrange
         axios.get.mockResolvedValueOnce({
@@ -58,7 +57,6 @@ describe("CreateCategory Component - Initial State and Data Fetching", () => {
     });
 
     // Priyansh Bimbisariye, A0265903B
-    // using bva
     it("should handle an empty array response gracefully", async () => {
         // arrange
         axios.get.mockResolvedValueOnce({
@@ -80,7 +78,6 @@ describe("CreateCategory Component - Initial State and Data Fetching", () => {
     });
 
     // Priyansh Bimbisariye, A0265903B
-    // using negative testing
     it("should handle null category data gracefully", async () => {
         // arrange
         axios.get.mockResolvedValueOnce({
@@ -100,7 +97,6 @@ describe("CreateCategory Component - Initial State and Data Fetching", () => {
     });
 
     // Priyansh Bimbisariye, A0265903B
-    // using negative testing and bva
     it("should fail gracefully when response data is undefined or malformed", async () => {
         // arrange
         axios.get.mockResolvedValueOnce({});
@@ -122,7 +118,6 @@ describe("CreateCategory Component - Initial State and Data Fetching", () => {
     });
 
     // Priyansh Bimbisariye, A0265903B
-    // using negative testing and state-based
     it("should handle unsuccessful fetch without crashing", async () => {
         // arrange
         axios.get.mockResolvedValueOnce({
@@ -142,7 +137,6 @@ describe("CreateCategory Component - Initial State and Data Fetching", () => {
     });
 
     // Priyansh Bimbisariye, A0265903B
-    // using negative testing
     it("should handle API network error gracefully", async () => {
         // arrange
         const errorMessage = "Network Error";
