@@ -61,4 +61,4 @@
 - Cart - `pages/CartPage.js`, `context/cart.js`
 - Payment - `controllers/productController.js`
 1. braintreeTokenController
-2. brainTreePaymentControlle
+2. brainTreePaymentController
