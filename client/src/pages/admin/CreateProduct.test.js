@@ -375,6 +375,8 @@ describe('CreateProduct Component', () => {
             fireEvent.change(screen.getByPlaceholderText('Write a description'), { target: { value: 'Test Description' } });
             fireEvent.change(screen.getByPlaceholderText('Write a price'), { target: { value: '100' } });
             fireEvent.change(screen.getByPlaceholderText('Write a quantity'), { target: { value: '10' } });
+            const shippingSelect = screen.getAllByTestId('ant-select');
+            fireEvent.change(shippingSelect[1], { target: { value: '1' } });
 
             const fileInput = document.querySelector('input[name="photo"]');
             const file = new File(['dummy'], 'product.jpg', { type: 'image/jpeg' });
@@ -409,6 +411,8 @@ describe('CreateProduct Component', () => {
             fireEvent.change(screen.getByPlaceholderText('Write a description'), { target: { value: 'Test Description' } });
             fireEvent.change(screen.getByPlaceholderText('Write a price'), { target: { value: '100' } });
             fireEvent.change(screen.getByPlaceholderText('Write a quantity'), { target: { value: '10' } });
+            const shippingSelect = screen.getAllByTestId('ant-select');
+            fireEvent.change(shippingSelect[1], { target: { value: '1' } });
 
             const fileInput = document.querySelector('input[name="photo"]');
             const file = new File(['dummy'], 'product.jpg', { type: 'image/jpeg' });
@@ -446,6 +450,8 @@ describe('CreateProduct Component', () => {
             fireEvent.change(screen.getByPlaceholderText('Write a description'), { target: { value: 'Test Description' } });
             fireEvent.change(screen.getByPlaceholderText('Write a price'), { target: { value: '100' } });
             fireEvent.change(screen.getByPlaceholderText('Write a quantity'), { target: { value: '10' } });
+            const shippingSelect = screen.getAllByTestId('ant-select');
+            fireEvent.change(shippingSelect[1], { target: { value: '1' } });
 
             const fileInput = document.querySelector('input[name="photo"]');
             const file = new File(['dummy'], 'product.jpg', { type: 'image/jpeg' });
