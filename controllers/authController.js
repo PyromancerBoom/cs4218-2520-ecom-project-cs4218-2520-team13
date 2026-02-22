@@ -182,7 +182,7 @@ export const updateProfileController = async (req, res) => {
         phone: phone || user.phone,
         address: address || user.address,
       },
-      { new: true }
+      { new: true },
     );
     res.status(200).send({
       success: true,
@@ -243,7 +243,7 @@ export const orderStatusController = async (req, res) => {
     const orders = await orderModel.findByIdAndUpdate(
       orderId,
       { status },
-      { new: true }
+      { new: true },
     );
     res.json(orders);
   } catch (error) {
@@ -270,54 +270,6 @@ export const getAllUsersController = async (req, res) => {
     res.status(500).send({
       success: false,
       message: "Error while getting all users",
-      error,
-    });
-  }
-};
-
-//LOU,YING-WEN A0338250J
-//update user role
-export const updateRoleController = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { role } = req.body;
-    const user = await userModel.findByIdAndUpdate(
-      id,
-      { role },
-      { new: true }
-    ).select("-password");
-
-    res.status(200).send({
-      success: true,
-      message: "User Role Updated Successfully",
-      user,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error while updating role",
-      error,
-    });
-  }
-};
-
-//LOU,YING-WEN A0338250J
-// delete user controller
-export const deleteUserController = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await userModel.findByIdAndDelete(id).select("-password");
-    res.status(200).send({
-      success: true,
-      message: "User Deleted Successfully",
-      user,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error while deleting user",
       error,
     });
   }
