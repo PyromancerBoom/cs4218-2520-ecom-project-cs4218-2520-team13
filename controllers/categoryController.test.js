@@ -8,7 +8,19 @@ jest.mock('mongoose', () => ({
         model: jest.fn(),
         ObjectId: jest.fn()
     },
-    ObjectId: jest.fn()
+    ObjectId: jest.fn(),
+    Types: {
+        ObjectId: {
+            isValid: jest.fn((id) => {
+                // mock implementation for ObjectId validation
+                if (!id || id === '' || id === null || id === undefined) {
+                    return false;
+                }
+                //24 hex characters (valid MongoDB ObjectId format)
+                return typeof id === 'string' && /^[0-9a-fA-F]{24}$/.test(id);
+            })
+        }
+    }
 }));
 
 const mockCategorySave = jest.fn();
@@ -646,7 +658,7 @@ describe('deleteCategoryController', () => {
         // Priyansh Bimbisariye, A0265903B
         it('should proceed with valid ObjectId format', async () => {
             // arrange
-            const validId = "some_id";
+            const validId = "507f1f77bcf86cd799439011";
             req.params = { id: validId };
             const mockDeletedCategory = { _id: validId, name: "Electronics", slug: "electronics" };
             mockCategoryFindByIdAndDelete.mockResolvedValue(mockDeletedCategory);
@@ -667,7 +679,7 @@ describe('deleteCategoryController', () => {
         // Priyansh Bimbisariye, A0265903B
         it('should return 200 and delete category successfully', async () => {
             // arrange
-            const validId = "some_id";
+            const validId = "507f1f77bcf86cd799439011";
             req.params = { id: validId };
             const mockDeletedCategory = { _id: validId, name: "Electronics", slug: "electronics" };
             mockCategoryFindByIdAndDelete.mockResolvedValue(mockDeletedCategory);
@@ -687,7 +699,7 @@ describe('deleteCategoryController', () => {
         // Priyansh Bimbisariye, A0265903B
         it('should return 404 when category does not exist', async () => {
             // arrange
-            const validId = "some_id";
+            const validId = "507f1f77bcf86cd799439012";
             req.params = { id: validId };
             mockCategoryFindByIdAndDelete.mockResolvedValue(null);
 
@@ -711,7 +723,7 @@ describe('deleteCategoryController', () => {
         // Priyansh Bimbisariye, A0265903B
         it('should handle database error and return 500', async () => {
             // arrange
-            const validId = "some_id";
+            const validId = "507f1f77bcf86cd799439013";
             req.params = { id: validId };
             const mockError = new Error("Database connection failed");
             mockCategoryFindByIdAndDelete.mockRejectedValue(mockError);
@@ -733,7 +745,7 @@ describe('deleteCategoryController', () => {
         // Priyansh Bimbisariye, A0265903B
         it('should handle Mongoose CastError and return 500', async () => {
             // arrange
-            const malformedId = "some_id";
+            const malformedId = "507f1f77bcf86cd799439014";
             req.params = { id: malformedId };
             const mockCastError = new Error("Cast to ObjectId failed");
             mockCastError.name = "CastError";

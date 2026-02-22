@@ -1,5 +1,6 @@
 import categoryModel from "../models/categoryModel.js";
 import slugify from "slugify";
+import mongoose from "mongoose";
 
 export const createCategoryController = async (req, res) => {
   try {
@@ -97,19 +98,52 @@ export const singleCategoryController = async (req, res) => {
 };
 
 //delete category
+// Priyansh Bimbisariye, A0265903B
+// TODO: add validation for the delete category controller in middleware
+// Added here temporarily
 export const deleteCategoryController = async (req, res) => {
   try {
     const { id } = req.params;
-    await categoryModel.findByIdAndDelete(id);
+
+    if (id === undefined) {
+      return res.status(400).send({
+        success: false,
+        message: "Category ID is required",
+      });
+    }
+
+    if (id === null || id === "") {
+      return res.status(400).send({
+        success: false,
+        message: "Invalid category ID",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send({
+        success: false,
+        message: "Invalid category ID format",
+      });
+    }
+
+    const category = await categoryModel.findByIdAndDelete(id);
+
+    if (!category) {
+      return res.status(404).send({
+        success: false,
+        message: "Category not found",
+      });
+    }
+
     res.status(200).send({
       success: true,
-      message: "Categry Deleted Successfully",
+      message: "Category Deleted Successfully",
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "error while deleting category",
+      message: "Error while deleting category",
       error,
     });
   }
