@@ -50,12 +50,10 @@ jest.mock("antd", () => ({
 describe("CreateCategory Component - Deletion Logic", () => {
     let consoleSpy;
     let mockCategories;
-    let confirmSpy;
 
     beforeEach(() => {
         jest.clearAllMocks();
         consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
-        confirmSpy = jest.spyOn(window, "confirm").mockReturnValue(true);
         mockCategories = [
             { _id: "1", name: "Electronics" },
             { _id: "2", name: "Books" },
@@ -69,7 +67,6 @@ describe("CreateCategory Component - Deletion Logic", () => {
 
     afterEach(() => {
         consoleSpy.mockRestore();
-        confirmSpy.mockRestore();
     });
 
     // Priyansh Bimbisariye, A0265903B
@@ -184,25 +181,6 @@ describe("CreateCategory Component - Deletion Logic", () => {
 
     // Priyansh Bimbisariye, A0265903B
     describe("UX and Edge Cases", () => {
-        // Priyansh Bimbisariye, A0265903B
-        it("should require confirmation dialog before deleting", async () => {
-            confirmSpy.mockReturnValue(false);
-            axios.delete.mockResolvedValue({
-                data: { success: true }
-            });
-            render(<CreateCategory />);
-            await waitFor(() => expect(axios.get).toHaveBeenCalled());
-            await waitFor(() => screen.getByText("Electronics"));
-
-            const deleteButtons = screen.getAllByText("Delete");
-
-            // act
-            fireEvent.click(deleteButtons[0]);
-            await waitFor(() => {
-                expect(window.confirm).toHaveBeenCalledWith("Are you sure you want to delete this category?");
-                expect(axios.delete).not.toHaveBeenCalled();
-            });
-        });
 
         // Priyansh Bimbisariye, A0265903B
         it("should handle deletion of non-existent category (404)", async () => {
@@ -251,7 +229,6 @@ describe("CreateCategory Component - Deletion Logic", () => {
             await waitFor(() => {
                 expect(toast.error).toHaveBeenCalledWith("Invalid category ID");
                 expect(axios.delete).not.toHaveBeenCalled();
-                expect(window.confirm).not.toHaveBeenCalled();
             });
         });
     });

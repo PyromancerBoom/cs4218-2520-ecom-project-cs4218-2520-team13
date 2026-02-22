@@ -86,14 +86,6 @@ const CreateCategory = () => {
       return;
     }
 
-    // Confirm before deleting
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this category?"
-    );
-    if (!confirmDelete) {
-      return;
-    }
-
     try {
       const { data } = await axios.delete(
         `/api/v1/category/delete-category/${pId}`
@@ -133,8 +125,8 @@ const CreateCategory = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {categories?.map((c) => (
-                    <tr key={c._id}>
+                  {categories?.map((c, index) => (
+                    <tr key={c._id || index}>
                       <td>{c.name}</td>
                       <td>
                         <button
