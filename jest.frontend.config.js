@@ -29,7 +29,7 @@ export default {
     "<rootDir>/client/src/pages/Search.test.js",
     "<rootDir>/client/src/pages/admin/Users.test.js",
     "<rootDir>/client/src/pages/admin/AdminDashboard.test.js",
-    "<rootDir>/client/src/pages/admin/CreateCategory.test.js",
+    "<rootDir>/client/src/pages/admin/CreateCategory*.test.js",
     "<rootDir>/client/src/components/Form/CategoryForm.test.js",
     "<rootDir>/client/src/context/search.test.js",
     "<rootDir>/client/src/pages/user/Profile.test.js",
