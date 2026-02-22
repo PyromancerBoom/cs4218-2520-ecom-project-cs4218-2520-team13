@@ -35,6 +35,9 @@ export const createCategoryController = async (req, res) => {
 };
 
 //update category
+// Priyansh Bimbisariye, A0265903B
+// TODO: clarify on this later:
+// we assume req.body and req.params are already validated and sanitized by middleware
 export const updateCategoryController = async (req, res) => {
   try {
     const { name } = req.body;

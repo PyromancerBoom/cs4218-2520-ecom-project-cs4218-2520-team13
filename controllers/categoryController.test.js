@@ -27,6 +27,7 @@ const mockCategorySave = jest.fn();
 const mockCategoryFind = jest.fn();
 const mockCategoryFindOne = jest.fn();
 const mockCategoryFindByIdAndDelete = jest.fn();
+const mockCategoryFindByIdAndUpdate = jest.fn();
 
 // Priyansh Bimbisariye, A0265903B
 jest.mock('../models/categoryModel.js', () => {
@@ -38,6 +39,7 @@ jest.mock('../models/categoryModel.js', () => {
     mockModel.find = mockCategoryFind;
     mockModel.findOne = mockCategoryFindOne;
     mockModel.findByIdAndDelete = mockCategoryFindByIdAndDelete;
+    mockModel.findByIdAndUpdate = mockCategoryFindByIdAndUpdate;
     return mockModel;
 });
 
@@ -45,7 +47,7 @@ jest.mock('slugify', () => jest.fn((name) => `mocked-slug-${name}`));
 const slugify = require('slugify');
 
 //LOU,YING-WEN A0338250J
-const { createCategoryController, categoryControlller, singleCategoryController, deleteCategoryController } = require('./categoryController.js');
+const { createCategoryController, categoryControlller, singleCategoryController, deleteCategoryController, updateCategoryController } = require('./categoryController.js');
 
 // Priyansh Bimbisariye, A0265903B
 describe('createCategoryController', () => {
@@ -760,6 +762,161 @@ describe('deleteCategoryController', () => {
             expect(res.status).toHaveBeenCalledWith(500);
             expect(res.body).toHaveProperty("success", false);
             expect(res.body).toHaveProperty("message", "Error while deleting category");
+            expect(res.body).toHaveProperty("error");
+
+            consoleSpy.mockRestore();
+        });
+    });
+});
+
+// Priyansh Bimbisariye, A0265903B
+describe('updateCategoryController', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = {
+            params: {},
+            body: {}
+        };
+        res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn().mockImplementation((data) => {
+                res.body = data;
+                return res;
+            }),
+        };
+        jest.clearAllMocks();
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    describe('When processing a valid update category request', () => {
+        // ep and state-based
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should return 200 and update category successfully', async () => {
+            // arrange
+            const validId = "507f1f77bcf86cd799439011";
+            req.params = { id: validId };
+            req.body = { name: "Updated Electronics" };
+            const mockUpdatedCategory = { _id: validId, name: "Updated Electronics", slug: "mocked-slug-Updated Electronics" };
+            mockCategoryFindByIdAndUpdate.mockResolvedValue(mockUpdatedCategory);
+
+            // act
+            await updateCategoryController(req, res);
+
+            // assert
+            expect(mockCategoryFindByIdAndUpdate).toHaveBeenCalledWith(
+                validId,
+                { name: "Updated Electronics", slug: "mocked-slug-Updated Electronics" },
+                { new: true }
+            );
+            expect(slugify).toHaveBeenCalledWith("Updated Electronics");
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.body).toEqual({
+                success: true,
+                message: "Category Updated Successfully",
+                category: mockUpdatedCategory,
+            });
+        });
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should return 404 when updating non-existent category', async () => {
+            // arrange
+            const validId = "507f1f77bcf86cd799439012";
+            req.params = { id: validId };
+            req.body = { name: "NonExistent" };
+            mockCategoryFindByIdAndUpdate.mockResolvedValue(null);
+
+            // act
+            await updateCategoryController(req, res);
+
+            // assert
+            expect(mockCategoryFindByIdAndUpdate).toHaveBeenCalledWith(
+                validId,
+                { name: "NonExistent", slug: "mocked-slug-NonExistent" },
+                { new: true }
+            );
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.body).toEqual({
+                success: false,
+                message: "Category not found"
+            });
+        });
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should handle special characters in name correctly', async () => {
+            // arrange
+            const validId = "507f1f77bcf86cd799439011";
+            req.params = { id: validId };
+            req.body = { name: "Tech & Gadgets!" };
+            const mockUpdatedCategory = { _id: validId, name: "Tech & Gadgets!", slug: "mocked-slug-Tech & Gadgets!" };
+            mockCategoryFindByIdAndUpdate.mockResolvedValue(mockUpdatedCategory);
+
+            // act
+            await updateCategoryController(req, res);
+
+            // assert
+            expect(mockCategoryFindByIdAndUpdate).toHaveBeenCalledWith(
+                validId,
+                { name: "Tech & Gadgets!", slug: "mocked-slug-Tech & Gadgets!" },
+                { new: true }
+            );
+            expect(slugify).toHaveBeenCalledWith("Tech & Gadgets!");
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.body).toEqual({
+                success: true,
+                message: "Category Updated Successfully",
+                category: mockUpdatedCategory,
+            });
+        });
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    describe('When database operations fail', () => {
+        // resilience and error handling
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should handle database error and return 500', async () => {
+            // arrange
+            const validId = "507f1f77bcf86cd799439013";
+            req.params = { id: validId };
+            req.body = { name: "FailDB" };
+            const mockError = new Error("Database update connection dropped");
+            mockCategoryFindByIdAndUpdate.mockRejectedValue(mockError);
+            const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+
+            // act
+            await updateCategoryController(req, res);
+
+            // assert
+            expect(consoleSpy).toHaveBeenCalledWith(mockError);
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.body).toHaveProperty("success", false);
+            expect(res.body).toHaveProperty("message", "Error while updating category");
+            expect(res.body).toHaveProperty("error");
+
+            consoleSpy.mockRestore();
+        });
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should handle Mongoose CastError and return 500', async () => {
+            // arrange
+            const malformedId = "invalid-id";
+            req.params = { id: malformedId };
+            req.body = { name: "Update" };
+            const mockCastError = new Error("Cast to ObjectId failed");
+            mockCastError.name = "CastError";
+            mockCategoryFindByIdAndUpdate.mockRejectedValue(mockCastError);
+            const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+
+            // act
+            await updateCategoryController(req, res);
+
+            // assert
+            expect(consoleSpy).toHaveBeenCalledWith(mockCastError);
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.body).toHaveProperty("success", false);
+            expect(res.body).toHaveProperty("message", "Error while updating category");
             expect(res.body).toHaveProperty("error");
 
             consoleSpy.mockRestore();
