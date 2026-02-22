@@ -50,10 +50,12 @@ jest.mock("antd", () => ({
 describe("CreateCategory Component - Deletion Logic", () => {
     let consoleSpy;
     let mockCategories;
+    let confirmSpy;
 
     beforeEach(() => {
         jest.clearAllMocks();
         consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+        confirmSpy = jest.spyOn(window, "confirm").mockReturnValue(true);
         mockCategories = [
             { _id: "1", name: "Electronics" },
             { _id: "2", name: "Books" },
@@ -67,6 +69,7 @@ describe("CreateCategory Component - Deletion Logic", () => {
 
     afterEach(() => {
         consoleSpy.mockRestore();
+        confirmSpy.mockRestore();
     });
 
     // Priyansh Bimbisariye, A0265903B
@@ -183,7 +186,7 @@ describe("CreateCategory Component - Deletion Logic", () => {
     describe("UX and Edge Cases", () => {
         // Priyansh Bimbisariye, A0265903B
         it("should require confirmation dialog before deleting", async () => {
-            // arrange
+            confirmSpy.mockReturnValue(false);
             axios.delete.mockResolvedValue({
                 data: { success: true }
             });
@@ -195,9 +198,8 @@ describe("CreateCategory Component - Deletion Logic", () => {
 
             // act
             fireEvent.click(deleteButtons[0]);
-
-            // assert
             await waitFor(() => {
+                expect(window.confirm).toHaveBeenCalledWith("Are you sure you want to delete this category?");
                 expect(axios.delete).not.toHaveBeenCalled();
             });
         });
@@ -247,7 +249,9 @@ describe("CreateCategory Component - Deletion Logic", () => {
 
             // assert
             await waitFor(() => {
+                expect(toast.error).toHaveBeenCalledWith("Invalid category ID");
                 expect(axios.delete).not.toHaveBeenCalled();
+                expect(window.confirm).not.toHaveBeenCalled();
             });
         });
     });

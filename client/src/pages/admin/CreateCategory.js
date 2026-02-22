@@ -80,16 +80,29 @@ const CreateCategory = () => {
   };
   //delete category
   const handleDelete = async (pId) => {
+    // Validate category ID
+    if (!pId || pId === undefined) {
+      toast.error("Invalid category ID");
+      return;
+    }
+
+    // Confirm before deleting
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this category?"
+    );
+    if (!confirmDelete) {
+      return;
+    }
+
     try {
       const { data } = await axios.delete(
         `/api/v1/category/delete-category/${pId}`
       );
-      if (data.success) {
+      if (data?.success) {
         toast.success(`Category is deleted`);
-
         getAllCategory();
       } else {
-        toast.error(data.message);
+        toast.error(data?.message || "Something went wrong");
       }
     } catch (error) {
       toast.error("Something went wrong");
