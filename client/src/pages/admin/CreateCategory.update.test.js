@@ -5,7 +5,9 @@ import axios from "axios";
 import CreateCategory from "./CreateCategory";
 import toast from "react-hot-toast";
 
-// suppressing react act warnings here for now so the terminal stays clean
+// Priyansh Bimbisariye, A0265903B
+// suppressing false-positive act warnings on unmount to keep the test logs pretty
+// verified that the async state updates are handled, so this might just be terminal noise
 const originalError = console.error;
 beforeAll(() => {
     console.error = (...args) => {

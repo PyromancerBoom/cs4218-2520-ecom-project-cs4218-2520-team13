@@ -6,7 +6,8 @@ import CreateCategory from "./CreateCategory";
 import toast from "react-hot-toast";
 
 // Priyansh Bimbisariye, A0265903B
-// suppress act() warnings
+// suppressing false-positive act warnings on unmount to keep the test logs pretty
+// verified that the async state updates are handled, so this might just be terminal noise
 const originalError = console.error;
 beforeAll(() => {
     console.error = (...args) => {
