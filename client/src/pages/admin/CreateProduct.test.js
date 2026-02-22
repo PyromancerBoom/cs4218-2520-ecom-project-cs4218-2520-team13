@@ -218,6 +218,69 @@ describe('CreateProduct Component', () => {
             // assert
             expect(priceInput.value).toBe('999999999');
         });
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should append shipping to FormData when a product is created', async () => {
+            // arrange
+            axios.get.mockResolvedValueOnce({
+                data: { success: true, category: [{ _id: '1', name: 'Electronics' }] }
+            });
+            axios.post.mockResolvedValue({ data: { success: true, message: "Created" } });
+            await renderComponentAndWait();
+
+            fireEvent.change(screen.getByPlaceholderText('Write a name'), { target: { value: 'Test Product' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a description'), { target: { value: 'Test Description' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a price'), { target: { value: '100' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a quantity'), { target: { value: '10' } });
+
+            const fileInput = document.querySelector('input[name="photo"]');
+            const file = new File(['dummy'], 'product.jpg', { type: 'image/jpeg' });
+            fireEvent.change(fileInput, { target: { files: [file] } });
+
+            const selects = screen.getAllByTestId('ant-select');
+            fireEvent.change(selects[0], { target: { value: '1' } });
+
+            // act
+            fireEvent.change(selects[1], { target: { value: '1' } });
+
+            const createBtn = screen.getByRole('button', { name: /create product/i });
+            fireEvent.click(createBtn);
+
+            // assert
+            await waitFor(() => {
+                expect(mockAppend).toHaveBeenCalledWith('shipping', '1');
+            });
+        });
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should block form submission when shipping option is omitted', async () => {
+            // arrange
+            axios.get.mockResolvedValueOnce({
+                data: { success: true, category: [{ _id: '1', name: 'Electronics' }] }
+            });
+            await renderComponentAndWait();
+
+            fireEvent.change(screen.getByPlaceholderText('Write a name'), { target: { value: 'Test Product' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a description'), { target: { value: 'Test Description' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a price'), { target: { value: '100' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a quantity'), { target: { value: '10' } });
+
+            const fileInput = document.querySelector('input[name="photo"]');
+            const file = new File(['dummy'], 'product.jpg', { type: 'image/jpeg' });
+            fireEvent.change(fileInput, { target: { files: [file] } });
+
+            const selects = screen.getAllByTestId('ant-select');
+            fireEvent.change(selects[0], { target: { value: '1' } });
+
+            // act
+            const createBtn = screen.getByRole('button', { name: /create product/i });
+            fireEvent.click(createBtn);
+
+            // assert
+            await waitFor(() => {
+                expect(axios.post).not.toHaveBeenCalled();
+            });
+        });
     });
 
     // Priyansh Bimbisariye, A0265903B
