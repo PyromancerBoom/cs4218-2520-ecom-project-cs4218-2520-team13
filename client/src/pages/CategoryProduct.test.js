@@ -26,11 +26,13 @@ jest.mock('../context/search', () => ({
     useSearch: jest.fn(() => [{ keyword: '' }, jest.fn()]) // Mock useSearch hook to return null state and a mock function
 })); 
 
+// Lim Yik Seng, A0338506B
 describe('CategoryProduct Component', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
+    // Lim Yik Seng, A0338506B
     it('should not trigger API call when slug is missing in params', async () => {
         // Arrange
         axios.get.mockResolvedValue({ data: { category: [] } });
@@ -56,6 +58,7 @@ describe('CategoryProduct Component', () => {
         );
     });
 
+    // Lim Yik Seng, A0338506B
     it('should render the component and trigger product fetch when slug is present', async () => {
         // Arrange 
         // For Header (the order of mockResolvedValueOnce is important)
@@ -82,6 +85,7 @@ describe('CategoryProduct Component', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     it('should correctly format currency and truncate long descriptions', async () => {
         // Arrange
         const longDescription = "This is a very long description intended to test the substring logic of the component.";
@@ -117,6 +121,7 @@ describe('CategoryProduct Component', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Multiple Items Rendering
     it('should render a list of multiple products correctly', async () => {
         // Arrange
@@ -146,6 +151,7 @@ describe('CategoryProduct Component', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     it('should log an error to console when the API request fails', async () => {
         // Arrange
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {}); // Empty console log to avoid cluttering test output
@@ -175,6 +181,7 @@ describe('CategoryProduct Component', () => {
         consoleSpy.mockRestore(); // Restore original console log implementation
     });
 
+    // Lim Yik Seng, A0338506B
     it('should handle null category data gracefully in the heading', async () => {
         // Arrange
         // Simulate API returning null for category
@@ -197,6 +204,7 @@ describe('CategoryProduct Component', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     it('should display 0 results when products array is null', async () => {
         // Arrange
         // Simulate API returning null for products
@@ -219,6 +227,7 @@ describe('CategoryProduct Component', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     it('should not crash when a product description is null', async () => {
         // Arrange
         // Simulate a product that exists but has no description
@@ -245,6 +254,7 @@ describe('CategoryProduct Component', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     it('should not crash when a product price is null', async () => {
         // Arrange
         // Simulate a product that exists but has no price
@@ -269,6 +279,7 @@ describe('CategoryProduct Component', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     it('should navigate to product detail page when clicking More Details button', async () => {
         // Arrange
         const mockData = {
@@ -297,6 +308,7 @@ describe('CategoryProduct Component', () => {
         expect(mockNavigate).toHaveBeenCalledWith('/product/laptop');
     });
 
+    // Lim Yik Seng, A0338506B
     it('Should render correct product image sources and alt tags', async () => {
         // Arrange
         const product = { _id: "img123", name: "Visual Item", price: 10, description: "Desc", slug: "item" };

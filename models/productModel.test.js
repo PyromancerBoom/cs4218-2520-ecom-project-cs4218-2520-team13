@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import productModel from '../models/productModel';
 
+// Lim Yik Seng, A0338506B
 describe('Product Model Unit Tests', () => {
 
     // Helper function to create valid product data base
@@ -18,6 +19,7 @@ describe('Product Model Unit Tests', () => {
         }
     });
 
+    // Lim Yik Seng, A0338506B
     // 1. POSITIVE TESTING
     it('should validate successfully with all valid required fields', async () => {
         const product = new productModel(getValidProductData());
@@ -30,6 +32,7 @@ describe('Product Model Unit Tests', () => {
         expect(error).toBeUndefined();
     });
 
+    // Lim Yik Seng, A0338506B
     // 2. GRANULAR REQUIRED FIELDS TESTING (Negative Testing)
     const requiredFields = ['name', 'slug', 'description', 'price', 'category', 'quantity'];
     
@@ -52,6 +55,7 @@ describe('Product Model Unit Tests', () => {
         expect(error.errors[field].kind).toBe('required');
     });
 
+    // Lim Yik Seng, A0338506B
     // 3. DATA TYPE VALIDATION (Negative Testing)
     const numericFields = ['price', 'quantity'];
 
@@ -73,6 +77,7 @@ describe('Product Model Unit Tests', () => {
         expect(error.errors[field].kind).toBe('Number');
     });
 
+    // Lim Yik Seng, A0338506B
     it('should fail validation if category is not a valid ObjectId', async () => {
         const productData = getValidProductData();
         productData.category = 'invalid-id-string'; // Invalid format
@@ -89,6 +94,7 @@ describe('Product Model Unit Tests', () => {
         expect(error.errors.category.kind).toBe('ObjectId');
     });
 
+    // Lim Yik Seng, A0338506B
     // 4. NESTED OBJECT TESTING (Photo Field)
     it('should allow valid photo data and contentType', async () => {
         const productData = getValidProductData();
@@ -106,6 +112,7 @@ describe('Product Model Unit Tests', () => {
         expect(typeof product.photo.contentType).toBe('string');
     });
 
+    // Lim Yik Seng, A0338506B
     // 5. OPTIONAL FIELDS TESTING
     it('should pass validation when optional fields like photo and shipping are missing', async () => {
         const productData = getValidProductData();
