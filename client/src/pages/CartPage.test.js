@@ -60,7 +60,7 @@ jest.mock("react-icons/ai", () => ({
 }));
 
 const createProduct = (overrides = {}) => ({
-  _id: "prod1",
+  _id: `prod-${Math.random().toString(36).substr(2, 9)}`,
   name: "Test Product",
   slug: "test-product",
   description:
@@ -430,8 +430,9 @@ describe("CartPage", () => {
 
     //Aashim Mahindroo, A0265890R
     test("BUG: Remove specific instance of duplicate item", async () => {
-      const laptop = createProduct({ _id: "prod1", name: "Laptop" });
-      setupMocks({ cart: [laptop, laptop] });
+      const laptop1 = createProduct({ _id: "prod1", name: "Laptop" });
+      const laptop2 = createProduct({ _id: "prod1-duplicate", name: "Laptop" });
+      setupMocks({ cart: [laptop1, laptop2] });
       await renderCartPage();
 
       const removeButtons = screen.getAllByText("Remove");
