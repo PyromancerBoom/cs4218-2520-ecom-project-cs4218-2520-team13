@@ -5,6 +5,20 @@ import axios from "axios";
 import CreateCategory from "./CreateCategory";
 import toast from "react-hot-toast";
 
+
+const originalError = console.error;
+beforeAll(() => {
+    console.error = (...args) => {
+        if (args[0]?.includes?.('Warning: An update to') && args[0]?.includes?.('not wrapped in act')) {
+            return;
+        }
+        originalError.call(console, ...args);
+    };
+});
+afterAll(() => {
+    console.error = originalError;
+});
+
 // Mocking dependencies
 jest.mock("axios");
 jest.mock("react-hot-toast");
