@@ -135,6 +135,28 @@ describe("CreateCategory Component - Deletion Logic", () => {
     // Priyansh Bimbisariye, A0265903B
     describe("Error Handling", () => {
         // Priyansh Bimbisariye, A0265903B
+        it("should handle network error during deletion", async () => {
+            // arrange
+            const networkError = new Error("Network Error");
+            axios.delete.mockRejectedValue(networkError);
+            render(<CreateCategory />);
+            await waitFor(() => expect(axios.get).toHaveBeenCalled());
+            await waitFor(() => screen.getByText("Electronics"));
+
+            const deleteButtons = screen.getAllByText("Delete");
+
+            // act
+            fireEvent.click(deleteButtons[0]);
+
+            // assert
+            await waitFor(() => {
+                expect(axios.delete).toHaveBeenCalledWith("/api/v1/category/delete-category/1");
+                expect(toast.error).toHaveBeenCalledWith("Something went wrong");
+                expect(axios.get).toHaveBeenCalledTimes(1);
+            });
+        });
+
+        // Priyansh Bimbisariye, A0265903B
         it("should handle server error response", async () => {
             // arrange
             axios.delete.mockResolvedValue({
