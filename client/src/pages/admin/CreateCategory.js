@@ -15,12 +15,17 @@ const CreateCategory = () => {
   //handle Form
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!name || name.trim() === "") {
+      toast.error("Category name is required");
+      return;
+    }
     try {
       const { data } = await axios.post("/api/v1/category/create-category", {
         name,
       });
       if (data?.success) {
         toast.success(`${name} is created`);
+        setName("");
         getAllCategory();
       } else {
         toast.error(data.message);

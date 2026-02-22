@@ -233,8 +233,8 @@ describe("CreateCategory Component - Category Creation (Form Logic)", () => {
             // assert
             await waitFor(() => {
                 expect(axios.post).toHaveBeenCalled();
+                expect(input.value).toBe('');
             });
-            expect(input.value).toBe('');
         });
 
         // Priyansh Bimbisariye, A0265903B
