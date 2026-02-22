@@ -14,6 +14,7 @@ jest.mock('mongoose', () => ({
 const mockCategorySave = jest.fn();
 const mockCategoryFind = jest.fn();
 const mockCategoryFindOne = jest.fn();
+const mockCategoryFindByIdAndDelete = jest.fn();
 
 // Priyansh Bimbisariye, A0265903B
 jest.mock('../models/categoryModel.js', () => {
@@ -24,6 +25,7 @@ jest.mock('../models/categoryModel.js', () => {
     };
     mockModel.find = mockCategoryFind;
     mockModel.findOne = mockCategoryFindOne;
+    mockModel.findByIdAndDelete = mockCategoryFindByIdAndDelete;
     return mockModel;
 });
 
@@ -31,7 +33,7 @@ jest.mock('slugify', () => jest.fn((name) => `mocked-slug-${name}`));
 const slugify = require('slugify');
 
 //LOU,YING-WEN A0338250J
-const { createCategoryController, categoryControlller, singleCategoryController } = require('./categoryController.js');
+const { createCategoryController, categoryControlller, singleCategoryController, deleteCategoryController } = require('./categoryController.js');
 
 // Priyansh Bimbisariye, A0265903B
 describe('createCategoryController', () => {
@@ -528,6 +530,226 @@ describe('singleCategoryController', () => {
             expect(res.body).toHaveProperty("success", false);
             expect(res.body).toHaveProperty("message", "Error While getting Single Category");
             expect(consoleSpy).toHaveBeenCalledWith(mockError);
+            consoleSpy.mockRestore();
+        });
+    });
+});
+
+// Priyansh Bimbisariye, A0265903B
+describe('deleteCategoryController', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = { params: {} };
+        res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn().mockImplementation((data) => {
+                res.body = data;
+                return res;
+            }),
+        };
+        jest.clearAllMocks();
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    describe('When validating input parameters', () => {
+        // using bva for id parameter
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should return 400 when id parameter is missing', async () => {
+            // arrange
+            req.params = {};
+
+            // act
+            await deleteCategoryController(req, res);
+
+            // assert
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.body).toEqual({
+                success: false,
+                message: "Category ID is required"
+            });
+            expect(mockCategoryFindByIdAndDelete).not.toHaveBeenCalled();
+        });
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should return 400 when id is undefined', async () => {
+            // arrange
+            req.params = { id: undefined };
+
+            // act
+            await deleteCategoryController(req, res);
+
+            // assert
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.body).toEqual({
+                success: false,
+                message: "Category ID is required"
+            });
+            expect(mockCategoryFindByIdAndDelete).not.toHaveBeenCalled();
+        });
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should return 400 when id is null', async () => {
+            // arrange
+            req.params = { id: null };
+
+            // act
+            await deleteCategoryController(req, res);
+
+            // assert
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.body).toEqual({
+                success: false,
+                message: "Invalid category ID"
+            });
+            expect(mockCategoryFindByIdAndDelete).not.toHaveBeenCalled();
+        });
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should return 400 when id is empty string', async () => {
+            // arrange
+            req.params = { id: "" };
+
+            // act
+            await deleteCategoryController(req, res);
+
+            // assert
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.body).toEqual({
+                success: false,
+                message: "Invalid category ID"
+            });
+            expect(mockCategoryFindByIdAndDelete).not.toHaveBeenCalled();
+        });
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    describe('When validating id format', () => {
+        // Priyansh Bimbisariye, A0265903B
+        it('should return 400 for invalid ObjectId format', async () => {
+            // arrange
+            req.params = { id: "invalid-objectid-format" };
+
+            // act
+            await deleteCategoryController(req, res);
+
+            // assert
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.body).toEqual({
+                success: false,
+                message: "Invalid category ID format"
+            });
+            expect(mockCategoryFindByIdAndDelete).not.toHaveBeenCalled();
+        });
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should proceed with valid ObjectId format', async () => {
+            // arrange
+            const validId = "some_id";
+            req.params = { id: validId };
+            const mockDeletedCategory = { _id: validId, name: "Electronics", slug: "electronics" };
+            mockCategoryFindByIdAndDelete.mockResolvedValue(mockDeletedCategory);
+
+            // act
+            await deleteCategoryController(req, res);
+
+            // assert
+            expect(mockCategoryFindByIdAndDelete).toHaveBeenCalledWith(validId);
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    describe('When processing delete request', () => {
+        // ep and state-based
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should return 200 and delete category successfully', async () => {
+            // arrange
+            const validId = "some_id";
+            req.params = { id: validId };
+            const mockDeletedCategory = { _id: validId, name: "Electronics", slug: "electronics" };
+            mockCategoryFindByIdAndDelete.mockResolvedValue(mockDeletedCategory);
+
+            // act
+            await deleteCategoryController(req, res);
+
+            // assert
+            expect(mockCategoryFindByIdAndDelete).toHaveBeenCalledWith(validId);
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.body).toEqual({
+                success: true,
+                message: "Category Deleted Successfully"
+            });
+        });
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should return 404 when category does not exist', async () => {
+            // arrange
+            const validId = "some_id";
+            req.params = { id: validId };
+            mockCategoryFindByIdAndDelete.mockResolvedValue(null);
+
+            // act
+            await deleteCategoryController(req, res);
+
+            // assert
+            expect(mockCategoryFindByIdAndDelete).toHaveBeenCalledWith(validId);
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.body).toEqual({
+                success: false,
+                message: "Category not found"
+            });
+        });
+    });
+
+    // Priyansh Bimbisariye, A0265903B
+    describe('When database operations fail', () => {
+        // resilience and error handling
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should handle database error and return 500', async () => {
+            // arrange
+            const validId = "some_id";
+            req.params = { id: validId };
+            const mockError = new Error("Database connection failed");
+            mockCategoryFindByIdAndDelete.mockRejectedValue(mockError);
+            const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+
+            // act
+            await deleteCategoryController(req, res);
+
+            // assert
+            expect(consoleSpy).toHaveBeenCalledWith(mockError);
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.body).toHaveProperty("success", false);
+            expect(res.body).toHaveProperty("message", "Error while deleting category");
+            expect(res.body).toHaveProperty("error");
+
+            consoleSpy.mockRestore();
+        });
+
+        // Priyansh Bimbisariye, A0265903B
+        it('should handle Mongoose CastError and return 500', async () => {
+            // arrange
+            const malformedId = "some_id";
+            req.params = { id: malformedId };
+            const mockCastError = new Error("Cast to ObjectId failed");
+            mockCastError.name = "CastError";
+            mockCategoryFindByIdAndDelete.mockRejectedValue(mockCastError);
+            const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+
+            // act
+            await deleteCategoryController(req, res);
+
+            // assert
+            expect(consoleSpy).toHaveBeenCalledWith(mockCastError);
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.body).toHaveProperty("success", false);
+            expect(res.body).toHaveProperty("message", "Error while deleting category");
+            expect(res.body).toHaveProperty("error");
+
             consoleSpy.mockRestore();
         });
     });
