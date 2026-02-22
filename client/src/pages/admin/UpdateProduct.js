@@ -35,6 +35,7 @@ const UpdateProduct = () => {
       setCategory(data.product.category._id);
     } catch (error) {
       console.log(error);
+      toast.error("Something went wrong");
     }
   };
   useEffect(() => {
@@ -62,6 +63,10 @@ const UpdateProduct = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
+      if (!name || !description || !price || !quantity) {
+        toast.error("Please fill all required fields");
+        return;
+      }
       const productData = new FormData();
       productData.append("name", name);
       productData.append("description", description);
@@ -69,6 +74,7 @@ const UpdateProduct = () => {
       productData.append("quantity", quantity);
       photo && productData.append("photo", photo);
       productData.append("category", category);
+      productData.append("shipping", shipping);
       const { data } = await axios.put(
         `/api/v1/product/update-product/${id}`,
         productData,
@@ -187,7 +193,10 @@ const UpdateProduct = () => {
                   value={price}
                   placeholder="Write a price"
                   className="form-control"
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setPrice(val === "" || Number(val) >= 0 ? val : "");
+                  }}
                 />
               </div>
               <div className="mb-3">
@@ -196,7 +205,10 @@ const UpdateProduct = () => {
                   value={quantity}
                   placeholder="Write a quantity"
                   className="form-control"
-                  onChange={(e) => setQuantity(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setQuantity(val === "" || Number(val) > 0 ? val : "");
+                  }}
                 />
               </div>
               <div className="mb-3">
@@ -209,7 +221,7 @@ const UpdateProduct = () => {
                   onChange={(value) => {
                     setShipping(value);
                   }}
-                  value={shipping ? "Yes" : "No"}
+                  value={shipping}
                 >
                   <Option value="0">No</Option>
                   <Option value="1">Yes</Option>
