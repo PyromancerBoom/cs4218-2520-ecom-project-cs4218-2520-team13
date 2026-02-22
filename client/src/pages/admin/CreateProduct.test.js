@@ -302,8 +302,24 @@ describe('CreateProduct Component', () => {
         // Priyansh Bimbisariye, A0265903B
         it('should show success toast and navigate when API returns success response', async () => {
             // arrange
+            axios.get.mockResolvedValueOnce({
+                data: { success: true, category: [{ _id: '1', name: 'Electronics' }] }
+            });
             axios.post.mockResolvedValue({ data: { success: true, message: "Created" } });
             await renderComponentAndWait();
+
+            fireEvent.change(screen.getByPlaceholderText('Write a name'), { target: { value: 'Test Product' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a description'), { target: { value: 'Test Description' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a price'), { target: { value: '100' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a quantity'), { target: { value: '10' } });
+
+            const fileInput = document.querySelector('input[name="photo"]');
+            const file = new File(['dummy'], 'product.jpg', { type: 'image/jpeg' });
+            fireEvent.change(fileInput, { target: { files: [file] } });
+
+            const selects = screen.getAllByTestId('ant-select');
+            fireEvent.change(selects[0], { target: { value: '1' } });
+
             const createBtn = screen.getByRole('button', { name: /create product/i });
 
             // act
@@ -320,8 +336,24 @@ describe('CreateProduct Component', () => {
         // Priyansh Bimbisariye, A0265903B
         it('should show error toast when API returns failure response', async () => {
             // arrange
+            axios.get.mockResolvedValueOnce({
+                data: { success: true, category: [{ _id: '1', name: 'Electronics' }] }
+            });
             axios.post.mockResolvedValue({ data: { success: false, message: "Creation failed" } });
             await renderComponentAndWait();
+
+            fireEvent.change(screen.getByPlaceholderText('Write a name'), { target: { value: 'Test Product' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a description'), { target: { value: 'Test Description' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a price'), { target: { value: '100' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a quantity'), { target: { value: '10' } });
+
+            const fileInput = document.querySelector('input[name="photo"]');
+            const file = new File(['dummy'], 'product.jpg', { type: 'image/jpeg' });
+            fireEvent.change(fileInput, { target: { files: [file] } });
+
+            const selects = screen.getAllByTestId('ant-select');
+            fireEvent.change(selects[0], { target: { value: '1' } });
+
             const createBtn = screen.getByRole('button', { name: /create product/i });
 
             // act
@@ -339,10 +371,26 @@ describe('CreateProduct Component', () => {
         it('should handle network error during creation', async () => {
             // arrange
             const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+            axios.get.mockResolvedValueOnce({
+                data: { success: true, category: [{ _id: '1', name: 'Electronics' }] }
+            });
             axios.post.mockImplementationOnce(() => {
                 throw new Error('Network error');
             });
             await renderComponentAndWait();
+
+            fireEvent.change(screen.getByPlaceholderText('Write a name'), { target: { value: 'Test Product' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a description'), { target: { value: 'Test Description' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a price'), { target: { value: '100' } });
+            fireEvent.change(screen.getByPlaceholderText('Write a quantity'), { target: { value: '10' } });
+
+            const fileInput = document.querySelector('input[name="photo"]');
+            const file = new File(['dummy'], 'product.jpg', { type: 'image/jpeg' });
+            fireEvent.change(fileInput, { target: { files: [file] } });
+
+            const selects = screen.getAllByTestId('ant-select');
+            fireEvent.change(selects[0], { target: { value: '1' } });
+
             const createBtn = screen.getByRole('button', { name: /create product/i });
 
             // act
@@ -357,7 +405,7 @@ describe('CreateProduct Component', () => {
         });
 
         // Priyansh Bimbisariye, A0265903B
-        it('should not submit with empty required fields across all partitions', async () => {
+        it('should not allow submit with empty required fields', async () => {
             // arrange
             await renderComponentAndWait();
             const createBtn = screen.getByRole('button', { name: /create product/i });

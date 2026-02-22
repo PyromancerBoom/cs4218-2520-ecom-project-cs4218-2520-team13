@@ -24,6 +24,8 @@ const CreateProduct = () => {
       const { data } = await axios.get("/api/v1/category/get-category");
       if (data?.success) {
         setCategories(data?.category);
+      } else {
+        toast.error(data?.message);
       }
     } catch (error) {
       console.log(error);
@@ -39,6 +41,11 @@ const CreateProduct = () => {
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
+      // Validation
+      if (!name || !description || !price || !quantity || !photo || !category) {
+        return;
+      }
+
       const productData = new FormData();
       productData.append("name", name);
       productData.append("description", description);
@@ -46,15 +53,15 @@ const CreateProduct = () => {
       productData.append("quantity", quantity);
       productData.append("photo", photo);
       productData.append("category", category);
-      const { data } = axios.post(
+      const { data } = await axios.post(
         "/api/v1/product/create-product",
         productData
       );
       if (data?.success) {
-        toast.error(data?.message);
-      } else {
         toast.success("Product Created Successfully");
         navigate("/dashboard/admin/products");
+      } else {
+        toast.error(data?.message);
       }
     } catch (error) {
       console.log(error);
@@ -137,7 +144,12 @@ const CreateProduct = () => {
                   value={price}
                   placeholder="Write a price"
                   className="form-control"
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === '' || parseFloat(value) >= 0) {
+                      setPrice(value);
+                    }
+                  }}
                 />
               </div>
               <div className="mb-3">
@@ -146,7 +158,12 @@ const CreateProduct = () => {
                   value={quantity}
                   placeholder="Write a quantity"
                   className="form-control"
-                  onChange={(e) => setQuantity(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === '' || parseFloat(value) > 0) {
+                      setQuantity(value);
+                    }
+                  }}
                 />
               </div>
               <div className="mb-3">
