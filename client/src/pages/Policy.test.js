@@ -31,6 +31,7 @@ describe('Policy Page Unit Tests', () => {
         );
     };
 
+    // Lim Yik Seng, A0338506B
     it("should set the document title via Layout component", async () => {
         // Act
         renderSetup();
@@ -41,6 +42,7 @@ describe('Policy Page Unit Tests', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     it("should render the policy image", () => {
         // Act
         renderSetup();
@@ -52,6 +54,7 @@ describe('Policy Page Unit Tests', () => {
         expect(image).toHaveStyle({ width: "100%" });
     });
 
+    // Lim Yik Seng, A0338506B
     it("should render privacy policy text multiple times", () => {
         // Act
         renderSetup();
