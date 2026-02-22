@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, createEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import CategoryForm from "./CategoryForm";
 
@@ -66,7 +66,6 @@ describe("CategoryForm Component Validation", () => {
     describe("Resilience and Edge Cases", () => {
 
         it("should prevent default page reload behavior on form submission", () => {
-            // using Behavioral Testing and Resilience Testing
             // arrange
             render(
                 <CategoryForm
@@ -76,13 +75,15 @@ describe("CategoryForm Component Validation", () => {
                 />
             );
             const formElement = screen.getByRole("button", { name: /submit/i }).closest("form");
-            const mockEvent = { preventDefault: jest.fn() };
+
+            const submitEvent = createEvent.submit(formElement);
+            submitEvent.preventDefault = jest.fn();
 
             // act
-            fireEvent.submit(formElement, mockEvent);
+            fireEvent(formElement, submitEvent);
 
             // assert
-            expect(mockEvent.preventDefault).toHaveBeenCalledTimes(1);
+            expect(submitEvent.preventDefault).toHaveBeenCalledTimes(1);
             expect(handleSubmitMock).toHaveBeenCalledTimes(1);
         });
 
