@@ -56,6 +56,10 @@ const CreateCategory = () => {
   //update category
   const handleUpdate = async (e) => {
     e.preventDefault();
+    if (!updatedName || updatedName.trim() === "") {
+      toast.error("Category name is required");
+      return;
+    }
     try {
       const { data } = await axios.put(
         `/api/v1/category/update-category/${selected._id}`,

@@ -406,7 +406,7 @@ describe("CreateCategory Component - Update Logic", () => {
             await waitFor(() => {
                 expect(axios.put).toHaveBeenCalled();
                 expect(toast.success).toHaveBeenCalledWith("New Name is updated");
-                expect(modalInput.value).toBe("");
+                expect(screen.queryByTestId("modal")).not.toBeInTheDocument();
             });
         });
 
