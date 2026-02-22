@@ -99,6 +99,7 @@ describe("UpdateProduct Component", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(console, "log").mockImplementation(() => {});
 
     global.URL.createObjectURL = jest.fn(() => "blob:mock-url");
 
@@ -127,9 +128,6 @@ describe("UpdateProduct Component", () => {
     // Priyansh Bimbisariye, A0265903B
     it("should show error toast when product or category fetch fails", async () => {
       // arrange
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
       axios.get.mockImplementation((url) => {
         if (url.includes("/api/v1/product/get-product/")) {
           return Promise.reject(new Error("Product not found"));
@@ -171,7 +169,6 @@ describe("UpdateProduct Component", () => {
           "Something went wrong in getting category",
         );
       });
-      consoleSpy.mockRestore();
     });
   });
 
