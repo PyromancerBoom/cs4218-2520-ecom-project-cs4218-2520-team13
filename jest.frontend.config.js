@@ -31,6 +31,7 @@ export default {
     "<rootDir>/client/src/pages/admin/AdminDashboard.test.js",
     "<rootDir>/client/src/pages/admin/CreateCategory*.test.js",
     "<rootDir>/client/src/components/Form/CategoryForm.test.js",
+    "<rootDir>/client/src/pages/admin/CreateProduct.test.js",
     "<rootDir>/client/src/context/search.test.js",
     "<rootDir>/client/src/pages/user/Profile.test.js",
     "<rootDir>/client/src/pages/Auth/*.test.js"
@@ -45,6 +46,7 @@ export default {
     "client/src/components/Form/CategoryForm.js",
     "client/src/pages/Categories.js",
     "client/src/pages/Search.js",
+    "client/src/pages/admin/CreateProduct.js",
     "client/src/context/search.js",
     "client/src/components/Form/SearchInput.js",
     "client/src/hooks/useCategory.js",
