@@ -17,8 +17,8 @@ beforeEach(() => {
 // wrapper for AuthProvider
 const wrapper = ({ children }) => <AuthProvider>{children}</AuthProvider>;
 
-describe("AuthProvider & useAuth", () => {
-  // state-based - initial state, with partition of no localStorage data
+describe("AuthProvider and useAuth", () => {
+  // state-based
   it("should have initial state with null user and empty token", () => {
     // arrange
     // (no localStorage data)
@@ -65,9 +65,9 @@ describe("AuthProvider & useAuth", () => {
   // then checks that rendering the component doesn't crash the entire app
   it("should handle malformed JSON in localStorage gracefully", async () => {
     // arrange
-    jest.spyOn(console, "log").mockImplementation(() => {});
+    jest.spyOn(console, "log").mockImplementation(() => { });
     localStorage.setItem("auth", "{invalid-json}08320832");
-    // act & assert — should not crash the component
+    // act and assert — should not crash the component
     expect(() => {
       renderHook(() => useAuth(), { wrapper });
     }).not.toThrow();

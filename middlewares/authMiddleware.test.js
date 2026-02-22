@@ -10,10 +10,10 @@ jest.mock("../models/userModel.js");
 describe("authMiddleware", () => {
   let mockReq, mockRes, mockNext;
 
-  // rest mocks before each test
+  // reset mocks before each test
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, "log").mockImplementation(() => {});
+    jest.spyOn(console, "log").mockImplementation(() => { });
     mockReq = {
       headers: { authorization: "validToken123" },
       user: {},
@@ -51,8 +51,8 @@ describe("authMiddleware", () => {
       // act
       await requireSignIn(mockReq, mockRes, mockNext);
       // assert
-      expect(mockNext).not.toHaveBeenCalled(); // no calles to next()
-      expect(mockRes.status).toHaveBeenCalledWith(401); // send back 401
+      expect(mockNext).not.toHaveBeenCalled();
+      expect(mockRes.status).toHaveBeenCalledWith(401);
     });
 
     // absent input boundary
@@ -71,7 +71,7 @@ describe("authMiddleware", () => {
   });
 
   describe("isAdmin", () => {
-    // parittion - authorized (admin) class
+    // partition - authorized (admin) class
     it("should call next() when user has admin role", async () => {
       // arrange
       mockReq.user = { _id: "admin123" };

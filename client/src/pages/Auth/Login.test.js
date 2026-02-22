@@ -105,7 +105,6 @@ describe("Login Component", () => {
 
   // Priyansh Bimbisariye, A0265903B
   // updated spec: toast must show the server's message, not undefined
-  // added msg in arrange accordignly.
   it("should login the user successfully", async () => {
     axios.post.mockResolvedValueOnce({
       data: {
@@ -167,9 +166,6 @@ describe("Login Component", () => {
   });
 
   // Priyansh Bimbisariye, A0265903B
-  // ep - server failure partition
-  // server returns HTTP 200 but success: false
-  // separate branch from an axios rejection
   it("should show server error message when login fails with success false", async () => {
     // arrange
     axios.post.mockResolvedValueOnce({
@@ -194,12 +190,10 @@ describe("Login Component", () => {
     fireEvent.click(getByText("LOGIN"));
 
     // assert
-    // the component must forward the server message, not a hardcoded string
     await waitFor(() =>
       expect(toast.error).toHaveBeenCalledWith("Invalid credentials"),
     );
     expect(toast.success).not.toHaveBeenCalled();
-    // no auth data should be saved on failure
     expect(localStorage.setItem).not.toHaveBeenCalled();
   });
 
@@ -251,10 +245,6 @@ describe("Login Component", () => {
   });
 
   // Priyansh Bimbisariye, A0265903B
-  // ep - user interaction partition - forgot password button is a type="button"
-  // its only behavior is navigation, no api call should ever happen
-  // state-based
-  // initial state on /login then click then state on /forgot-password
   it("should navigate to forgot-password page when Forgot Password is clicked", () => {
     // arrange
     const { getByText } = render(
