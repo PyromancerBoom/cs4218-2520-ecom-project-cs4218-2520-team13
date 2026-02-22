@@ -53,7 +53,7 @@ describe('createCategoryController', () => {
     describe('When validating the request payload (name property)', () => {
         // using bva
         // Priyansh Bimbisariye, A0265903B
-        it('should return 401 when request body is completely empty (Missing Input)', async () => {
+        it('should return 401 when request body is completely empty', async () => {
             // arrange
             req.body = {};
 
@@ -62,11 +62,13 @@ describe('createCategoryController', () => {
 
             // assert
             expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
+            expect(res.body).toEqual({ message: "Name is required" });
+            expect(mockCategoryFindOne).not.toHaveBeenCalled();
+            expect(mockCategorySave).not.toHaveBeenCalled();
         });
 
         // Priyansh Bimbisariye, A0265903B
-        it('should return 401 when name is null (Null Input)', async () => {
+        it('should return 401 when name is null', async () => {
             // arrange
             req.body = { name: null };
 
@@ -75,11 +77,13 @@ describe('createCategoryController', () => {
 
             // assert
             expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
+            expect(res.body).toEqual({ message: "Name is required" });
+            expect(mockCategoryFindOne).not.toHaveBeenCalled();
+            expect(mockCategorySave).not.toHaveBeenCalled();
         });
 
         // Priyansh Bimbisariye, A0265903B
-        it('should return 401 when name is undefined (Undefined Input)', async () => {
+        it('should return 401 when name is undefined', async () => {
             // arrange
             req.body = { name: undefined };
 
@@ -88,11 +92,13 @@ describe('createCategoryController', () => {
 
             // assert
             expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
+            expect(res.body).toEqual({ message: "Name is required" });
+            expect(mockCategoryFindOne).not.toHaveBeenCalled();
+            expect(mockCategorySave).not.toHaveBeenCalled();
         });
 
         // Priyansh Bimbisariye, A0265903B
-        it('should return 401 when name is empty string (Empty String)', async () => {
+        it('should return 401 when name is empty string', async () => {
             // arrange
             req.body = { name: "" };
 
@@ -101,12 +107,13 @@ describe('createCategoryController', () => {
 
             // assert
             expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
+            expect(res.body).toEqual({ message: "Name is required" });
+            expect(mockCategoryFindOne).not.toHaveBeenCalled();
+            expect(mockCategorySave).not.toHaveBeenCalled();
         });
 
         // Priyansh Bimbisariye, A0265903B
-        it('should reject whitespace-only name (Edge Case)', async () => {
-            // controller should validate and reject whitespace-only strings
+        it('should reject whitespace-only name', async () => {
             // arrange
             req.body = { name: "   " };
 
@@ -115,8 +122,9 @@ describe('createCategoryController', () => {
 
             // assert
             expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
+            expect(res.body).toEqual({ message: "Name is required" });
             expect(mockCategoryFindOne).not.toHaveBeenCalled();
+            expect(mockCategorySave).not.toHaveBeenCalled();
         });
 
         // Priyansh Bimbisariye, A0265903B
@@ -146,7 +154,7 @@ describe('createCategoryController', () => {
     describe('When processing a valid category creation request', () => {
         // ep and state-based here
         // Priyansh Bimbisariye, A0265903B
-        it('should return 200 when category already exists (Duplicate Partition)', async () => {
+        it('should return 200 and not save when category already exists', async () => {
             // arrange
             req.body = { name: "ExistingCategory" };
             mockCategoryFindOne.mockResolvedValue({ name: "ExistingCategory" });
@@ -156,16 +164,16 @@ describe('createCategoryController', () => {
 
             // assert
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.send).toHaveBeenCalledWith({
+            expect(res.body).toEqual({
                 success: true,
                 message: "Category Already Exists",
             });
+            expect(mockCategoryFindOne).toHaveBeenCalledWith({ name: "ExistingCategory" });
             expect(mockCategorySave).not.toHaveBeenCalled();
         });
 
         // Priyansh Bimbisariye, A0265903B
-        // Valid Partition and Behavioral
-        it('should return 201 and save object successfully for new category', async () => {
+        it('should return 201 and save new category successfully', async () => {
             // arrange
             req.body = { name: "NewCategory" };
             mockCategoryFindOne.mockResolvedValue(null);
@@ -179,7 +187,7 @@ describe('createCategoryController', () => {
             expect(mockCategoryFindOne).toHaveBeenCalledWith({ name: "NewCategory" });
             expect(slugify).toHaveBeenCalledWith("NewCategory");
             expect(res.status).toHaveBeenCalledWith(201);
-            expect(res.send).toHaveBeenCalledWith({
+            expect(res.body).toEqual({
                 success: true,
                 message: "new category created",
                 category: mockSavedCategory,
@@ -207,6 +215,7 @@ describe('createCategoryController', () => {
             expect(res.status).toHaveBeenCalledWith(500);
             expect(res.body).toHaveProperty("success", false);
             expect(res.body).toHaveProperty("message", "Error in Category");
+            expect(res.body).toHaveProperty("error");
 
             consoleSpy.mockRestore();
         });
@@ -228,6 +237,7 @@ describe('createCategoryController', () => {
             expect(res.status).toHaveBeenCalledWith(500);
             expect(res.body).toHaveProperty("success", false);
             expect(res.body).toHaveProperty("message", "Error in Category");
+            expect(res.body).toHaveProperty("error");
 
             consoleSpy.mockRestore();
         });
@@ -236,7 +246,7 @@ describe('createCategoryController', () => {
     // Priyansh Bimbisariye, A0265903B
     describe('When testing enhanced input validation', () => {
         // Priyansh Bimbisariye, A0265903B
-        it('should return 401 when name is boolean false (Falsy Value)', async () => {
+        it('should return 401 when name is boolean false', async () => {
             // arrange
             req.body = { name: false };
 
@@ -245,8 +255,9 @@ describe('createCategoryController', () => {
 
             // assert
             expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
+            expect(res.body).toEqual({ message: "Name is required" });
             expect(mockCategoryFindOne).not.toHaveBeenCalled();
+            expect(mockCategorySave).not.toHaveBeenCalled();
         });
 
         // Priyansh Bimbisariye, A0265903B
@@ -345,40 +356,6 @@ describe('createCategoryController', () => {
     });
 
     // Priyansh Bimbisariye, A0265903B
-    describe('When verifying control flow', () => {
-        // Priyansh Bimbisariye, A0265903B
-        it('should NOT call findOne when validation fails', async () => {
-            // state-based - early return check
-            // arrange
-            req.body = { name: "" };
-
-            // act
-            await createCategoryController(req, res);
-
-            // assert
-            expect(mockCategoryFindOne).not.toHaveBeenCalled();
-            expect(mockCategorySave).not.toHaveBeenCalled();
-            expect(slugify).not.toHaveBeenCalled();
-        });
-
-        // Priyansh Bimbisariye, A0265903B
-        it('should NOT call save when duplicate category exists', async () => {
-            // state-based - duplicate check
-            // arrange
-            req.body = { name: "Duplicate" };
-            mockCategoryFindOne.mockResolvedValue({ name: "Duplicate" });
-
-            // act
-            await createCategoryController(req, res);
-
-            // assert
-            expect(mockCategoryFindOne).toHaveBeenCalledWith({ name: "Duplicate" });
-            expect(mockCategorySave).not.toHaveBeenCalled();
-            expect(res.status).toHaveBeenCalledWith(200);
-        });
-    });
-
-    // Priyansh Bimbisariye, A0265903B
     describe('When testing error handling edge cases', () => {
         // Priyansh Bimbisariye, A0265903B
         it('should handle findOne returning undefined', async () => {
@@ -419,85 +396,6 @@ describe('createCategoryController', () => {
                 message: "new category created",
                 category: null,
             });
-        });
-    });
-
-    // Priyansh Bimbisariye, A0265903B
-    describe('When verifying response contracts', () => {
-        // Priyansh Bimbisariye, A0265903B
-        it('should return exact success response structure on creation', async () => {
-            // contract testing - exact response structure
-            // arrange
-            req.body = { name: "NewCategory" };
-            mockCategoryFindOne.mockResolvedValue(null);
-            const mockSavedCategory = { name: "NewCategory", slug: "mocked-slug-NewCategory" };
-            mockCategorySave.mockResolvedValue(mockSavedCategory);
-
-            // act
-            await createCategoryController(req, res);
-
-            // assert
-            expect(res.body).toEqual({
-                success: true,
-                message: "new category created",
-                category: mockSavedCategory,
-            });
-            expect(Object.keys(res.body)).toEqual(["success", "message", "category"]);
-        });
-
-        // Priyansh Bimbisariye, A0265903B
-        it('should return exact duplicate response structure', async () => {
-            // contract testing - duplicate response structure
-            // arrange
-            req.body = { name: "Existing" };
-            mockCategoryFindOne.mockResolvedValue({ name: "Existing" });
-
-            // act
-            await createCategoryController(req, res);
-
-            // assert
-            expect(res.body).toEqual({
-                success: true,
-                message: "Category Already Exists",
-            });
-            expect(Object.keys(res.body)).toEqual(["success", "message"]);
-        });
-
-        // Priyansh Bimbisariye, A0265903B
-        it('should return exact validation error response structure', async () => {
-            // contract testing - validation error response structure
-            // arrange
-            req.body = {};
-
-            // act
-            await createCategoryController(req, res);
-
-            // assert
-            expect(res.body).toEqual({
-                message: "Name is required",
-            });
-            expect(Object.keys(res.body)).toEqual(["message"]);
-        });
-
-        // Priyansh Bimbisariye, A0265903B
-        it('should return exact error response structure on database failure', async () => {
-            // contract testing - error response structure
-            // arrange
-            req.body = { name: "TestError" };
-            const mockError = new Error("DB Error");
-            mockCategoryFindOne.mockRejectedValue(mockError);
-            const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
-
-            // act
-            await createCategoryController(req, res);
-
-            // assert
-            expect(res.body).toHaveProperty("success", false);
-            expect(res.body).toHaveProperty("message", "Error in Category");
-            expect(res.body).toHaveProperty("error");
-            expect(Object.keys(res.body).sort()).toEqual(["error", "message", "success"].sort());
-
-            consoleSpy.mockRestore();
         });
     });
 });
