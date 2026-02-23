@@ -21,9 +21,16 @@ describe("SearchInput Component Unit Test", () => {
     const mockSetValues = jest.fn();
     const mockValues = { keyword: "", results: [] };
 
+    let consoleSpy;
+
     beforeEach(() => {
         jest.clearAllMocks();
         useSearch.mockReturnValue([mockValues, mockSetValues]);
+        consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+    });
+
+    afterEach(() => {
+        consoleSpy.mockRestore();
     });
 
     //LOU,YING-WEN A0338250J
@@ -69,7 +76,6 @@ describe("SearchInput Component Unit Test", () => {
 
     //LOU,YING-WEN A0338250J
     it("should handle API error gracefully", async () => {
-        const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
         axios.get.mockRejectedValue(new Error("API Error"));
         useSearch.mockReturnValue([{ keyword: "error", results: [] }, mockSetValues]);
 
@@ -85,7 +91,6 @@ describe("SearchInput Component Unit Test", () => {
         await waitFor(() => {
             expect(consoleSpy).toHaveBeenCalledWith(expect.any(Error));
         });
-        consoleSpy.mockRestore();
     });
 
     //LOU,YING-WEN A0338250J

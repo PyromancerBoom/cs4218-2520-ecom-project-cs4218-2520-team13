@@ -7,4 +7,9 @@ node_modules
 # ignore coverage reports
 /coverage/
 coverage/
+tests/
+.github/
 .env*
+
+# Playwright
+/playwright/.auth/
