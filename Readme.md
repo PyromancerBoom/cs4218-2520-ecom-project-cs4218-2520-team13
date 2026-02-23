@@ -15,7 +15,9 @@
 
 ## MS1 CI URL
 
-Latest link to CI -
+We separated out the workflows:
+- Backend Tests - [https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team13/actions/runs/22289209498/job/64473320585](https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team13/actions/runs/22289209498/job/64473320585)
+- Frontend Tests - [https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team13/actions/runs/22289209492/job/64473320630](https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team13/actions/runs/22289209492/job/64473320630)
 
 ## 1. Project Introduction
 
@@ -171,6 +173,8 @@ To begin unit testing with Jest in your project, follow these steps:
   - Server: `createCategoryController`, `updateCategoryController`, `deleteCategoryController` in `controllers/categoryController.js`
 - **Admin View Orders**
   - Client: `pages/admin/AdminOrders.js` (Minor Contributions)
+ 
+  - **AI Usage Declaration - AI tools were used for initial test scaffolding and code autocompletion. All AI-suggested code served only as a baseline. I Manually reviewed, edited, fixed and validated the code to ensure full alignment with the project requirements.**
 
 ## Wei Sheng
 
