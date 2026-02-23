@@ -1,5 +1,22 @@
 # CS4218 Project - Virtual Vault
 
+## Table of Contents
+
+- [1. Project Introduction](#1-project-introduction)
+- [2. Website Features](#2-website-features)
+- [3. Your Task](#3-your-task)
+- [4. Setting Up The Project](#4-setting-up-the-project)
+  - [1. Installing Node.js](#1-installing-nodejs)
+  - [2. MongoDB Setup](#2-mongodb-setup)
+  - [3. Application Setup](#3-application-setup)
+- [5. Unit Testing with Jest](#5-unit-testing-with-jest)
+  - [Getting Started with Jest](#getting-started-with-jest)
+- [Team Contributions](#team-contributions)
+
+## MS1 CI URL
+
+Latest link to CI -
+
 ## 1. Project Introduction
 
 Virtual Vault is a full-stack MERN (MongoDB, Express.js, React.js, Node.js) e-commerce website, offering seamless connectivity and user-friendly features. The platform provides a robust framework for online shopping. The website is designed to adapt to evolving business needs and can be efficiently extended.
@@ -23,7 +40,6 @@ Virtual Vault is a full-stack MERN (MongoDB, Express.js, React.js, Node.js) e-co
 ### 1. Installing Node.js
 
 1. **Download and Install Node.js**:
-
    - Visit [nodejs.org](https://nodejs.org) to download and install Node.js.
 
 2. **Verify Installation**:
@@ -36,26 +52,21 @@ Virtual Vault is a full-stack MERN (MongoDB, Express.js, React.js, Node.js) e-co
 ### 2. MongoDB Setup
 
 1. **Download and Install MongoDB Compass**:
-
    - Visit [MongoDB Compass](https://www.mongodb.com/products/tools/compass) and download and install MongoDB Compass for your operating system.
 
 2. **Create a New Cluster**:
-
    - Sign up or log in to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register).
    - After logging in, create a project and within that project deploy a free cluster.
 
 3. **Configure Database Access**:
-
    - Create a new user for your database (if not alredy done so) in MongoDB Atlas.
    - Navigate to "Database Access" under "Security" and create a new user with the appropriate permissions.
 
 4. **Whitelist IP Address**:
-
    - Go to "Network Access" under "Security" and whitelist your IP address to allow access from your machine.
    - For example, you could whitelist 0.0.0.0 to allow access from anywhere for ease of use.
 
 5. **Connect to the Database**:
-
    - In your cluster's page on MongoDB Atlas, click on "Connect" and choose "Compass".
    - Copy the connection string.
 
@@ -67,7 +78,6 @@ Virtual Vault is a full-stack MERN (MongoDB, Express.js, React.js, Node.js) e-co
 To download and use the MERN (MongoDB, Express.js, React.js, Node.js) app from GitHub, follow these general steps:
 
 1. **Clone the Repository**
-
    - Go to the GitHub repository of the MERN app.
    - Click on the "Code" button and copy the URL of the repository.
    - Open your terminal or command prompt.
@@ -78,7 +88,6 @@ To download and use the MERN (MongoDB, Express.js, React.js, Node.js) app from G
    - Navigate into the cloned directory.
 
 2. **Install Frontend and Backend Dependencies**
-
    - Run the following command in your project's root directory:
 
      ```
@@ -86,14 +95,12 @@ To download and use the MERN (MongoDB, Express.js, React.js, Node.js) app from G
      ```
 
 3. **Add database connection string to `.env`**
-
    - Add the connection string copied from MongoDB Atlas to the `.env` file inside the project directory (replace the necessary placeholders):
      ```env
      MONGO_URL = <connection string>
      ```
 
 4. **Adding sample data to database**
-
    - Download “Sample DB Schema” from Canvas and extract it.
    - In MongoDB Compass, create a database named `test` under your cluster.
    - Add four collections to this database: `categories`, `orders`, `products`, and `users`.
@@ -127,7 +134,6 @@ To begin unit testing with Jest in your project, follow these steps:
 3. **Run Tests**  
    Execute your tests using Jest to ensure that your components meet the expected behaviour.  
    You can run the tests by using the following command in the root of the directory:
-
    - **Frontend tests**
 
      ```bash
@@ -144,3 +150,88 @@ To begin unit testing with Jest in your project, follow these steps:
      ```bash
      npm run test
      ```
+
+# Team Contributions
+
+## Priyansh
+
+- **Protected Routes**
+  - Client: `context/auth.js`
+  - Server: `helpers/authHelper.js`, `middlewares/authMiddleware.js`
+- **Registration**
+  - Client: `pages/Auth/Register.js`
+  - Server: `registerController` in `controllers/authController.js`
+- **Login**
+  - Client: `pages/Auth/Login.js`
+  - Server: `loginController`, `forgotPasswordController`, `testController` in `controllers/authController.js`
+- **Admin Dashboard**
+  - Client: `components/AdminMenu.js`, `pages/admin/AdminDashboard.js`
+- **Admin Actions (Category & Product)**
+  - Client: `components/Form/CategoryForm.js`, `pages/admin/CreateCategory.js`, `pages/admin/CreateProduct.js`, `pages/admin/UpdateProduct.js`
+  - Server: `createCategoryController`, `updateCategoryController`, `deleteCategoryController` in `controllers/categoryController.js`
+- **Admin View Orders**
+  - Client: `pages/admin/AdminOrders.js` (Minor Contributions)
+
+## Wei Sheng
+
+- Admin View Orders - `pages/admin/AdminOrders.js`
+- Admin View Products - `pages/admin/Products.js`
+- Admin View Products - `controllers/productController.js`
+
+1. createProductController
+2. deleteProductController
+3. updateProductController
+
+- General - `components/Routes/AdminRoute.js`, `components/Routes/Private.js`, `components/UserMenu.js`, `pages/user/Dashboard.js`, `models/userModel.js`
+- Order - `pages/user/Orders.js`, `models/orderModel.js`
+- Order - `controllers/authController.js`
+
+1. updateProfileController
+2. getOrdersController
+3. getAllOrdersController
+4. orderStatusController
+
+## Sandra
+
+- Profile - `pages/user/Profile.js`
+- Users - `pages/admin/Users.js`
+- Search - `pages/Search.js`, `components/Form/SearchInput.js`, `context/Search.js`
+- Category - `hooks/useCategory.js`, `pages/Categories.js`, `models/categoryModel.js`
+- Category - `controllers/categoryController.js`
+
+1. categoryControlller
+2. singleCategoryController
+
+- Order - `controllers/authController.js`
+
+1. getAllUsersController
+2. updateRoleController
+3. deleteUserController
+
+## Yik Seng
+
+- Product - `pages/ProductDetails.js`, `pages/CategoryProduct.js`, `models/productModel.js`
+- Product - `controllers/productController.js`
+
+1. getProductController
+2. getSingleProductController
+3. productPhotoController
+4. productFiltersController
+5. productCountController
+6. productListController
+7. searchProductController
+8. relatedProductController
+9. productCategoryController
+
+- Contact - `pages/Contact.js`
+- Policy - `pages/Policy.js`
+
+## Aashim
+
+- General - `components/Layout.js`, `components/Header.js`, `components/Footer.js`, `components/Spinner.js`, `pages/Pagenotfound.js`, `pages/About.js`, `config/db.js`
+- Home - `pages/HomePage.js`
+- Cart - `pages/CartPage.js`, `context/cart.js`
+- Payment - `controllers/productController.js`
+
+1. braintreeTokenController
+2. brainTreePaymentController
