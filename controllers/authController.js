@@ -177,13 +177,13 @@ export const updateProfileController = async (req, res) => {
     const updatedUser = await userModel.findByIdAndUpdate(
       req.user._id,
       {
-        name: name || user.name,
+        name: name ?? user.name,
         password: hashedPassword || user.password,
-        phone: phone || user.phone,
-        address: address || user.address,
+        phone: phone ?? user.phone,
+        address: address ?? user.address,
       },
       { new: true }
-    );
+    ).select("-password");
     res.status(200).send({
       success: true,
       message: "Profile Updated Successfully",
@@ -243,10 +243,17 @@ export const orderStatusController = async (req, res) => {
     const orders = await orderModel.findByIdAndUpdate(
       orderId,
       { status },
-      { new: true }
+      { new: true, runValidators: true }
     );
+
+    if (!orders) {
+      return res.status(404).send({ success: false, message: 'Order not found' });
+    }
     res.json(orders);
   } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).send({ success: false, message: 'Invalid order ID format' });
+    }
     console.log(error);
     res.status(500).send({
       success: false,
