@@ -32,7 +32,7 @@ export const registerController = async (req, res) => {
     if (existingUser) {
       return res.status(409).send({
         success: false,
-        message: "Already Register please login",
+        message: "Already registered please login",
       });
     }
     //register user
@@ -190,7 +190,7 @@ export const updateProfileController = async (req, res) => {
         phone: phone || user.phone,
         address: address || user.address,
       },
-      { new: true }
+      { new: true },
     );
     res.status(200).send({
       success: true,
@@ -251,7 +251,7 @@ export const orderStatusController = async (req, res) => {
     const orders = await orderModel.findByIdAndUpdate(
       orderId,
       { status },
-      { new: true }
+      { new: true },
     );
     res.json(orders);
   } catch (error) {
@@ -290,11 +290,9 @@ export const updateRoleController = async (req, res) => {
   try {
     const { id } = req.params;
     const { role } = req.body;
-    const user = await userModel.findByIdAndUpdate(
-      id,
-      { role },
-      { new: true }
-    ).select("-password");
+    const user = await userModel
+      .findByIdAndUpdate(id, { role }, { new: true })
+      .select("-password");
 
     res.status(200).send({
       success: true,

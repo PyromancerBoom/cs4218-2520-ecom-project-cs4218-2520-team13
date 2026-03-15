@@ -141,4 +141,45 @@ describe("Register page integration", () => {
 
     expect(screen.queryByText("Something went wrong")).not.toBeInTheDocument();
   });
+
+  // Priyansh Bimbisariye, A0265903B
+  it("should show the server error message when server returns 409 for duplicate email", async () => {
+    server.use(
+      http.post("*/api/v1/auth/register", () => {
+        return HttpResponse.json(
+          { success: false, message: "Already registered please login" },
+          { status: 409 },
+        );
+      }),
+    );
+
+    renderRegisterPage();
+    fillAndSubmitForm();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Already registered please login"),
+      ).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("REGISTER FORM")).toBeInTheDocument();
+  });
+
+  // Priyansh Bimbisariye, A0265903B
+  it("should show generic fallback toast when the network request fails entirely", async () => {
+    server.use(
+      http.post("*/api/v1/auth/register", () => {
+        return HttpResponse.error();
+      }),
+    );
+
+    renderRegisterPage();
+    fillAndSubmitForm();
+
+    await waitFor(() => {
+      expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("REGISTER FORM")).toBeInTheDocument();
+  });
 });

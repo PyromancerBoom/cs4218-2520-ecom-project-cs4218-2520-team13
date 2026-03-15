@@ -151,6 +151,46 @@ describe("Login page integration", () => {
   });
 
   // Priyansh Bimbisariye, A0265903B
+  it("should show generic fallback toast when the network request fails entirely", async () => {
+    server.use(
+      http.post("*/api/v1/auth/login", () => {
+        return HttpResponse.error();
+      }),
+    );
+
+    renderLoginPage();
+    fillAndSubmitForm();
+
+    await waitFor(() => {
+      expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    });
+
+    expect(localStorage.getItem("auth")).toBeNull();
+    expect(screen.getByText("LOGIN FORM")).toBeInTheDocument();
+  });
+
+  // Priyansh Bimbisariye, A0265903B
+  it("should restore session on page reload", async () => {
+    const mockUser = { name: "John", email: "john@example.com", role: 0 };
+    const mockToken = "persisted-token-456";
+
+    localStorage.setItem(
+      "auth",
+      JSON.stringify({
+        success: true,
+        user: mockUser,
+        token: mockToken,
+      }),
+    );
+
+    renderLoginPage();
+
+    await waitFor(() => {
+      expect(screen.getByText("John")).toBeInTheDocument();
+    });
+  });
+
+  // Priyansh Bimbisariye, A0265903B
   it("should navigate to forgot password page when the forgot password button is clicked", async () => {
     renderLoginPage();
 
