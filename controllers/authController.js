@@ -185,7 +185,6 @@ export const updateProfileController = async (req, res) => {
       req.user._id,
       {
         name: name || user.name,
-        email: email || user.email,
         password: hashedPassword || user.password,
         phone: phone || user.phone,
         address: address || user.address,

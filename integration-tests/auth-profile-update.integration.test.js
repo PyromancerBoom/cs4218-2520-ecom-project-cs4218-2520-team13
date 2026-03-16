@@ -76,7 +76,7 @@ describe("Profile Update through Auth Pipeline", () => {
 
     // Priyansh Bimbisariye, A0265903B
     // test email separately because it has unique constraint
-    it("should persist the email change when a new email is provided", async () => {
+    it("should not persist the email change even when a new email is provided", async () => {
       const token = await registerAndLogin();
 
       const res = await request(app)
@@ -92,7 +92,7 @@ describe("Profile Update through Auth Pipeline", () => {
       const dbUser = await userModel.findOne({
         email: "newemail@example.com",
       });
-      expect(dbUser).not.toBeNull();
+      expect(dbUser).toBeNull();
     });
   });
 

@@ -1117,7 +1117,7 @@ describe("loginController", () => {
   // Priyansh Bimbisariye, A0265903B
   // ep partition - wrong credential
   // password does not match
-  it("should return 200 with success false when password is incorrect", async () => {
+  it("should return 401 with success false when password is incorrect", async () => {
     // arrange
     req.body = { email: "john@example.com", password: "wrongpassword" };
     mockUserFindOne.mockResolvedValue(mockUser);
@@ -1127,7 +1127,7 @@ describe("loginController", () => {
     await loginController(req, res);
 
     // assert
-    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.status).toHaveBeenCalledWith(401);
     expect(res.send).toHaveBeenCalledWith(
       expect.objectContaining({
         success: false,
@@ -1224,8 +1224,8 @@ describe("registerController", () => {
     // act
     await registerController(req, res);
 
-    // assert ,  no explicit status set, implicit 200
-    expect(res.status).not.toHaveBeenCalled();
+    // assert
+    expect(res.status).toHaveBeenCalledWith(400);
     expect(res.send).toHaveBeenCalledWith({ message: "Name is Required" });
   });
 
@@ -1238,8 +1238,8 @@ describe("registerController", () => {
     // act
     await registerController(req, res);
 
-    // assert ,  no explicit status set, implicit 200
-    expect(res.status).not.toHaveBeenCalled();
+    // assert
+    expect(res.status).toHaveBeenCalledWith(400);
     expect(res.send).toHaveBeenCalledWith({ message: "Email is Required" });
   });
 
@@ -1252,8 +1252,8 @@ describe("registerController", () => {
     // act
     await registerController(req, res);
 
-    // assert ,  no explicit status set, implicit 200
-    expect(res.status).not.toHaveBeenCalled();
+    // assert
+    expect(res.status).toHaveBeenCalledWith(400);
     expect(res.send).toHaveBeenCalledWith({ message: "Password is Required" });
   });
 
@@ -1266,8 +1266,8 @@ describe("registerController", () => {
     // act
     await registerController(req, res);
 
-    // assert ,  no explicit status set, implicit 200
-    expect(res.status).not.toHaveBeenCalled();
+    // assert
+    expect(res.status).toHaveBeenCalledWith(400);
     expect(res.send).toHaveBeenCalledWith({ message: "Phone no is Required" });
   });
 
@@ -1280,8 +1280,8 @@ describe("registerController", () => {
     // act
     await registerController(req, res);
 
-    // assert ,  no explicit status set, implicit 200
-    expect(res.status).not.toHaveBeenCalled();
+    // assert
+    expect(res.status).toHaveBeenCalledWith(400);
     expect(res.send).toHaveBeenCalledWith({ message: "Address is Required" });
   });
 
@@ -1294,8 +1294,8 @@ describe("registerController", () => {
     // act
     await registerController(req, res);
 
-    // assert ,  no explicit status set, implicit 200
-    expect(res.status).not.toHaveBeenCalled();
+    // assert
+    expect(res.status).toHaveBeenCalledWith(400);
     expect(res.send).toHaveBeenCalledWith({ message: "Answer is Required" });
   });
 
@@ -1309,11 +1309,11 @@ describe("registerController", () => {
     await registerController(req, res);
 
     // assert
-    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.status).toHaveBeenCalledWith(409);
     expect(res.send).toHaveBeenCalledWith(
       expect.objectContaining({
         success: false,
-        message: "Already Register please login",
+        message: "Already registered please login",
       }),
     );
   });
@@ -1341,7 +1341,14 @@ describe("registerController", () => {
       expect.objectContaining({
         success: true,
         message: "User Registered Successfully",
-        user: savedUser,
+        user: {
+          _id: savedUser._id,
+          name: savedUser.name,
+          email: savedUser.email,
+          phone: savedUser.phone,
+          address: savedUser.address,
+          role: savedUser.role,
+        },
       }),
     );
   });
@@ -1380,8 +1387,8 @@ describe("registerController", () => {
     // act
     await registerController(req, res);
 
-    // assert ,  no explicit status set, implicit 200
-    expect(res.status).not.toHaveBeenCalled();
+    // assert
+    expect(res.status).toHaveBeenCalledWith(400);
     expect(res.send).toHaveBeenCalledWith({ message: "Name is Required" });
   });
 });
