@@ -3,13 +3,11 @@ import axios from 'axios';
 import Layout from '../../components/Layout';
 import AdminMenu from '../../components/AdminMenu';
 import toast from "react-hot-toast";
-import { useAuth } from "../../context/auth";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
-  const [auth] = useAuth();
 
-  // Fetch all users from the backend
+  // Fetch all users from API
   const getUsers = async () => {
     try {
       const { data } = await axios.get("/api/v1/auth/all-users");
@@ -24,49 +22,9 @@ const Users = () => {
     }
   };
 
-  // Handle user deletion with confirmation and API call
-  const handleDelete = async (id) => {
-    // Standard browser confirmation for destructive actions
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
-
-    try {
-      const { data } = await axios.delete(`/api/v1/auth/delete-user/${id}`);
-      if (data?.success) {
-        toast.success("User deleted successfully");
-        getUsers(); // Refresh the list to reflect changes
-      } else {
-        toast.error(data?.message || "Failed to delete user");
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to delete user");
-    }
-  };
-
-  // Handle role update (Admin <-> User)
-  const handleUpdateRole = async (id, newRole) => {
-    try {
-      const { data } = await axios.put(`/api/v1/auth/update-role/${id}`, {
-        role: newRole,
-      });
-      if (data?.success) {
-        toast.success("Role updated!");
-        getUsers(); // Refresh the list to reflect changes
-      } else {
-        toast.error(data?.message || "Failed to update role");
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to update role");
-    }
-  };
-
   useEffect(() => {
     getUsers();
   }, []);
-
-  // Safety Logic: Count current admins to prevent self-lockout
-  const adminCount = users.filter(u => u.role === 1).length;
 
   return (
     <Layout title={"Dashboard - All Users"}>
@@ -77,48 +35,41 @@ const Users = () => {
           </div>
           <div className="col-md-9">
             <h1>All Users List</h1>
-            <table className="table">
+            <table className="table mt-3">
               <thead>
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Name</th>
                   <th scope="col">Email</th>
                   <th scope="col">Phone</th>
-                  <th scope="col">Actions</th>
+                  <th scope="col">Address</th>
+                  <th scope="col">Role</th>
                 </tr>
               </thead>
               <tbody>
                 {users?.length > 0 ? (
                   users.map((u, i) => {
-                    // Safety Guard: Disable actions if it's the last remaining admin
-                    const isLastAdmin = u.role === 1 && adminCount <= 1;
-                    const isMe = u._id === auth?.user?._id;
+                    const isAdmin = u.role === 1;
                     return (
-                      <tr key={u._id}>
+                      <tr key={u._id} className="align-middle">
                         <td>{i + 1}</td>
                         <td>{u.name}</td>
                         <td>{u.email}</td>
                         <td>{u.phone}</td>
+                        <td>{u.address || "N/A"}</td>
                         <td>
-                          <div className="d-flex gap-2">
-                            {/* Role Toggle Button */}
-                            <button
-                              className={`btn ${u.role === 1 ? 'btn-danger' : 'btn-success'} w-100`}
-                              style={{ maxWidth: "100px" }}
-                              onClick={() => handleUpdateRole(u._id, u.role === 1 ? 0 : 1)}
-                              disabled={isLastAdmin}
-                              title={isLastAdmin ? "Cannot demote the last admin" : "Change Role"}
-                            >
-                              {u.role === 1 ? "Admin" : "User"}
-                            </button>
-                            <button
-                              className="btn btn-outline-danger"
-                              onClick={() => handleDelete(u._id)}
-                              disabled={isMe}
-                              title={isMe ? "You cannot delete your own account" : "Delete User"}
-                            >
-                              Delete
-                            </button>
+                          <div style={{
+                            display: "inline-block",
+                            padding: "2px 12px",
+                            borderRadius: "50px",
+                            fontSize: "11px",
+                            fontWeight: "600",
+                            textTransform: "uppercase",
+                            backgroundColor: isAdmin ? "#fff5f5" : "#f8f9fa",
+                            color: isAdmin ? "#e03131" : "#6c757d",
+                            border: `1px solid ${isAdmin ? "#ffc9c9" : "#e9ecef"}`,
+                          }}>
+                            {isAdmin ? "Admin" : "User"}
                           </div>
                         </td>
                       </tr>
@@ -126,7 +77,7 @@ const Users = () => {
                   })
                 ) : (
                   <tr>
-                    <td colSpan="5" className="text-center">No users found</td>
+                    <td colSpan="6" className="text-center p-5 text-muted">No users found</td>
                   </tr>
                 )}
               </tbody>
