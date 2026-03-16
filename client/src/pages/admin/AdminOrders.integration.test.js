@@ -83,7 +83,7 @@ afterAll(() => server.close());
 const mockOrders = [
   {
     _id: "order1",
-    status: "Not Process",
+    status: "Not Processed",
     buyer: { name: "Alice" },
     createdAt: "2024-06-01T00:00:00.000Z",
     payment: { success: true },
@@ -384,7 +384,7 @@ describe("AdminOrders integration tests", () => {
     const multiOrders = [
       {
         _id: "o1",
-        status: "Not Process",
+        status: "Not Processed",
         buyer: { name: "Buyer One" },
         createdAt: "2024-06-01T00:00:00.000Z",
         payment: { success: true },
@@ -453,7 +453,7 @@ describe("AdminOrders integration tests", () => {
     const orderWithEmptyProducts = [
       {
         _id: "o-empty",
-        status: "Not Process",
+        status: "Not Processed",
         buyer: { name: "Empty Buyer" },
         createdAt: "2024-06-01T00:00:00.000Z",
         payment: { success: true },

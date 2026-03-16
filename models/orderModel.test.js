@@ -69,17 +69,17 @@ describe('orderModel Schema Definition', () => {
 
     // Wei Sheng, A0259272X
     it('should set default status to "Not Process"', () => {
-      expect(capturedSchemaConfig.status.default).toBe('Not Process');
+      expect(capturedSchemaConfig.status.default).toBe('Not Processed');
     });
 
     // Wei Sheng, A0259272X
     it('should define enum with valid status values', () => {
       expect(capturedSchemaConfig.status.enum).toEqual([
-        'Not Process',
+        'Not Processed',
         'Processing',
         'Shipped',
-        'delivered',
-        'cancel'
+        'Delivered',
+        'Cancel'
       ]);
     });
   });
