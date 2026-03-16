@@ -1,4 +1,5 @@
 import React from "react";
+import toast from "react-hot-toast";
 import { useSearch } from "../../context/search";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -8,11 +9,18 @@ const SearchInput = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const trimmedKeyword = values.keyword ? values.keyword.trim() : "";
+
+    if (!trimmedKeyword) {
+      toast.error("Please enter a keyword to search");
+      return;
+    }
+
     try {
       const { data } = await axios.get(
-        `/api/v1/product/search/${values.keyword}`
+        `/api/v1/product/search/${trimmedKeyword}`
       );
-      setValues({ ...values, results: data });
+      setValues({ ...values, results: data.results });
       navigate("/search");
     } catch (error) {
       console.log(error);
