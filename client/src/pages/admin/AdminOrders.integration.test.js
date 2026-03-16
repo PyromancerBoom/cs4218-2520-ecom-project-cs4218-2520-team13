@@ -274,11 +274,11 @@ describe("AdminOrders integration tests", () => {
   // note: AdminOrders itself does not show an unauthorized msg
   // it just skips calling getOrders when no token
   it("should not fetch orders and display no order data when user is unauthenticated", async () => {
-    let getOrdersCalled = false;
+    const getOrdersSpy = jest.fn();
 
     server.use(
       http.get("*/api/v1/auth/all-orders", () => {
-        getOrdersCalled = true;
+        getOrdersSpy();
         return HttpResponse.json([]);
       }),
     );
@@ -286,11 +286,9 @@ describe("AdminOrders integration tests", () => {
     renderAdminOrdersPage();
     expect(screen.getByText("All Orders")).toBeInTheDocument();
 
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 100));
-    });
+    await act(async () => {});
 
-    expect(getOrdersCalled).toBe(false);
+    expect(getOrdersSpy).not.toHaveBeenCalled();
     expect(screen.queryByText("Alice")).not.toBeInTheDocument();
     expect(screen.queryByText("Bob")).not.toBeInTheDocument();
   });
@@ -316,7 +314,7 @@ describe("AdminOrders integration tests", () => {
     renderAdminOrdersPage();
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith(expect.any(Error));
     });
 
     // cpmnt should render without crashing still
@@ -360,7 +358,7 @@ describe("AdminOrders integration tests", () => {
     });
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith(expect.any(Error));
     });
 
     // existing data should still be visible

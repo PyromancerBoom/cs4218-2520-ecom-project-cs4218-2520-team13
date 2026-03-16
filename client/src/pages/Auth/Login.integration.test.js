@@ -126,7 +126,7 @@ describe("Login page integration", () => {
   });
 
   // Priyansh Bimbisariye, A0265903B
-  it("should show the server error message when server returns 401, not a generic fallback", async () => {
+  it("should show the server error message from a non-2xx response, not a generic fallback", async () => {
     server.use(
       http.post("*/api/v1/auth/login", () => {
         return HttpResponse.json(

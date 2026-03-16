@@ -93,6 +93,10 @@ describe("Profile Update through Auth Pipeline", () => {
         email: "newemail@example.com",
       });
       expect(dbUser).toBeNull();
+
+      // verify the original email record still exists
+      const originalUser = await userModel.findOne({ email: validUser.email });
+      expect(originalUser).not.toBeNull();
     });
   });
 
