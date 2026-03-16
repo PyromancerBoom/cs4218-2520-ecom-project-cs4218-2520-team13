@@ -1,11 +1,12 @@
 ﻿//Aashim Mahindroo, A0265890R
+//Based on the directions of my user stories and recommended testing methods like using Playwright for UI tests and React testing library for integration tests, Github Copilot generates initial test code for this file.
+//Then I manually review the code and make necessary adjustments, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
 
 // @ts-check
 import { test, expect } from "@playwright/test";
 
 const BASE_URL = "http://localhost:3000";
 
-// Price ranges defined in Prices.js (must stay in sync with the source)
 const PRICE_RANGES = [
   { label: "$0 to 19", min: 0, max: 19 },
   { label: "$20 to 39", min: 20, max: 39 },
@@ -15,29 +16,21 @@ const PRICE_RANGES = [
   { label: "$100 or more", min: 100, max: 9999 },
 ];
 
-// ---------------------------------------------------------------------------
-// Shared state populated once in beforeAll by querying the live API.
-// All tests use these variables so they work regardless of what is in the DB.
-// ---------------------------------------------------------------------------
 /** @type {any[]} */
-let dbProducts = []; // first page (up to 6) returned by product-list/1
+let dbProducts = [];
 /** @type {any[]} */
-let dbCategories = []; // all categories, each enriched with .products[]
+let dbCategories = [];
 /** @type {any[]} */
-let enrichedPriceRanges = []; // PRICE_RANGES entries each enriched with .products[]
+let enrichedPriceRanges = []; 
 let totalCount = 0;
 
-// Derived helpers computed after enrichment
-let catWithProducts = null; // first category that has >= 1 product
-let secondCatWithProducts = null; // second such category
-let priceRangeWithProducts = null; // first price range that has >= 1 product
-let combinedCategory = null; // category used in combined-filter test
-let combinedPriceRange = null; // price range used in combined-filter test
+let catWithProducts = null; 
+let secondCatWithProducts = null;
+let priceRangeWithProducts = null; 
+let combinedCategory = null;
+let combinedPriceRange = null; 
 
 test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
-  // -----------------------------------------------------------------------
-  // One-time setup: load all data from the live API before any test runs.
-  // -----------------------------------------------------------------------
   test.beforeAll(async ({ request }) => {
     const [catResp, countResp, prodResp] = await Promise.all([
       request.get(`${BASE_URL}/api/v1/category/get-category`),
@@ -49,7 +42,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
     totalCount = (await countResp.json()).total ?? 0;
     dbProducts = (await prodResp.json()).products ?? [];
 
-    // Enrich all categories and price ranges in parallel
     const [catProductsList, rangeProductsList] = await Promise.all([
       Promise.all(
         dbCategories.map((cat) =>
@@ -79,7 +71,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
       products: rangeProductsList[i],
     }));
 
-    // Derive helpers
     catWithProducts =
       dbCategories.find((c) => c.products.length > 0) ?? null;
     secondCatWithProducts =
@@ -89,7 +80,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
     priceRangeWithProducts =
       enrichedPriceRanges.find((r) => r.products.length > 0) ?? null;
 
-    // Find first (category, priceRange) pair whose intersection is non-empty
     outer: for (const cat of dbCategories) {
       for (const range of enrichedPriceRanges) {
         const intersection = cat.products.filter((p) =>
@@ -104,21 +94,14 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
     }
   });
 
-  // -----------------------------------------------------------------------
-  // Per-test setup: clear localStorage cart so each test starts clean.
-  // -----------------------------------------------------------------------
   test.beforeEach(async ({ page }) => {
     await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => localStorage.removeItem("cart"));
     await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
-    // Wait for product cards to be present before each test
     await page.waitForSelector(".card", { timeout: 15000 });
     await page.waitForTimeout(300);
   });
 
-  // =========================================================================
-  // Product Display
-  // =========================================================================
   test.describe("Product Display", () => {
     test("should display All Products heading", async ({ page }) => {
       await expect(
@@ -208,9 +191,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Filter Sidebar
-  // =========================================================================
   test.describe("Filter Sidebar", () => {
     test("should display Filter By Category section", async ({ page }) => {
       await expect(page.getByText("Filter By Category")).toBeVisible();
@@ -263,9 +243,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Category Filtering
-  // =========================================================================
   test.describe("Category Filtering", () => {
     test("should filter products when a category is selected", async ({
       page,
@@ -279,7 +256,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
       await checkbox.click();
       await page.waitForTimeout(1000);
 
-      // At least the first product in this category must appear
       await expect(
         page.getByText(catWithProducts.products[0].name, { exact: true }).first()
       ).toBeVisible({ timeout: 5000 });
@@ -306,7 +282,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
       await cb2.click();
       await page.waitForTimeout(1000);
 
-      // Products from both categories should appear
       await expect(
         page.getByText(catWithProducts.products[0].name, { exact: true }).first()
       ).toBeVisible({ timeout: 5000 });
@@ -316,9 +291,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Price Filtering
-  // =========================================================================
   test.describe("Price Filtering", () => {
     test("should filter products by a price range that has matching products", async ({
       page,
@@ -337,6 +309,47 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
       ).toBeVisible({ timeout: 5000 });
     });
 
+    test("should update the product list when switching between price ranges", async ({
+      page,
+    }) => {
+      const twoRanges = enrichedPriceRanges.filter(
+        (r) => r.products.length > 0
+      );
+      test.skip(
+        twoRanges.length < 2,
+        "Need at least 2 populated price ranges to test switching"
+      );
+
+      const [range1, range2] = twoRanges;
+
+      await page
+        .locator(".filters .ant-radio-wrapper")
+        .filter({ hasText: range1.label })
+        .click();
+      await page.waitForTimeout(1000);
+      await expect(
+        page.getByText(range1.products[0].name, { exact: true }).first()
+      ).toBeVisible({ timeout: 5000 });
+
+      await page
+        .locator(".filters .ant-radio-wrapper")
+        .filter({ hasText: range2.label })
+        .click();
+      await page.waitForTimeout(1000);
+      await expect(
+        page.getByText(range2.products[0].name, { exact: true }).first()
+      ).toBeVisible({ timeout: 5000 });
+
+      const exclusiveToRange1 = range1.products.filter(
+        (p) => !range2.products.some((p2) => p2._id === p._id)
+      );
+      if (exclusiveToRange1.length > 0) {
+        await expect(
+          page.getByText(exclusiveToRange1[0].name, { exact: true }).first()
+        ).not.toBeVisible();
+      }
+    });
+
     test("should have all 6 price range radio buttons selectable", async ({
       page,
     }) => {
@@ -350,9 +363,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Combined Category + Price Filtering
-  // =========================================================================
   test.describe("Combined Filtering", () => {
     test("should show 0 results when category + price filter combination has no matches", async ({
       page,
@@ -365,7 +375,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
           const hasIntersection = cat.products.some((p) =>
             range.products.some((rp) => rp._id === p._id)
           );
-          // Both filters must have products individually, but no overlap
           if (
             !hasIntersection &&
             cat.products.length > 0 &&
@@ -394,7 +403,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
         .locator(".filters .ant-radio-wrapper")
         .filter({ hasText: emptyComboRange.label });
       await radio.click();
-      // Wait for both filter API calls to settle (category then category+price)
       await page.waitForFunction(
         () => document.querySelectorAll(".card").length === 0,
         { timeout: 10000 }
@@ -404,9 +412,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Load More
-  // =========================================================================
   test.describe("Load More", () => {
     test("should show Load More button only when total products exceed page size 6", async ({
       page,
@@ -448,9 +453,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // More Details Navigation
-  // =========================================================================
   test.describe("More Details Navigation", () => {
     test("should navigate to /product/:slug when More Details is clicked", async ({
       page,
@@ -483,9 +485,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Add to Cart from Home Page
-  // =========================================================================
   test.describe("Add to Cart from Home Page", () => {
     test("should show success toast when adding a product to cart", async ({
       page,
@@ -571,9 +570,6 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Filter then Add to Cart (E2E flows)
-  // =========================================================================
   test.describe("Filter then Add to Cart (E2E flow)", () => {
     test("should filter by category, add the first result to cart, and confirm in cart", async ({
       page,

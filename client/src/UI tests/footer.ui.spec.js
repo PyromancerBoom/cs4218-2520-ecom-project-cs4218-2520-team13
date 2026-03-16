@@ -1,29 +1,24 @@
 //Aashim Mahindroo, A0265890R
+//Based on the directions of my user stories and recommended testing methods like using Playwright for UI tests and React testing library for integration tests, Github Copilot generates initial test code for this file.
+//Then I manually review the code and make necessary adjustments, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
+
 
 // @ts-check
 import { test, expect } from "@playwright/test";
 
 const BASE_URL = "http://localhost:3000";
 
-// ---------------------------------------------------------------------------
-// Helper – navigate to a page that uses Layout (and therefore renders Footer)
-// ---------------------------------------------------------------------------
+
 async function gotoHome(page) {
   await page.goto(BASE_URL);
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
 }
 
-// ---------------------------------------------------------------------------
-// Suite
-// ---------------------------------------------------------------------------
 test.describe("Footer - Navigation Links UI Tests", () => {
   test.beforeEach(async ({ page }) => {
     await gotoHome(page);
   });
 
-  // =========================================================================
-  // Copyright text
-  // =========================================================================
   test.describe("Copyright Text", () => {
     test("should display copyright symbol in the footer", async ({ page }) => {
       const footer = page.locator(".footer");
@@ -59,9 +54,6 @@ test.describe("Footer - Navigation Links UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Link Visibility
-  // =========================================================================
   test.describe("Link Visibility", () => {
     test("should display the About link in the footer", async ({ page }) => {
       await expect(
@@ -100,16 +92,12 @@ test.describe("Footer - Navigation Links UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Link Separators
-  // =========================================================================
   test.describe("Link Separators", () => {
     test("should separate footer links with the | character", async ({
       page,
     }) => {
       const paragraph = page.locator(".footer p.text-center");
       const text = await paragraph.innerText();
-      // Expect two pipe characters: About | Contact | Privacy Policy
       expect(text).toContain("|");
       expect((text.match(/\|/g) ?? []).length).toBeGreaterThanOrEqual(2);
     });
@@ -136,9 +124,6 @@ test.describe("Footer - Navigation Links UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Link Routing
-  // =========================================================================
   test.describe("Link Routing", () => {
     test("should navigate to /about when About link is clicked", async ({
       page,
@@ -157,8 +142,7 @@ test.describe("Footer - Navigation Links UI Tests", () => {
         .locator(".footer")
         .getByRole("link", { name: "About" })
         .click();
-      await page.waitForLoadState("networkidle");
-      // About.js uses Layout with title "About us - Ecommerce app"
+      await page.waitForLoadState("domcontentloaded");
       await expect(page).toHaveTitle(/About us/i, { timeout: 5000 });
     });
 
@@ -189,19 +173,15 @@ test.describe("Footer - Navigation Links UI Tests", () => {
         .locator(".footer")
         .getByRole("link", { name: "Privacy Policy" })
         .click();
-      await page.waitForLoadState("networkidle");
-      // Policy.js uses Layout with title "Privacy Policy"
+      await page.waitForLoadState("domcontentloaded");
       await expect(page).toHaveTitle(/Privacy Policy/i, { timeout: 5000 });
     });
   });
 
-  // =========================================================================
-  // Footer present on multiple pages (rendered via Layout)
-  // =========================================================================
   test.describe("Footer Persistence Across Pages", () => {
     test("should render the footer on the About page", async ({ page }) => {
       await page.goto(`${BASE_URL}/about`);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("domcontentloaded");
       await expect(page.locator(".footer")).toBeVisible();
       await expect(page.locator(".footer")).toContainText("All Rights Reserved");
     });
@@ -217,7 +197,7 @@ test.describe("Footer - Navigation Links UI Tests", () => {
 
     test("should render footer links on the About page", async ({ page }) => {
       await page.goto(`${BASE_URL}/about`);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("domcontentloaded");
       await expect(
         page.locator(".footer").getByRole("link", { name: "About" })
       ).toBeVisible();
@@ -230,9 +210,6 @@ test.describe("Footer - Navigation Links UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Styling
-  // =========================================================================
   test.describe("Footer Styling", () => {
     test("should have the footer div with class 'footer'", async ({ page }) => {
       await expect(page.locator(".footer")).toBeVisible();
@@ -247,7 +224,6 @@ test.describe("Footer - Navigation Links UI Tests", () => {
     test("should show the footer below the main content", async ({ page }) => {
       const mainBox = await page.locator("main").boundingBox();
       const footerBox = await page.locator(".footer").boundingBox();
-      // Footer's top edge should be at or below the main content's top edge
       expect(footerBox).not.toBeNull();
       expect(mainBox).not.toBeNull();
       expect(footerBox.y).toBeGreaterThanOrEqual(mainBox.y);

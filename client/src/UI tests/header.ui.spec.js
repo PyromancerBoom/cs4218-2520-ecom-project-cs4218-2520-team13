@@ -1,17 +1,17 @@
 //Aashim Mahindroo, A0265890R
+//Based on the directions of my user stories and recommended testing methods like using Playwright for UI tests and React testing library for integration tests, Github Copilot generates initial test code for this file.
+//Then I manually review the code and make necessary adjustments, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
+
 
 // @ts-check
 import { test, expect } from "@playwright/test";
 
 const BASE_URL = "http://localhost:3000";
 
-// ---------------------------------------------------------------------------
-// Shared state populated once in beforeAll by querying the live API
-// ---------------------------------------------------------------------------
+
 /** @type {any[]} */
 let dbCategories = [];
 
-// Unique test-user credentials (timestamp ensures no collision across runs)
 const TS = Date.now();
 const TEST_USER = {
   name: "Header Test User",
@@ -22,16 +22,8 @@ const TEST_USER = {
   answer: "Football",
 };
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Inject auth state directly into localStorage so the Header renders
- * as if a user is logged in – without needing real DB credentials.
- */
 async function injectAuth(page, user, token = "fake-ui-test-token") {
-  await page.goto(BASE_URL);
+  await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
   await page.evaluate(
     ({ user, token }) => {
       localStorage.setItem("auth", JSON.stringify({ user, token }));
@@ -40,13 +32,9 @@ async function injectAuth(page, user, token = "fake-ui-test-token") {
     { user, token }
   );
   await page.reload();
-  // Wait for the auth context to re-read localStorage and re-render
   await page.waitForLoadState("domcontentloaded");
 }
 
-/**
- * Log in via the real login form and wait for the redirect away from /login.
- */
 async function loginUser(page, email, password) {
   await page.goto(`${BASE_URL}/login`);
   await page.getByPlaceholder("Enter Your Email ").fill(email);
@@ -57,29 +45,18 @@ async function loginUser(page, email, password) {
   });
 }
 
-/**
- * Open a Bootstrap navbar dropdown by clicking its toggle.
- */
 async function openDropdown(page, toggleLocator) {
   await toggleLocator.click();
-  await page.waitForTimeout(350); // allow Bootstrap animation to finish
+  await page.waitForTimeout(350);
 }
 
-// ---------------------------------------------------------------------------
-// Suite
-// ---------------------------------------------------------------------------
 test.describe("Header - Authentication and Navigation UI Tests", () => {
-  // -----------------------------------------------------------------------
-  // One-time setup: fetch categories and pre-create a test user
-  // -----------------------------------------------------------------------
   test.beforeAll(async ({ request }) => {
-    // Fetch live categories from DB
     const catResp = await request.get(
       `${BASE_URL}/api/v1/category/get-category`
     );
     dbCategories = (await catResp.json()).category ?? [];
 
-    // Register the test user via API (role 0 – regular user)
     await request.post(`${BASE_URL}/api/v1/auth/register`, {
       data: {
         name: TEST_USER.name,
@@ -92,22 +69,16 @@ test.describe("Header - Authentication and Navigation UI Tests", () => {
     });
   });
 
-  // -----------------------------------------------------------------------
-  // Per-test cleanup: clear auth + cart so each test starts fresh
-  // -----------------------------------------------------------------------
   test.beforeEach(async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => {
       localStorage.removeItem("auth");
       localStorage.removeItem("cart");
     });
-    await page.goto(BASE_URL);
+    await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("domcontentloaded");
   });
 
-  // =========================================================================
-  // Unauthenticated State
-  // =========================================================================
   test.describe("Unauthenticated State", () => {
     test("should display Register link when not logged in", async ({
       page,
@@ -154,9 +125,6 @@ test.describe("Header - Authentication and Navigation UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Authenticated as Regular User (localStorage injection – no real login)
-  // =========================================================================
   test.describe("Authenticated as Regular User", () => {
     const mockUser = {
       _id: "mock-user-id-001",
@@ -234,9 +202,6 @@ test.describe("Header - Authentication and Navigation UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Authenticated as Admin (localStorage injection – no real login)
-  // =========================================================================
   test.describe("Authenticated as Admin", () => {
     const mockAdmin = {
       _id: "mock-admin-id-001",
@@ -297,9 +262,6 @@ test.describe("Header - Authentication and Navigation UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Login and Logout Flow (real API + real UI)
-  // =========================================================================
   test.describe("Login and Logout Flow", () => {
     test("should show username in the header after successful login", async ({
       page,
@@ -319,7 +281,6 @@ test.describe("Header - Authentication and Navigation UI Tests", () => {
         .getByPlaceholder("Enter Your Password")
         .fill(TEST_USER.password);
       await page.getByRole("button", { name: "LOGIN" }).click();
-      // Backend returns message "login successfully"
       await expect(
         page.getByText("login successfully")
       ).toBeVisible({ timeout: 5000 });
@@ -349,7 +310,6 @@ test.describe("Header - Authentication and Navigation UI Tests", () => {
         .locator(".navbar .dropdown-menu")
         .getByRole("link", { name: "Logout" })
         .click();
-      // Header.js calls toast.success("Logout Successfully")
       await expect(page.getByText("Logout Successfully")).toBeVisible({
         timeout: 5000,
       });
@@ -410,9 +370,6 @@ test.describe("Header - Authentication and Navigation UI Tests", () => {
     });
   });
 
-  // =========================================================================
-  // Cart Badge
-  // =========================================================================
   test.describe("Cart Badge", () => {
     test("should display cart badge with count 0 when cart is empty", async ({
       page,
@@ -454,20 +411,15 @@ test.describe("Header - Authentication and Navigation UI Tests", () => {
       await addButtons.first().click();
       await page.waitForTimeout(300);
 
-      // Navigate away to About
       await page.goto(`${BASE_URL}/about`);
       await page.waitForLoadState("domcontentloaded");
 
-      // Badge should still show 1
       await expect(page.locator(".ant-badge-count")).toHaveText("1", {
         timeout: 5000,
       });
     });
   });
 
-  // =========================================================================
-  // Categories Dropdown
-  // =========================================================================
   test.describe("Categories Dropdown", () => {
     test("should display the Categories nav item", async ({ page }) => {
       await expect(
@@ -568,7 +520,6 @@ test.describe("Header - Authentication and Navigation UI Tests", () => {
         new RegExp(`/category/${firstCat.slug}`),
         { timeout: 5000 }
       );
-      // CategoryProduct.js renders: "Category - <name>" after async API call
       await expect(
         page.getByText(new RegExp(`Category - ${firstCat.name}`, "i"))
       ).toBeVisible({ timeout: 10000 });
@@ -596,16 +547,12 @@ test.describe("Header - Authentication and Navigation UI Tests", () => {
         new RegExp(`/category/${firstCat.slug}`),
         { timeout: 5000 }
       );
-      // CategoryProduct.js renders "<n> result found"
       await expect(
         page.getByText(/result found/i)
       ).toBeVisible({ timeout: 5000 });
     });
   });
 
-  // =========================================================================
-  // Search
-  // =========================================================================
   test.describe("Search", () => {
     test("should display the search input with placeholder 'Search'", async ({
       page,
@@ -661,14 +608,10 @@ test.describe("Header - Authentication and Navigation UI Tests", () => {
       await page.getByPlaceholder("Search").fill("test");
       await page.getByRole("button", { name: "Search" }).click();
       await page.waitForURL("**/search**", { timeout: 10000 });
-      // Search page renders without crashing
       await expect(page.locator("body")).toBeVisible();
     });
   });
 
-  // =========================================================================
-  // Navigation Links
-  // =========================================================================
   test.describe("Navigation Links", () => {
     test("should display the Virtual Vault brand in the navbar", async ({
       page,
@@ -681,7 +624,6 @@ test.describe("Header - Authentication and Navigation UI Tests", () => {
     test("should navigate to / when the brand logo is clicked", async ({
       page,
     }) => {
-      // Start on a different page
       await page.goto(`${BASE_URL}/about`);
       await page.locator(".navbar-brand").click();
       await expect(page).toHaveURL(`${BASE_URL}/`, { timeout: 5000 });

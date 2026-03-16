@@ -1,7 +1,6 @@
 //Aashim Mahindroo, A0265890R
-
-//Based on the directions of my user stories and recommended testing methods like equivalence partitioning and boundary value analysis, Github Copilot generates initial test code for this file.
-//Then I manually review the code and make necessary adjustments like adjusting mocks and assertions, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
+//Based on the directions of my user stories and recommended testing methods like using Playwright for UI tests and React testing library for integration tests, Github Copilot generates initial test code for this file.
+//Then I manually review the code and make necessary adjustments, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
 
 import React from "react";
 import { render, screen, act, waitFor, within } from "@testing-library/react";
@@ -9,9 +8,6 @@ import userEvent from "@testing-library/user-event";
 import { renderHook } from "@testing-library/react";
 import { CartProvider, useCart } from "../context/cart";
 
-// ---------------------------------------------------------------------------
-// localStorage mock
-// ---------------------------------------------------------------------------
 let store = {};
 
 beforeEach(() => {
@@ -33,13 +29,6 @@ afterEach(() => {
   store = {};
 });
 
-// ---------------------------------------------------------------------------
-// Reusable consumer components
-// ---------------------------------------------------------------------------
-
-/**
- * Renders a list of cart items and exposes add/remove/clear controls.
- */
 const CartConsumer = () => {
   const [cart, setCart] = useCart();
 
@@ -79,18 +68,11 @@ const CartConsumer = () => {
   );
 };
 
-/**
- * A second independent consumer – used to verify that two components
- * share the same cart state via the context.
- */
 const CartBadge = () => {
   const [cart] = useCart();
   return <span data-testid="badge-count">{cart.length}</span>;
 };
 
-/**
- * A consumer that replaces the entire cart in one operation.
- */
 const CartReplacer = ({ items }) => {
   const [, setCart] = useCart();
   return (
@@ -103,9 +85,6 @@ const CartReplacer = ({ items }) => {
   );
 };
 
-// ---------------------------------------------------------------------------
-// Helper: mount CartProvider with one or more consumers
-// ---------------------------------------------------------------------------
 function renderWithCart(...consumers) {
   return render(
     <CartProvider>
@@ -116,16 +95,10 @@ function renderWithCart(...consumers) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Fixtures
-// ---------------------------------------------------------------------------
 const PRODUCT_A = { _id: "p1", name: "Widget A", price: 9.99 };
 const PRODUCT_B = { _id: "p2", name: "Widget B", price: 19.99 };
 const PRODUCT_C = { _id: "p3", name: "Widget C", price: 4.99 };
 
-// ===========================================================================
-// 1. Initialization from localStorage on Mount
-// ===========================================================================
 describe("Cart Context Integration – Initialization from localStorage", () => {
   // Aashim Mahindroo, A0265890R
   test("Init-1: initializes with an empty array when localStorage has no cart key", () => {
@@ -153,7 +126,6 @@ describe("Cart Context Integration – Initialization from localStorage", () => 
 
   // Aashim Mahindroo, A0265890R
   test("Init-4: initializes with empty array when localStorage.getItem returns null", () => {
-    // store has no "cart" key → getItem returns null (default mock behaviour)
     renderWithCart(CartConsumer);
     expect(screen.getByTestId("cart-count").textContent).toBe("0");
   });
@@ -186,15 +158,11 @@ describe("Cart Context Integration – Initialization from localStorage", () => 
   test("Init-8: reads from localStorage exactly once during initial mount", () => {
     store["cart"] = JSON.stringify([PRODUCT_A]);
     renderWithCart(CartConsumer);
-    // The lazy initializer is called once; getItem call count should be 1
     expect(Storage.prototype.getItem).toHaveBeenCalledWith("cart");
     expect(Storage.prototype.getItem).toHaveBeenCalledTimes(1);
   });
 });
 
-// ===========================================================================
-// 2. Automatic Persistence to localStorage on Every Cart Update
-// ===========================================================================
 describe("Cart Context Integration – Automatic localStorage Persistence", () => {
   // Aashim Mahindroo, A0265890R
   test("Persist-1: persists a newly added item to localStorage immediately", async () => {
@@ -286,14 +254,12 @@ describe("Cart Context Integration – Automatic localStorage Persistence", () =
   test("Persist-7: cart state and localStorage stay in sync after add-then-remove", async () => {
     renderWithCart(CartConsumer);
 
-    // Add
     await act(async () => {
       screen.getByTestId("add-item").click();
     });
     let stored = JSON.parse(store["cart"]);
     const addedId = stored[0]._id;
 
-    // Remove
     await act(async () => {
       screen.getByLabelText(`remove-${addedId}`).click();
     });
@@ -304,9 +270,6 @@ describe("Cart Context Integration – Automatic localStorage Persistence", () =
   });
 });
 
-// ===========================================================================
-// 3. Lazy Initialization – handling empty / null localStorage
-// ===========================================================================
 describe("Cart Context Integration – Lazy Initialization Edge Cases", () => {
   // Aashim Mahindroo, A0265890R
   test("Lazy-1: starts with [] when 'cart' key is absent", () => {
@@ -334,19 +297,16 @@ describe("Cart Context Integration – Lazy Initialization Edge Cases", () => {
     store["cart"] = JSON.stringify([PRODUCT_A]);
     renderWithCart(CartConsumer);
 
-    // Trigger a re-render by adding an item
     await act(async () => {
       screen.getByTestId("add-item").click();
     });
 
-    // getItem should still have been called only once (lazy init)
     expect(Storage.prototype.getItem).toHaveBeenCalledTimes(1);
   });
 
   // Aashim Mahindroo, A0265890R
   test("Lazy-5: does not write to localStorage before any user interaction", () => {
     renderWithCart(CartConsumer);
-    // useEffect writes the initial [] on mount – the value should be "[]"
     expect(store["cart"]).toBe(JSON.stringify([]));
   });
 
@@ -362,9 +322,6 @@ describe("Cart Context Integration – Lazy Initialization Edge Cases", () => {
   });
 });
 
-// ===========================================================================
-// 4. Cart State Maintained Across Component Re-renders
-// ===========================================================================
 describe("Cart Context Integration – State Across Re-renders", () => {
   // Aashim Mahindroo, A0265890R
   test("Rerender-1: cart items are not lost when the consumer re-renders", async () => {
@@ -384,7 +341,6 @@ describe("Cart Context Integration – State Across Re-renders", () => {
       </CartProvider>
     );
 
-    // State should survive re-render (remounting resets, but rerender does not)
     expect(screen.getByTestId("cart-count").textContent).toBe("1");
   });
 
@@ -456,9 +412,6 @@ describe("Cart Context Integration – State Across Re-renders", () => {
   });
 });
 
-// ===========================================================================
-// 5. Multiple Components Sharing the Same Cart Context
-// ===========================================================================
 describe("Cart Context Integration – Shared State Across Multiple Consumers", () => {
   // Aashim Mahindroo, A0265890R
   test("Share-1: two consumers mounted under same provider see the same initial count", () => {
@@ -513,26 +466,19 @@ describe("Cart Context Integration – Shared State Across Multiple Consumers", 
   });
 });
 
-// ===========================================================================
-// 6. Mount → Interact → Unmount → Remount Cycle (simulates navigation)
-// ===========================================================================
 describe("Cart Context Integration – Mount/Unmount/Remount Cycle", () => {
   // Aashim Mahindroo, A0265890R
   test("Cycle-1: cart state is restored from localStorage after provider is remounted", async () => {
     const { unmount } = renderWithCart(CartConsumer);
 
-    // Add item while mounted
     await act(async () => {
       screen.getByTestId("add-item").click();
     });
 
-    // Verify localStorage was written
     expect(JSON.parse(store["cart"])).toHaveLength(1);
 
-    // Unmount (simulate navigating away)
     unmount();
 
-    // Remount (simulate navigating back) – provider reads localStorage again
     renderWithCart(CartConsumer);
 
     expect(screen.getByTestId("cart-count").textContent).toBe("1");
@@ -555,14 +501,12 @@ describe("Cart Context Integration – Mount/Unmount/Remount Cycle", () => {
 
   // Aashim Mahindroo, A0265890R
   test("Cycle-3: items added across two mount cycles accumulate in localStorage", async () => {
-    // First mount: add one item
     const { unmount } = renderWithCart(CartConsumer);
     await act(async () => {
       screen.getByTestId("add-item").click();
     });
     unmount();
 
-    // Second mount: add another item
     renderWithCart(CartConsumer);
     await act(async () => {
       screen.getByTestId("add-item").click();
@@ -574,15 +518,12 @@ describe("Cart Context Integration – Mount/Unmount/Remount Cycle", () => {
 
   // Aashim Mahindroo, A0265890R
   test("Cycle-4: provider with empty localStorage starts fresh on every cold mount", () => {
-    // First mount
     const { unmount } = renderWithCart(CartConsumer);
     expect(screen.getByTestId("cart-count").textContent).toBe("0");
     unmount();
 
-    // Clear the store to simulate a browser session reset
     store = {};
 
-    // Second mount
     renderWithCart(CartConsumer);
     expect(screen.getByTestId("cart-count").textContent).toBe("0");
   });

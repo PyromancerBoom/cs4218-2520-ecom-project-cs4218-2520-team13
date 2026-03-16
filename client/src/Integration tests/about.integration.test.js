@@ -1,7 +1,6 @@
 //Aashim Mahindroo, A0265890R
-
-//Based on the directions of my user stories and recommended testing methods like equivalence partitioning and boundary value analysis, Github Copilot generates initial test code for this file.
-//Then I manually review the code and make necessary adjustments like adjusting mocks and assertions, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
+//Based on the directions of my user stories and recommended testing methods like using Playwright for UI tests and React testing library for integration tests, Github Copilot generates initial test code for this file.
+//Then I manually review the code and make necessary adjustments, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
 
 import React from "react";
 import { render, screen } from "@testing-library/react";
@@ -9,10 +8,6 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import Helmet from "react-helmet";
 import About from "../pages/About";
 
-// ---------------------------------------------------------------------------
-// Mock Header and Footer to isolate About + Layout from their dependencies
-// (auth context, useCategory API calls, react-router NavLinks, etc.)
-// ---------------------------------------------------------------------------
 jest.mock("../components/Header", () => () => (
   <div data-testid="mock-header">Mock Header</div>
 ));
@@ -20,9 +15,6 @@ jest.mock("../components/Footer", () => () => (
   <div data-testid="mock-footer">Mock Footer</div>
 ));
 
-// ---------------------------------------------------------------------------
-// Helper – render About page, optionally inside a MemoryRouter at /about
-// ---------------------------------------------------------------------------
 function renderAbout() {
   return render(
     <MemoryRouter initialEntries={["/about"]}>
@@ -33,9 +25,6 @@ function renderAbout() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Clean document head between tests
-// ---------------------------------------------------------------------------
 beforeEach(() => {
   document.title = "";
   document
@@ -44,9 +33,6 @@ beforeEach(() => {
     .forEach((el) => el.remove());
 });
 
-// ===========================================================================
-// 1. Route – navigating to /about renders the About page
-// ===========================================================================
 describe("About Page - Route Rendering", () => {
   // Aashim Mahindroo, A0265890R
   test("Route-1: About page renders without crashing at /about route", () => {
@@ -56,7 +42,6 @@ describe("About Page - Route Rendering", () => {
   // Aashim Mahindroo, A0265890R
   test("Route-2: About page content is present in the DOM after navigating to /about", () => {
     renderAbout();
-    // The page renders a paragraph with placeholder text
     expect(screen.getByText("Add text")).toBeInTheDocument();
   });
 
@@ -68,9 +53,6 @@ describe("About Page - Route Rendering", () => {
   });
 });
 
-// ===========================================================================
-// 2. Layout Integration – About is wrapped inside Layout
-// ===========================================================================
 describe("About Page - Layout Component Integration", () => {
   // Aashim Mahindroo, A0265890R
   test("Layout-1: Header component is rendered on the About page", () => {
@@ -120,9 +102,6 @@ describe("About Page - Layout Component Integration", () => {
   });
 });
 
-// ===========================================================================
-// 3. Page Title – correct title passed to Layout via Helmet
-// ===========================================================================
 describe("About Page - Page Title via Helmet", () => {
   // Aashim Mahindroo, A0265890R
   test("Title-1: document.title is set to 'About us - Ecommerce app'", () => {
@@ -149,9 +128,6 @@ describe("About Page - Page Title via Helmet", () => {
   });
 });
 
-// ===========================================================================
-// 4. Page Content and Information
-// ===========================================================================
 describe("About Page - Content and Information", () => {
   // Aashim Mahindroo, A0265890R
   test("Content-1: renders a paragraph element with text content", () => {
@@ -182,9 +158,6 @@ describe("About Page - Content and Information", () => {
   });
 });
 
-// ===========================================================================
-// 5. Styling – grid layout classes
-// ===========================================================================
 describe("About Page - Styling and Layout Classes", () => {
   // Aashim Mahindroo, A0265890R
   test("Style-1: outer content wrapper has Bootstrap 'row' class", () => {

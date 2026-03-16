@@ -1,42 +1,30 @@
-//Aashim Mahindroo, A0265890R
 
-//Based on the directions of my user stories and recommended testing methods like equivalence partitioning and boundary value analysis, Github Copilot generates initial test code for this file.
-//Then I manually review the code and make necessary adjustments like adjusting mocks and assertions, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
+//Aashim Mahindroo, A0265890R
+//Based on the directions of my user stories and recommended testing methods like using Playwright for UI tests and React testing library for integration tests, Github Copilot generates initial test code for this file.
+//Then I manually review the code and make necessary adjustments, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
+
 
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import Helmet from "react-helmet";
 import Pagenotfound from "../pages/Pagenotfound";
-
-// ---------------------------------------------------------------------------
-// Mock Header and Footer to isolate Pagenotfound + Layout from their
-// dependencies (auth context, useCategory API calls, etc.)
-// ---------------------------------------------------------------------------
 jest.mock("../components/Header", () => () => (
   <div data-testid="mock-header">Mock Header</div>
 ));
 jest.mock("../components/Footer", () => () => (
   <div data-testid="mock-footer">Mock Footer</div>
 ));
-
-// ---------------------------------------------------------------------------
-// Helper – render Pagenotfound inside a router
-// ---------------------------------------------------------------------------
 function renderPagenotfound() {
   return render(
     <MemoryRouter initialEntries={["/some/nonexistent/route"]}>
       <Routes>
-        {/* Wildcard matches any undefined route, same as App.js */}
+        {}
         <Route path="*" element={<Pagenotfound />} />
       </Routes>
     </MemoryRouter>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Clean Helmet state between tests
-// ---------------------------------------------------------------------------
 beforeEach(() => {
   document.title = "";
   document
@@ -45,9 +33,6 @@ beforeEach(() => {
     .forEach((el) => el.remove());
 });
 
-// ===========================================================================
-// 1. Route – navigating to a non-existent path renders the 404 page
-// ===========================================================================
 describe("Pagenotfound - Route Rendering", () => {
   // Aashim Mahindroo, A0265890R
   test("Route-1: renders without crashing for an unknown route", () => {
@@ -79,9 +64,6 @@ describe("Pagenotfound - Route Rendering", () => {
   });
 });
 
-// ===========================================================================
-// 2. Layout Integration
-// ===========================================================================
 describe("Pagenotfound - Layout Component Integration", () => {
   // Aashim Mahindroo, A0265890R
   test("Layout-1: Header component is rendered on the 404 page", () => {
@@ -131,9 +113,6 @@ describe("Pagenotfound - Layout Component Integration", () => {
   });
 });
 
-// ===========================================================================
-// 3. Page Title via Helmet
-// ===========================================================================
 describe("Pagenotfound - Page Title", () => {
   // Aashim Mahindroo, A0265890R
   test("Title-1: document.title is set to 'go back- page not found'", () => {
@@ -154,9 +133,6 @@ describe("Pagenotfound - Page Title", () => {
   });
 });
 
-// ===========================================================================
-// 4. 404 Page Content
-// ===========================================================================
 describe("Pagenotfound - Page Content", () => {
   // Aashim Mahindroo, A0265890R
   test("Content-1: '404' is rendered inside an h1 element", () => {
@@ -194,9 +170,6 @@ describe("Pagenotfound - Page Content", () => {
   });
 });
 
-// ===========================================================================
-// 5. Styling and CSS Classes
-// ===========================================================================
 describe("Pagenotfound - Styling and CSS Classes", () => {
   // Aashim Mahindroo, A0265890R
   test("Style-1: outer container has class 'pnf'", () => {
@@ -235,9 +208,6 @@ describe("Pagenotfound - Styling and CSS Classes", () => {
   });
 });
 
-// ===========================================================================
-// 6. App-level Routing – wildcard catches all undefined routes
-// ===========================================================================
 describe("Pagenotfound - App Routing Integration", () => {
   function renderApp(path) {
     return render(

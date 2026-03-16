@@ -1,23 +1,22 @@
-//Aashim Mahindroo, A0265890R
 
-// @ts-check
+//Aashim Mahindroo, A0265890R
+//Based on the directions of my user stories and recommended testing methods like using Playwright for UI tests and React testing library for integration tests, Github Copilot generates initial test code for this file.
+//Then I manually review the code and make necessary adjustments, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
+
 import { test, expect } from "@playwright/test";
 
 const BASE_URL = "http://localhost:3000";
 
-// Helper: login as an existing user through the UI
 async function loginUser(page, email, password) {
   await page.goto(`${BASE_URL}/login`);
   await page.getByPlaceholder("Enter Your Email").fill(email);
   await page.getByPlaceholder("Enter Your Password").fill(password);
   await page.getByRole("button", { name: "LOGIN" }).click();
-  // Wait for navigation to complete after login
   await page.waitForURL((url) => !url.pathname.includes("/login"), {
     timeout: 10000,
   });
 }
 
-// Helper: register a new user through the UI
 async function registerUser(page, userData) {
   await page.goto(`${BASE_URL}/register`);
   await page.getByPlaceholder("Enter Your Name").fill(userData.name);
@@ -33,19 +32,12 @@ async function registerUser(page, userData) {
   await page.waitForURL("**/login", { timeout: 10000 });
 }
 
-// ──────────────────────────────────────────────────────
-// Cart Page - UI Tests
-// ──────────────────────────────────────────────────────
 test.describe("Cart Page UI Tests", () => {
   test.beforeEach(async ({ page }) => {
-    // Clear localStorage cart before each test to start fresh
     await page.goto(BASE_URL);
     await page.evaluate(() => localStorage.removeItem("cart"));
   });
 
-  // ──────────────────────────────────────────────
-  // Empty Cart
-  // ──────────────────────────────────────────────
   test.describe("Empty Cart", () => {
     test("should display empty cart message for guest user", async ({
       page,
@@ -92,25 +84,19 @@ test.describe("Cart Page UI Tests", () => {
     });
   });
 
-  // ──────────────────────────────────────────────
-  // Adding Items to Cart
-  // ──────────────────────────────────────────────
   test.describe("Adding Items to Cart from HomePage", () => {
     test("should add a product to cart from the home page", async ({
       page,
     }) => {
       await page.goto(BASE_URL);
 
-      // Wait for products to load
       const addToCartButtons = page.getByRole("button", {
         name: "ADD TO CART",
       });
       await addToCartButtons.first().waitFor({ timeout: 15000 });
 
-      // Click the first "ADD TO CART" button
       await addToCartButtons.first().click();
 
-      // Verify toast notification
       await expect(page.getByText("Item Added to cart")).toBeVisible({
         timeout: 5000,
       });
@@ -126,17 +112,13 @@ test.describe("Cart Page UI Tests", () => {
       });
       await addToCartButtons.first().waitFor({ timeout: 15000 });
 
-      // Cart badge should show 0 initially
       const cartLink = page.getByRole("link", { name: /Cart/ });
       await expect(cartLink).toBeVisible();
 
-      // Add first product
       await addToCartButtons.first().click();
 
-      // After adding, badge should reflect new count
       await page.waitForTimeout(500);
 
-      // Navigate to cart to verify item is there
       await page.goto(`${BASE_URL}/cart`);
       await expect(page.getByText("You Have 1 items in your cart")).toBeVisible(
         { timeout: 5000 }
@@ -151,12 +133,10 @@ test.describe("Cart Page UI Tests", () => {
       });
       await addToCartButtons.first().waitFor({ timeout: 15000 });
 
-      // Add same item twice
       await addToCartButtons.first().click();
       await page.waitForTimeout(500);
       await addToCartButtons.first().click();
 
-      // Should show error for duplicate
       await expect(page.getByText("Item already in cart")).toBeVisible({
         timeout: 5000,
       });
@@ -179,7 +159,6 @@ test.describe("Cart Page UI Tests", () => {
         await addToCartButtons.nth(1).click();
         await page.waitForTimeout(500);
 
-        // Navigate to cart and verify count
         await page.goto(`${BASE_URL}/cart`);
         await expect(
           page.getByText("You Have 2 items in your cart")
@@ -188,21 +167,16 @@ test.describe("Cart Page UI Tests", () => {
     });
   });
 
-  // ──────────────────────────────────────────────
-  // Cart Page Display
-  // ──────────────────────────────────────────────
   test.describe("Cart Page Product Display", () => {
     test("should display product name, description, and price in cart", async ({
       page,
     }) => {
-      // Add an item from homepage first
       await page.goto(BASE_URL);
       const addToCartButtons = page.getByRole("button", {
         name: "ADD TO CART",
       });
       await addToCartButtons.first().waitFor({ timeout: 15000 });
 
-      // Get the product name before adding (exclude .card-price which also uses card-title)
       const productCards = page.locator(".card");
       const firstProductName = await productCards
         .first()
@@ -212,10 +186,8 @@ test.describe("Cart Page UI Tests", () => {
       await addToCartButtons.first().click();
       await page.waitForTimeout(500);
 
-      // Go to cart
       await page.goto(`${BASE_URL}/cart`);
 
-      // Verify product details are shown
       if (firstProductName) {
         await expect(
           page.getByText(firstProductName, { exact: true }).first()
@@ -224,7 +196,6 @@ test.describe("Cart Page UI Tests", () => {
         });
       }
 
-      // Price should be displayed
       await expect(page.locator("text=Price :")).toBeVisible();
     });
 
@@ -239,7 +210,6 @@ test.describe("Cart Page UI Tests", () => {
 
       await page.goto(`${BASE_URL}/cart`);
 
-      // Cart items should have images
       const cartImages = page.locator(".cart-page img");
       await expect(cartImages.first()).toBeVisible({ timeout: 5000 });
     });
@@ -262,14 +232,10 @@ test.describe("Cart Page UI Tests", () => {
     });
   });
 
-  // ──────────────────────────────────────────────
-  // Removing Items from Cart
-  // ──────────────────────────────────────────────
   test.describe("Removing Items from Cart", () => {
     test("should remove item from cart when Remove button is clicked", async ({
       page,
     }) => {
-      // Add item
       await page.goto(BASE_URL);
       const addToCartButtons = page.getByRole("button", {
         name: "ADD TO CART",
@@ -278,16 +244,13 @@ test.describe("Cart Page UI Tests", () => {
       await addToCartButtons.first().click();
       await page.waitForTimeout(500);
 
-      // Go to cart
       await page.goto(`${BASE_URL}/cart`);
       await expect(
         page.getByText(/You Have 1 items in your cart/)
       ).toBeVisible({ timeout: 5000 });
 
-      // Remove item
       await page.getByRole("button", { name: "Remove" }).first().click();
 
-      // Cart should be empty
       await expect(page.getByText("Your Cart Is Empty")).toBeVisible({
         timeout: 5000,
       });
@@ -296,7 +259,6 @@ test.describe("Cart Page UI Tests", () => {
     test("should update total price after removing an item", async ({
       page,
     }) => {
-      // Add two items
       await page.goto(BASE_URL);
       const addToCartButtons = page.getByRole("button", {
         name: "ADD TO CART",
@@ -312,14 +274,11 @@ test.describe("Cart Page UI Tests", () => {
 
         await page.goto(`${BASE_URL}/cart`);
 
-        // Get initial total
         const totalBefore = await page.locator("h4:has-text('Total')").textContent();
 
-        // Remove first item
         await page.getByRole("button", { name: "Remove" }).first().click();
         await page.waitForTimeout(500);
 
-        // Total should have changed
         const totalAfter = await page.locator("h4:has-text('Total')").textContent();
         expect(totalAfter).not.toBe(totalBefore);
       }
@@ -328,7 +287,6 @@ test.describe("Cart Page UI Tests", () => {
     test("should show empty cart after removing all items", async ({
       page,
     }) => {
-      // Add one item
       await page.goto(BASE_URL);
       const addToCartButtons = page.getByRole("button", {
         name: "ADD TO CART",
@@ -339,7 +297,6 @@ test.describe("Cart Page UI Tests", () => {
 
       await page.goto(`${BASE_URL}/cart`);
 
-      // Remove it
       await page.getByRole("button", { name: "Remove" }).click();
 
       await expect(page.getByText("Your Cart Is Empty")).toBeVisible({
@@ -348,9 +305,6 @@ test.describe("Cart Page UI Tests", () => {
     });
   });
 
-  // ──────────────────────────────────────────────
-  // Cart Total Price Calculation
-  // ──────────────────────────────────────────────
   test.describe("Cart Total Price", () => {
     test("should display total price in cart summary", async ({ page }) => {
       await page.goto(BASE_URL);
@@ -363,19 +317,14 @@ test.describe("Cart Page UI Tests", () => {
 
       await page.goto(`${BASE_URL}/cart`);
 
-      // Total should be visible
       const totalElement = page.locator("h4:has-text('Total')");
       await expect(totalElement).toBeVisible({ timeout: 5000 });
 
-      // Total should contain a dollar sign (currency format)
       const totalText = await totalElement.textContent();
       expect(totalText).toContain("$");
     });
   });
 
-  // ──────────────────────────────────────────────
-  // Cart Persistence (localStorage)
-  // ──────────────────────────────────────────────
   test.describe("Cart Persistence", () => {
     test("should persist cart items after page refresh", async ({ page }) => {
       await page.goto(BASE_URL);
@@ -386,11 +335,9 @@ test.describe("Cart Page UI Tests", () => {
       await addToCartButtons.first().click();
       await page.waitForTimeout(500);
 
-      // Refresh the page
       await page.goto(`${BASE_URL}/cart`);
       await page.reload();
 
-      // Items should still be there
       await expect(
         page.getByText(/You Have 1 items in your cart/)
       ).toBeVisible({ timeout: 5000 });
@@ -407,11 +354,9 @@ test.describe("Cart Page UI Tests", () => {
       await addToCartButtons.first().click();
       await page.waitForTimeout(500);
 
-      // Navigate to about page
       await page.goto(`${BASE_URL}/about`);
       await page.waitForTimeout(500);
 
-      // Navigate back to cart
       await page.goto(`${BASE_URL}/cart`);
 
       await expect(
@@ -420,15 +365,11 @@ test.describe("Cart Page UI Tests", () => {
     });
   });
 
-  // ──────────────────────────────────────────────
-  // Logged-in User Cart Experience
-  // ──────────────────────────────────────────────
   test.describe("Logged-in User Cart", () => {
     const testUserEmail = `carttest_${Date.now()}@test.com`;
     const testUserPassword = "testpass123";
 
     test.beforeAll(async ({ browser }) => {
-      // Register a test user once for this suite
       const page = await browser.newPage();
       try {
         await registerUser(page, {
@@ -441,7 +382,6 @@ test.describe("Cart Page UI Tests", () => {
           answer: "cricket",
         });
       } catch (e) {
-        // User might already exist - that's fine
       }
       await page.close();
     });
@@ -517,7 +457,6 @@ test.describe("Cart Page UI Tests", () => {
     }) => {
       await loginUser(page, testUserEmail, testUserPassword);
 
-      // Add an item
       await page.goto(BASE_URL);
       const addToCartButtons = page.getByRole("button", {
         name: "ADD TO CART",
@@ -528,7 +467,6 @@ test.describe("Cart Page UI Tests", () => {
 
       await page.goto(`${BASE_URL}/cart`);
 
-      // Should say "You Have X items in your cart" without "please login to checkout"
       await expect(page.getByText(/You Have 1 items in your cart/)).toBeVisible(
         { timeout: 5000 }
       );
@@ -538,14 +476,10 @@ test.describe("Cart Page UI Tests", () => {
     });
   });
 
-  // ──────────────────────────────────────────────
-  // Login redirect from Cart
-  // ──────────────────────────────────────────────
   test.describe("Login Redirect from Cart", () => {
     test("should redirect back to cart after login from cart page", async ({
       page,
     }) => {
-      // Register a test user
       const email = `redirect_${Date.now()}@test.com`;
       const password = "testpass123";
 
@@ -559,31 +493,23 @@ test.describe("Cart Page UI Tests", () => {
         answer: "football",
       });
 
-      // Go to cart as guest
       await page.goto(`${BASE_URL}/cart`);
 
-      // Click the login to checkout button
       await page
         .getByRole("button", { name: /login to checkout/i })
         .click();
 
-      // Should be on login page
       await page.waitForURL("**/login");
 
-      // Login
       await page.getByPlaceholder("Enter Your Email").fill(email);
       await page.getByPlaceholder("Enter Your Password").fill(password);
       await page.getByRole("button", { name: "LOGIN" }).click();
 
-      // Should redirect back to cart
       await page.waitForURL("**/cart", { timeout: 10000 });
       await expect(page).toHaveURL(/\/cart/);
     });
   });
 
-  // ──────────────────────────────────────────────
-  // Cart Navigation
-  // ──────────────────────────────────────────────
   test.describe("Cart Navigation via Header", () => {
     test("should navigate to cart page when clicking Cart link in header", async ({
       page,
@@ -603,7 +529,6 @@ test.describe("Cart Page UI Tests", () => {
     }) => {
       await page.goto(BASE_URL);
 
-      // The Badge component with showZero should display 0
       const badge = page.locator(".ant-badge");
       await expect(badge).toBeVisible();
     });

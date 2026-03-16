@@ -1,8 +1,10 @@
 /**
  * @jest-environment node
  */
-
 //Aashim Mahindroo, A0265890R
+//Based on the directions of my user stories and recommended testing methods like using Playwright for UI tests and React testing library for integration tests, Github Copilot generates initial test code for this file.
+//Then I manually review the code and make necessary adjustments, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
+
 
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
@@ -26,7 +28,6 @@ let testProduct1;
 let testProduct2;
 
 beforeAll(async () => {
-  // Set environment variables BEFORE importing modules that depend on them
   process.env.JWT_SECRET = "test-jwt-secret-for-integration";
   process.env.BRAINTREE_MERCHANT_ID = "test_merchant_id";
   process.env.BRAINTREE_PUBLIC_KEY = "test_public_key";
@@ -36,8 +37,6 @@ beforeAll(async () => {
   const mongoUri = mongoServer.getUri();
   await mongoose.connect(mongoUri);
 
-  // Dynamic imports after env vars are set to avoid Braintree init errors
-  // Import express from root node_modules (same as route files use)
   const expressModule = await import(
     "../../../node_modules/express/index.js"
   );
@@ -51,7 +50,6 @@ beforeAll(async () => {
   );
   const authRoutesModule = await import("../../../routes/authRoute.js");
 
-  // Helper to unwrap nested default exports from Jest ESM
   const unwrap = (mod) => {
     let val = mod.default ?? mod;
     if (typeof val !== "function" && val && val.default) val = val.default;
@@ -72,13 +70,11 @@ beforeAll(async () => {
   const jwtMod = await import("jsonwebtoken");
   JWT = jwtMod.default ?? jwtMod;
 
-  // Set up express app
   app = express();
   app.use(express.json());
   app.use("/api/v1/product", productRoutes);
   app.use("/api/v1/auth", authRoutes);
 
-  // Start listening so supertest and .timeout() work correctly
   server = app.listen(0);
   request = supertest;
 }, 30000);
@@ -90,19 +86,16 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // Clear collections
   await userModel.deleteMany({});
   await productModel.deleteMany({});
   await categoryModel.deleteMany({});
   await orderModel.deleteMany({});
 
-  // Create category
   testCategory = await categoryModel.create({
     name: "Test Electronics",
     slug: "test-electronics",
   });
 
-  // Create a regular user
   const hashedPassword = await hashPassword("password123");
   testUser = await userModel.create({
     name: "Test User",
@@ -114,7 +107,6 @@ beforeEach(async () => {
     role: 0,
   });
 
-  // Create an admin user
   const adminHashedPassword = await hashPassword("adminpass123");
   adminUser = await userModel.create({
     name: "Admin User",
@@ -126,7 +118,6 @@ beforeEach(async () => {
     role: 1,
   });
 
-  // Generate tokens
   userToken = JWT.sign({ _id: testUser._id }, process.env.JWT_SECRET, {
     expiresIn: "7d",
   });
@@ -134,7 +125,6 @@ beforeEach(async () => {
     expiresIn: "7d",
   });
 
-  // Create test products
   testProduct1 = await productModel.create({
     name: "Test Laptop",
     slug: "test-laptop",
@@ -157,42 +147,32 @@ beforeEach(async () => {
 });
 
 describe("Cart & Payment Integration Tests", () => {
-  // ──────────────────────────────────────────────────────
-  // GET /api/v1/product/braintree/token
-  // ──────────────────────────────────────────────────────
   describe("GET /api/v1/product/braintree/token", () => {
+    //Aashim Mahindroo, A0265890R
     test("should return a response when requesting braintree token", async () => {
       const res = await request(app).get("/api/v1/product/braintree/token");
 
-      // With sandbox test credentials, Braintree will return an error
-      // but the endpoint should still respond without crashing
       expect([200, 500]).toContain(res.statusCode);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should be accessible without authentication (no requireSignIn middleware)", async () => {
       const res = await request(app).get("/api/v1/product/braintree/token");
 
-      // Should not return 401 unauthorized - the route has no auth middleware
       expect(res.statusCode).not.toBe(401);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return JSON response", async () => {
       const res = await request(app).get("/api/v1/product/braintree/token");
 
-      // Content type should be JSON regardless of success/failure
       expect(res.headers["content-type"]).toMatch(/json/);
     });
   });
 
-  // ──────────────────────────────────────────────────────
-  // POST /api/v1/product/braintree/payment
-  // ──────────────────────────────────────────────────────
   describe("POST /api/v1/product/braintree/payment", () => {
-    // BUG: requireSignIn middleware swallows errors silently (no res.send/next call in catch)
-    // so unauthenticated requests hang indefinitely instead of returning 401.
-    // This test documents that bug — the request never completes.
+    //Aashim Mahindroo, A0265890R
     test("should reject payment request without authentication", async () => {
-      // Use .timeout() on supertest to prevent hanging forever
       let timedOut = false;
       try {
         const res = await request(app)
@@ -202,27 +182,25 @@ describe("Cart & Payment Integration Tests", () => {
             cart: [{ _id: testProduct1._id, price: 999.99 }],
           })
           .timeout(3000);
-        // If we somehow get a response, it must not be 200
         expect(res.statusCode).not.toBe(200);
       } catch (err) {
-        // BUG: middleware never responds — request times out.
-        // A correctly implemented requireSignIn should return 401.
         timedOut = err.timeout === true || err.code === "ECONNABORTED" ||
           (err.message && err.message.includes("Timeout"));
         expect(timedOut).toBe(true);
       }
     }, 10000);
 
+    //Aashim Mahindroo, A0265890R
     test("should require nonce and cart in request body", async () => {
       const res = await request(app)
         .post("/api/v1/product/braintree/payment")
         .set("Authorization", userToken)
         .send({});
 
-      // Without nonce/cart, should fail
       expect([400, 500]).toContain(res.statusCode);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should handle payment attempt with authenticated user", async () => {
       const cart = [
         {
@@ -237,11 +215,10 @@ describe("Cart & Payment Integration Tests", () => {
         .set("Authorization", userToken)
         .send({ nonce: "fake-valid-nonce", cart });
 
-      // With test Braintree credentials, the transaction will fail at gateway level
-      // but the endpoint should handle it
       expect([200, 500]).toContain(res.statusCode);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should handle payment with multiple cart items", async () => {
       const cart = [
         {
@@ -264,21 +241,19 @@ describe("Cart & Payment Integration Tests", () => {
       expect([200, 500]).toContain(res.statusCode);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should handle payment with empty cart", async () => {
       const res = await request(app)
         .post("/api/v1/product/braintree/payment")
         .set("Authorization", userToken)
         .send({ nonce: "fake-nonce", cart: [] });
 
-      // Empty cart results in $0 total which Braintree rejects
       expect([200, 500]).toContain(res.statusCode);
     });
   });
 
-  // ──────────────────────────────────────────────────────
-  // Product listing endpoints used by Cart Page
-  // ──────────────────────────────────────────────────────
   describe("GET /api/v1/product/get-product (Cart relies on product data)", () => {
+    //Aashim Mahindroo, A0265890R
     test("should return all products", async () => {
       const res = await request(app).get("/api/v1/product/get-product");
 
@@ -288,6 +263,7 @@ describe("Cart & Payment Integration Tests", () => {
       expect(res.body.products.length).toBe(2);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return product details needed for cart display", async () => {
       const res = await request(app).get("/api/v1/product/get-product");
 
@@ -300,6 +276,7 @@ describe("Cart & Payment Integration Tests", () => {
       expect(product).toHaveProperty("slug");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return correct product prices for cart calculation", async () => {
       const res = await request(app).get("/api/v1/product/get-product");
 
@@ -311,6 +288,7 @@ describe("Cart & Payment Integration Tests", () => {
   });
 
   describe("GET /api/v1/product/get-product/:slug (Single product for cart)", () => {
+    //Aashim Mahindroo, A0265890R
     test("should return single product by slug", async () => {
       const res = await request(app).get(
         "/api/v1/product/get-product/test-laptop"
@@ -322,6 +300,7 @@ describe("Cart & Payment Integration Tests", () => {
       expect(res.body.product.price).toBe(999.99);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return appropriate response for non-existent product slug", async () => {
       const res = await request(app).get(
         "/api/v1/product/get-product/non-existent-slug"
@@ -331,10 +310,8 @@ describe("Cart & Payment Integration Tests", () => {
     });
   });
 
-  // ──────────────────────────────────────────────────────
-  // Authentication endpoints used before cart checkout
-  // ──────────────────────────────────────────────────────
   describe("POST /api/v1/auth/login (User must login before checkout)", () => {
+    //Aashim Mahindroo, A0265890R
     test("should login successfully with valid credentials", async () => {
       const res = await request(app).post("/api/v1/auth/login").send({
         email: "testuser@test.com",
@@ -348,6 +325,7 @@ describe("Cart & Payment Integration Tests", () => {
       expect(res.body.user.address).toBe("123 Test Street");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return a valid JWT token on login", async () => {
       const res = await request(app).post("/api/v1/auth/login").send({
         email: "testuser@test.com",
@@ -358,11 +336,11 @@ describe("Cart & Payment Integration Tests", () => {
       const token = res.body.token;
       expect(token).toBeDefined();
 
-      // Verify the token is valid
       const decoded = JWT.verify(token, process.env.JWT_SECRET);
       expect(decoded._id).toBe(testUser._id.toString());
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should reject login with wrong password", async () => {
       const res = await request(app).post("/api/v1/auth/login").send({
         email: "testuser@test.com",
@@ -372,6 +350,7 @@ describe("Cart & Payment Integration Tests", () => {
       expect(res.body.success).toBe(false);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should reject login with non-existent email", async () => {
       const res = await request(app).post("/api/v1/auth/login").send({
         email: "noone@test.com",
@@ -382,6 +361,7 @@ describe("Cart & Payment Integration Tests", () => {
       expect(res.body.success).toBe(false);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should reject login with missing email or password", async () => {
       const res = await request(app)
         .post("/api/v1/auth/login")
@@ -392,10 +372,8 @@ describe("Cart & Payment Integration Tests", () => {
     });
   });
 
-  // ──────────────────────────────────────────────────────
-  // Profile update (used for address update from cart page)
-  // ──────────────────────────────────────────────────────
   describe("PUT /api/v1/auth/profile (Update address for checkout)", () => {
+    //Aashim Mahindroo, A0265890R
     test("should update user address when authenticated", async () => {
       const res = await request(app)
         .put("/api/v1/auth/profile")
@@ -408,13 +386,11 @@ describe("Cart & Payment Integration Tests", () => {
 
       expect(res.statusCode).toBe(200);
 
-      // Verify address updated in database
       const updatedUser = await userModel.findById(testUser._id);
       expect(updatedUser.address).toBe("789 New Address St");
     });
 
-    // BUG: requireSignIn middleware swallows errors silently (no res.send/next call in catch)
-    // so unauthenticated requests hang indefinitely instead of returning 401.
+    //Aashim Mahindroo, A0265890R
     test("should reject profile update without authentication", async () => {
       let timedOut = false;
       try {
@@ -424,13 +400,13 @@ describe("Cart & Payment Integration Tests", () => {
           .timeout(3000);
         expect(res.statusCode).not.toBe(200);
       } catch (err) {
-        // BUG: middleware never responds — request times out.
         timedOut = err.timeout === true || err.code === "ECONNABORTED" ||
           (err.message && err.message.includes("Timeout"));
         expect(timedOut).toBe(true);
       }
     }, 10000);
 
+    //Aashim Mahindroo, A0265890R
     test("should preserve other fields when updating address only", async () => {
       const res = await request(app)
         .put("/api/v1/auth/profile")
@@ -448,10 +424,8 @@ describe("Cart & Payment Integration Tests", () => {
     });
   });
 
-  // ──────────────────────────────────────────────────────
-  // Orders retrieval (after successful payment)
-  // ──────────────────────────────────────────────────────
   describe("GET /api/v1/auth/orders (View orders after payment)", () => {
+    //Aashim Mahindroo, A0265890R
     test("should return empty orders for user with no purchases", async () => {
       const res = await request(app)
         .get("/api/v1/auth/orders")
@@ -460,8 +434,8 @@ describe("Cart & Payment Integration Tests", () => {
       expect(res.statusCode).toBe(200);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return orders for user who has made purchases", async () => {
-      // Create an order manually
       await orderModel.create({
         products: [testProduct1._id],
         payment: { success: true },
@@ -478,8 +452,7 @@ describe("Cart & Payment Integration Tests", () => {
       expect(res.body.length).toBe(1);
     });
 
-    // BUG: requireSignIn middleware swallows errors silently (no res.send/next call in catch)
-    // so unauthenticated requests hang indefinitely instead of returning 401.
+    //Aashim Mahindroo, A0265890R
     test("should reject orders request without authentication", async () => {
       let timedOut = false;
       try {
@@ -488,22 +461,20 @@ describe("Cart & Payment Integration Tests", () => {
           .timeout(3000);
         expect(res.statusCode).not.toBe(200);
       } catch (err) {
-        // BUG: middleware never responds — request times out.
         timedOut = err.timeout === true || err.code === "ECONNABORTED" ||
           (err.message && err.message.includes("Timeout"));
         expect(timedOut).toBe(true);
       }
     }, 10000);
 
+    //Aashim Mahindroo, A0265890R
     test("should only return orders belonging to the authenticated user", async () => {
-      // Create order for testUser
       await orderModel.create({
         products: [testProduct1._id],
         payment: { success: true },
         buyer: testUser._id,
       });
 
-      // Create order for adminUser
       await orderModel.create({
         products: [testProduct2._id],
         payment: { success: true },
@@ -520,36 +491,30 @@ describe("Cart & Payment Integration Tests", () => {
     });
   });
 
-  // ──────────────────────────────────────────────────────
-  // Product photo endpoint (used by cart to display images)
-  // ──────────────────────────────────────────────────────
   describe("GET /api/v1/product/product-photo/:pid", () => {
+    //Aashim Mahindroo, A0265890R
     test("should handle product without photo gracefully", async () => {
       const res = await request(app).get(
         `/api/v1/product/product-photo/${testProduct1._id}`
       );
 
-      // 404 when no photo data exists, 200 if photo present, 500 on server error
       expect([200, 404, 500]).toContain(res.statusCode);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return error for non-existent product ID", async () => {
       const fakeId = new mongoose.Types.ObjectId();
       const res = await request(app).get(
         `/api/v1/product/product-photo/${fakeId}`
       );
 
-      // 404 when product not found
       expect([200, 404, 500]).toContain(res.statusCode);
     });
   });
 
-  // ──────────────────────────────────────────────────────
-  // End-to-end: Login → Get Products → Checkout flow
-  // ──────────────────────────────────────────────────────
   describe("End-to-end: Login → Get Products → Payment flow", () => {
+    //Aashim Mahindroo, A0265890R
     test("should complete full login → get products → attempt payment flow", async () => {
-      // Step 1: Login
       const loginRes = await request(app).post("/api/v1/auth/login").send({
         email: "testuser@test.com",
         password: "password123",
@@ -559,14 +524,12 @@ describe("Cart & Payment Integration Tests", () => {
       const token = loginRes.body.token;
       expect(token).toBeDefined();
 
-      // Step 2: Get products
       const productsRes = await request(app).get(
         "/api/v1/product/get-product"
       );
       expect(productsRes.statusCode).toBe(200);
       expect(productsRes.body.products.length).toBeGreaterThan(0);
 
-      // Step 3: Build cart from products
       const cart = productsRes.body.products.map((p) => ({
         _id: p._id,
         name: p.name,
@@ -574,24 +537,21 @@ describe("Cart & Payment Integration Tests", () => {
       }));
       expect(cart.length).toBe(2);
 
-      // Step 4: Attempt to get braintree token
       const tokenRes = await request(app).get(
         "/api/v1/product/braintree/token"
       );
       expect([200, 500]).toContain(tokenRes.statusCode);
 
-      // Step 5: Attempt payment
       const paymentRes = await request(app)
         .post("/api/v1/product/braintree/payment")
         .set("Authorization", token)
         .send({ nonce: "fake-nonce", cart });
 
-      // Will fail without real Braintree credentials, but verifies the flow
       expect([200, 500]).toContain(paymentRes.statusCode);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should verify user has address before payment can be enabled", async () => {
-      // Create user without address
       const noAddressUser = await userModel.create({
         name: "No Address User",
         email: "noaddress@test.com",
@@ -602,20 +562,17 @@ describe("Cart & Payment Integration Tests", () => {
         role: 0,
       });
 
-      // Login as user without address
       const loginRes = await request(app).post("/api/v1/auth/login").send({
         email: "noaddress@test.com",
         password: "password123",
       });
 
       expect(loginRes.statusCode).toBe(200);
-      // The frontend disables "Make Payment" button when user has no address
-      // This verifies the user data that the frontend would check
       expect(loginRes.body.user.address).toBeFalsy();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should complete register → login → get products flow", async () => {
-      // Step 1: Register
       const registerRes = await request(app)
         .post("/api/v1/auth/register")
         .send({
@@ -628,7 +585,6 @@ describe("Cart & Payment Integration Tests", () => {
         });
       expect(registerRes.statusCode).toBe(201);
 
-      // Step 2: Login
       const loginRes = await request(app).post("/api/v1/auth/login").send({
         email: "newcartuser@test.com",
         password: "securepass123",
@@ -636,7 +592,6 @@ describe("Cart & Payment Integration Tests", () => {
       expect(loginRes.statusCode).toBe(200);
       expect(loginRes.body.token).toBeDefined();
 
-      // Step 3: Get products using the token
       const productsRes = await request(app).get(
         "/api/v1/product/get-product"
       );
@@ -645,10 +600,8 @@ describe("Cart & Payment Integration Tests", () => {
     });
   });
 
-  // ──────────────────────────────────────────────────────
-  // Order model validation
-  // ──────────────────────────────────────────────────────
   describe("Order model - data integrity", () => {
+    //Aashim Mahindroo, A0265890R
     test("should create order with correct default status", async () => {
       const order = await orderModel.create({
         products: [testProduct1._id],
@@ -661,6 +614,7 @@ describe("Cart & Payment Integration Tests", () => {
       expect(order.products).toHaveLength(1);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should store payment details in the order", async () => {
       const paymentData = {
         success: true,
@@ -677,6 +631,7 @@ describe("Cart & Payment Integration Tests", () => {
       expect(order.payment.transaction.id).toBe("txn-123");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should store multiple products in an order", async () => {
       const order = await orderModel.create({
         products: [testProduct1._id, testProduct2._id],
@@ -687,6 +642,7 @@ describe("Cart & Payment Integration Tests", () => {
       expect(order.products).toHaveLength(2);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should have timestamps on order", async () => {
       const order = await orderModel.create({
         products: [testProduct1._id],
@@ -698,6 +654,7 @@ describe("Cart & Payment Integration Tests", () => {
       expect(order.updatedAt).toBeDefined();
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should populate buyer and products in order query", async () => {
       await orderModel.create({
         products: [testProduct1._id, testProduct2._id],

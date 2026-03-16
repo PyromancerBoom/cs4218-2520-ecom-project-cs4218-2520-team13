@@ -1,8 +1,11 @@
-/**
+﻿/**
  * @jest-environment node
  */
 
 //Aashim Mahindroo, A0265890R
+//Based on the directions of my user stories and recommended testing methods like using Playwright for UI tests and React testing library for integration tests, Github Copilot generates initial test code for this file.
+//Then I manually review the code and make necessary adjustments, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
+
 
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
@@ -21,10 +24,10 @@ let testUser;
 let adminUser;
 let electronicsCategory;
 let clothingCategory;
-let cheapProduct;    // price 15 → $0–$19
-let midProduct;      // price 89 → $80–$99
-let expensiveProduct;// price 150 → $100+
-let clothingProduct; // clothing category
+let cheapProduct;
+let midProduct;
+let expensiveProduct;
+let clothingProduct;
 
 beforeAll(async () => {
   process.env.JWT_SECRET = "test-jwt-secret-for-integration";
@@ -65,7 +68,6 @@ beforeAll(async () => {
 
   server = app.listen(0);
 
-  // Create categories
   electronicsCategory = await categoryModel.create({
     name: "Electronics",
     slug: "electronics",
@@ -75,7 +77,6 @@ beforeAll(async () => {
     slug: "clothing",
   });
 
-  // Create users
   testUser = await userModel.create({
     name: "Test User",
     email: "testuser@test.com",
@@ -108,7 +109,6 @@ afterAll(async () => {
 beforeEach(async () => {
   await productModel.deleteMany({});
 
-  // cheap: $15 (falls in $0–$19 range)
   cheapProduct = await productModel.create({
     name: "Budget Earbuds",
     slug: "budget-earbuds",
@@ -119,7 +119,6 @@ beforeEach(async () => {
     shipping: true,
   });
 
-  // mid: $89 (falls in $80–$99 range)
   midProduct = await productModel.create({
     name: "Wireless Headphones",
     slug: "wireless-headphones",
@@ -130,7 +129,6 @@ beforeEach(async () => {
     shipping: true,
   });
 
-  // expensive: $150 (falls in $100+ range)
   expensiveProduct = await productModel.create({
     name: "Laptop Pro",
     slug: "laptop-pro",
@@ -141,7 +139,6 @@ beforeEach(async () => {
     shipping: true,
   });
 
-  // clothing
   clothingProduct = await productModel.create({
     name: "Cotton T-Shirt",
     slug: "cotton-t-shirt",
@@ -155,27 +152,23 @@ beforeEach(async () => {
 
 describe("Home Page - Product Listing and Filtering Integration Tests", () => {
 
-  // ──────────────────────────────────────────────────────
-  // GET /api/v1/category/get-category
-  // ──────────────────────────────────────────────────────
   describe("GET /api/v1/category/get-category", () => {
+    //Aashim Mahindroo, A0265890R
     test("should return all categories with success true", async () => {
       const res = await request(app).get("/api/v1/category/get-category");
-
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.category).toBeInstanceOf(Array);
       expect(res.body.category.length).toBe(2);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return categories with name and slug fields", async () => {
       const res = await request(app).get("/api/v1/category/get-category");
-
       expect(res.statusCode).toBe(200);
       const names = res.body.category.map((c) => c.name);
       expect(names).toContain("Electronics");
       expect(names).toContain("Clothing");
-
       res.body.category.forEach((c) => {
         expect(c).toHaveProperty("name");
         expect(c).toHaveProperty("slug");
@@ -183,38 +176,36 @@ describe("Home Page - Product Listing and Filtering Integration Tests", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should be accessible without authentication", async () => {
       const res = await request(app).get("/api/v1/category/get-category");
       expect(res.statusCode).not.toBe(401);
       expect(res.statusCode).toBe(200);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return empty array when no categories exist", async () => {
       await categoryModel.deleteMany({});
       const res = await request(app).get("/api/v1/category/get-category");
       expect(res.statusCode).toBe(200);
       expect(res.body.category).toEqual([]);
-      // Restore for subsequent tests
       await categoryModel.create({ name: "Electronics", slug: "electronics" });
       await categoryModel.create({ name: "Clothing", slug: "clothing" });
-      // Update references
       electronicsCategory = await categoryModel.findOne({ slug: "electronics" });
       clothingCategory = await categoryModel.findOne({ slug: "clothing" });
     });
   });
 
-  // ──────────────────────────────────────────────────────
-  // GET /api/v1/product/product-count
-  // ──────────────────────────────────────────────────────
   describe("GET /api/v1/product/product-count", () => {
+    //Aashim Mahindroo, A0265890R
     test("should return correct total product count", async () => {
       const res = await request(app).get("/api/v1/product/product-count");
-
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.total).toBe(4);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return 0 when no products exist", async () => {
       await productModel.deleteMany({});
       const res = await request(app).get("/api/v1/product/product-count");
@@ -222,10 +213,10 @@ describe("Home Page - Product Listing and Filtering Integration Tests", () => {
       expect(res.body.total).toBe(0);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should update count after adding a product", async () => {
       const before = await request(app).get("/api/v1/product/product-count");
       const initialCount = before.body.total;
-
       await productModel.create({
         name: "New Product",
         slug: "new-product",
@@ -235,33 +226,30 @@ describe("Home Page - Product Listing and Filtering Integration Tests", () => {
         quantity: 5,
         shipping: true,
       });
-
       const after = await request(app).get("/api/v1/product/product-count");
       expect(after.body.total).toBe(initialCount + 1);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should be accessible without authentication", async () => {
       const res = await request(app).get("/api/v1/product/product-count");
       expect(res.statusCode).not.toBe(401);
     });
   });
 
-  // ──────────────────────────────────────────────────────
-  // GET /api/v1/product/product-list/:page
-  // ──────────────────────────────────────────────────────
   describe("GET /api/v1/product/product-list/:page", () => {
+    //Aashim Mahindroo, A0265890R
     test("should return products on page 1", async () => {
       const res = await request(app).get("/api/v1/product/product-list/1");
-
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.products).toBeInstanceOf(Array);
       expect(res.body.products.length).toBe(4);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return products with required fields (no photo)", async () => {
       const res = await request(app).get("/api/v1/product/product-list/1");
-
       expect(res.statusCode).toBe(200);
       const product = res.body.products[0];
       expect(product).toHaveProperty("name");
@@ -269,20 +257,19 @@ describe("Home Page - Product Listing and Filtering Integration Tests", () => {
       expect(product).toHaveProperty("description");
       expect(product).toHaveProperty("slug");
       expect(product).toHaveProperty("_id");
-      // Photo should be excluded
       expect(product).not.toHaveProperty("photo");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return empty array for page beyond available products", async () => {
       const res = await request(app).get("/api/v1/product/product-list/999");
-
       expect(res.statusCode).toBe(200);
       expect(res.body.products).toBeInstanceOf(Array);
       expect(res.body.products.length).toBe(0);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should paginate correctly with 6 products per page", async () => {
-      // Add 5 more products so we have 9 total (exceeds 1 page of 6)
       for (let i = 0; i < 5; i++) {
         await productModel.create({
           name: `Extra Product ${i}`,
@@ -294,33 +281,31 @@ describe("Home Page - Product Listing and Filtering Integration Tests", () => {
           shipping: true,
         });
       }
-
       const page1 = await request(app).get("/api/v1/product/product-list/1");
       expect(page1.body.products.length).toBe(6);
-
       const page2 = await request(app).get("/api/v1/product/product-list/2");
       expect(page2.body.products.length).toBe(3);
-
-      // No overlap between pages
       const page1Ids = page1.body.products.map((p) => p._id);
       const page2Ids = page2.body.products.map((p) => p._id);
       const overlap = page1Ids.filter((id) => page2Ids.includes(id));
       expect(overlap.length).toBe(0);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should handle page=0 gracefully (treat as page 1)", async () => {
       const res = await request(app).get("/api/v1/product/product-list/0");
       expect(res.statusCode).toBe(200);
       expect(res.body.products.length).toBeGreaterThan(0);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should handle non-numeric page gracefully", async () => {
       const res = await request(app).get("/api/v1/product/product-list/abc");
       expect(res.statusCode).toBe(200);
-      // Should fall back to page 1
       expect(res.body.products.length).toBeGreaterThan(0);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return products sorted by newest first", async () => {
       const res = await request(app).get("/api/v1/product/product-list/1");
       expect(res.statusCode).toBe(200);
@@ -331,25 +316,22 @@ describe("Home Page - Product Listing and Filtering Integration Tests", () => {
     });
   });
 
-  // ──────────────────────────────────────────────────────
-  // POST /api/v1/product/product-filters
-  // ──────────────────────────────────────────────────────
   describe("POST /api/v1/product/product-filters", () => {
+    //Aashim Mahindroo, A0265890R
     test("should return all products when no filters applied", async () => {
       const res = await request(app)
         .post("/api/v1/product/product-filters")
         .send({ checked: [], radio: [] });
-
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.products.length).toBe(4);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should filter by category", async () => {
       const res = await request(app)
         .post("/api/v1/product/product-filters")
         .send({ checked: [electronicsCategory._id], radio: [] });
-
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.products.length).toBe(3);
@@ -358,103 +340,98 @@ describe("Home Page - Product Listing and Filtering Integration Tests", () => {
       });
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should filter by clothing category", async () => {
       const res = await request(app)
         .post("/api/v1/product/product-filters")
         .send({ checked: [clothingCategory._id], radio: [] });
-
       expect(res.statusCode).toBe(200);
       expect(res.body.products.length).toBe(1);
       expect(res.body.products[0].name).toBe("Cotton T-Shirt");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should filter by multiple categories", async () => {
       const res = await request(app)
         .post("/api/v1/product/product-filters")
-        .send({
-          checked: [electronicsCategory._id, clothingCategory._id],
-          radio: [],
-        });
-
+        .send({ checked: [electronicsCategory._id, clothingCategory._id], radio: [] });
       expect(res.statusCode).toBe(200);
       expect(res.body.products.length).toBe(4);
     });
 
-    test("should filter by price range $0–$19", async () => {
+    //Aashim Mahindroo, A0265890R
+    test("should filter by price range $0-$19", async () => {
       const res = await request(app)
         .post("/api/v1/product/product-filters")
         .send({ checked: [], radio: [0, 19] });
-
       expect(res.statusCode).toBe(200);
       expect(res.body.products.length).toBe(1);
       expect(res.body.products[0].name).toBe("Budget Earbuds");
       expect(res.body.products[0].price).toBe(15);
     });
 
-    test("should filter by price range $80–$99", async () => {
+    //Aashim Mahindroo, A0265890R
+    test("should filter by price range $80-$99", async () => {
       const res = await request(app)
         .post("/api/v1/product/product-filters")
         .send({ checked: [], radio: [80, 99] });
-
       expect(res.statusCode).toBe(200);
       expect(res.body.products.length).toBe(1);
       expect(res.body.products[0].name).toBe("Wireless Headphones");
       expect(res.body.products[0].price).toBe(89);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should filter by price range $100+", async () => {
       const res = await request(app)
         .post("/api/v1/product/product-filters")
         .send({ checked: [], radio: [100, 9999] });
-
       expect(res.statusCode).toBe(200);
       expect(res.body.products.length).toBe(1);
       expect(res.body.products[0].name).toBe("Laptop Pro");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should filter by both category and price range", async () => {
       const res = await request(app)
         .post("/api/v1/product/product-filters")
         .send({ checked: [electronicsCategory._id], radio: [0, 19] });
-
       expect(res.statusCode).toBe(200);
       expect(res.body.products.length).toBe(1);
       expect(res.body.products[0].name).toBe("Budget Earbuds");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return empty array when no products match filters", async () => {
       const res = await request(app)
         .post("/api/v1/product/product-filters")
         .send({ checked: [clothingCategory._id], radio: [100, 9999] });
-
       expect(res.statusCode).toBe(200);
       expect(res.body.products.length).toBe(0);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return 400 when radio has wrong format (1 element instead of 2)", async () => {
-      // The controller checks radio.length === 2, so a single-element array won't filter by price
       const res = await request(app)
         .post("/api/v1/product/product-filters")
         .send({ checked: [], radio: [0] });
-
-      // With invalid radio format, price filter is skipped → returns all products
       expect(res.statusCode).toBe(200);
       expect(res.body.products.length).toBe(4);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should be accessible without authentication", async () => {
       const res = await request(app)
         .post("/api/v1/product/product-filters")
         .send({ checked: [], radio: [] });
-
       expect(res.statusCode).not.toBe(401);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should return correct product fields in filter results", async () => {
       const res = await request(app)
         .post("/api/v1/product/product-filters")
         .send({ checked: [electronicsCategory._id], radio: [] });
-
       expect(res.statusCode).toBe(200);
       const product = res.body.products[0];
       expect(product).toHaveProperty("name");
@@ -464,36 +441,29 @@ describe("Home Page - Product Listing and Filtering Integration Tests", () => {
     });
   });
 
-  // ──────────────────────────────────────────────────────
-  // End-to-end: HomePage product browsing flow
-  // ──────────────────────────────────────────────────────
   describe("End-to-end: Product browsing flow", () => {
-    test("should complete full browse flow: categories → products → filter", async () => {
-      // Step 1: Load categories for filter sidebar
+    //Aashim Mahindroo, A0265890R
+    test("should complete full browse flow: categories -> products -> filter", async () => {
       const catRes = await request(app).get("/api/v1/category/get-category");
       expect(catRes.statusCode).toBe(200);
       expect(catRes.body.category.length).toBeGreaterThan(0);
       const electronics = catRes.body.category.find((c) => c.name === "Electronics");
       expect(electronics).toBeDefined();
 
-      // Step 2: Load product count (for "Load More" button visibility)
       const countRes = await request(app).get("/api/v1/product/product-count");
       expect(countRes.statusCode).toBe(200);
       expect(countRes.body.total).toBe(4);
 
-      // Step 3: Load first page of products
       const listRes = await request(app).get("/api/v1/product/product-list/1");
       expect(listRes.statusCode).toBe(200);
       expect(listRes.body.products.length).toBe(4);
 
-      // Step 4: Apply category filter
       const filterRes = await request(app)
         .post("/api/v1/product/product-filters")
         .send({ checked: [electronics._id], radio: [] });
       expect(filterRes.statusCode).toBe(200);
       expect(filterRes.body.products.length).toBe(3);
 
-      // Step 5: Apply price filter within electronics
       const priceFilterRes = await request(app)
         .post("/api/v1/product/product-filters")
         .send({ checked: [electronics._id], radio: [80, 99] });
@@ -502,23 +472,22 @@ describe("Home Page - Product Listing and Filtering Integration Tests", () => {
       expect(priceFilterRes.body.products[0].name).toBe("Wireless Headphones");
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should reload all products after resetting filters", async () => {
-      // Filter to narrow results
       const filtered = await request(app)
         .post("/api/v1/product/product-filters")
         .send({ checked: [clothingCategory._id], radio: [] });
       expect(filtered.body.products.length).toBe(1);
 
-      // Reset: fetch full list again (no filters)
       const reset = await request(app).get("/api/v1/product/product-list/1");
       expect(reset.statusCode).toBe(200);
       expect(reset.body.products.length).toBe(4);
     });
 
+    //Aashim Mahindroo, A0265890R
     test("should count match between product-count and product-list", async () => {
       const countRes = await request(app).get("/api/v1/product/product-count");
       const listRes = await request(app).get("/api/v1/product/product-list/1");
-
       expect(countRes.body.total).toBe(listRes.body.products.length);
     });
   });

@@ -1,17 +1,13 @@
-//Aashim Mahindroo, A0265890R
 
-//Based on the directions of my user stories and recommended testing methods like equivalence partitioning and boundary value analysis, Github Copilot generates initial test code for this file.
-//Then I manually review the code and make necessary adjustments like adjusting mocks and assertions, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
+//Aashim Mahindroo, A0265890R
+//Based on the directions of my user stories and recommended testing methods like using Playwright for UI tests and React testing library for integration tests, Github Copilot generates initial test code for this file.
+//Then I manually review the code and make necessary adjustments, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
+
 
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import Helmet from "react-helmet";
 import Layout from "../components/Layout";
-
-// ---------------------------------------------------------------------------
-// Mock Header and Footer so Layout tests are not affected by their internal
-// dependencies (auth context, useCategory API calls, router links, etc.)
-// ---------------------------------------------------------------------------
 jest.mock("../components/Header", () => () => (
   <div data-testid="mock-header">Mock Header</div>
 ));
@@ -19,24 +15,14 @@ jest.mock("../components/Footer", () => () => (
   <div data-testid="mock-footer">Mock Footer</div>
 ));
 
-// ---------------------------------------------------------------------------
-// Helper – renders Layout with optional prop overrides and children
-// ---------------------------------------------------------------------------
 function renderLayout(props = {}, children = <span data-testid="default-child">Child</span>) {
   return render(<Layout {...props}>{children}</Layout>);
 }
 
-// ---------------------------------------------------------------------------
-// Reset Helmet state between tests
-// ---------------------------------------------------------------------------
 beforeEach(() => {
   Helmet.canUseDOM = true;
 });
 
-// ---------------------------------------------------------------------------
-// Helper – look up a meta tag from Helmet's internal state (metaTags are
-// plain prop objects, not DOM nodes, so document.querySelector won't work)
-// ---------------------------------------------------------------------------
 function getHelmetMeta(name) {
   const metaTags = Helmet.peek().metaTags || [];
   return metaTags.find((m) => m.name === name) || null;
@@ -53,9 +39,6 @@ function getHelmetCharset() {
   );
 }
 
-// ===========================================================================
-// 1. Default Props / SEO meta tags
-// ===========================================================================
 describe("Layout - Default Props and SEO Meta Tags", () => {
   // Aashim Mahindroo, A0265890R
   test("Default-1: renders default page title 'Ecommerce app - shop now'", () => {
@@ -98,9 +81,6 @@ describe("Layout - Default Props and SEO Meta Tags", () => {
   });
 });
 
-// ===========================================================================
-// 2. Custom Props Override SEO Meta Tags
-// ===========================================================================
 describe("Layout - Custom Props Override SEO Meta Tags", () => {
   // Aashim Mahindroo, A0265890R
   test("Custom-1: custom title prop updates document title", () => {
@@ -154,9 +134,6 @@ describe("Layout - Custom Props Override SEO Meta Tags", () => {
   });
 });
 
-// ===========================================================================
-// 3. Helmet Updates document.head Correctly
-// ===========================================================================
 describe("Layout - Helmet Updates document.head", () => {
   // Aashim Mahindroo, A0265890R
   test("Helmet-1: document.title updates when title prop changes on re-render", () => {
@@ -220,9 +197,6 @@ describe("Layout - Helmet Updates document.head", () => {
   });
 });
 
-// ===========================================================================
-// 4. Header Rendered at Top
-// ===========================================================================
 describe("Layout - Header Component Rendered at Top", () => {
   // Aashim Mahindroo, A0265890R
   test("Header-1: Header component is present in the DOM", () => {
@@ -252,9 +226,6 @@ describe("Layout - Header Component Rendered at Top", () => {
   });
 });
 
-// ===========================================================================
-// 5. Children Rendered in the Main Content Area
-// ===========================================================================
 describe("Layout - Children Rendered in Main Content Area", () => {
   // Aashim Mahindroo, A0265890R
   test("Children-1: single child element is rendered", () => {
@@ -311,9 +282,6 @@ describe("Layout - Children Rendered in Main Content Area", () => {
   });
 });
 
-// ===========================================================================
-// 6. Footer Rendered at Bottom
-// ===========================================================================
 describe("Layout - Footer Component Rendered at Bottom", () => {
   // Aashim Mahindroo, A0265890R
   test("Footer-1: Footer component is present in the DOM", () => {
