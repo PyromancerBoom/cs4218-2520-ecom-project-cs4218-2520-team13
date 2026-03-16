@@ -61,9 +61,6 @@ const fillAndSubmitForm = () => {
   fireEvent.change(screen.getByLabelText("Address"), {
     target: { value: "Kent Ridge" },
   });
-  fireEvent.change(screen.getByLabelText("DOB"), {
-    target: { value: "1990-09-02" },
-  });
   fireEvent.change(screen.getByLabelText("Answer"), {
     target: { value: "Fencing" },
   });
