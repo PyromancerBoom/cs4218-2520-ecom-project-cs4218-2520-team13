@@ -17,7 +17,7 @@ export default {
   },
 
   // ignore all node_modules except styleMock (needed for css imports)
-  transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js|msw|@mswjs|until-async)/)"],
+  transformIgnorePatterns: ["[/\\\\]node_modules[/\\\\](?!(styleMock\\.js|msw|@mswjs|until-async)[/\\\\])"],
 
   // run all frontend tests (exclude _site, which contains MarkBind-generated Vue files)
   testMatch: ["<rootDir>/client/src/**/*.test.js"],

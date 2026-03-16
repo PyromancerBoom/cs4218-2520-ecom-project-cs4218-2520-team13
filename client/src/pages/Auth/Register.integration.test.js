@@ -46,28 +46,27 @@ const renderRegisterPage = () => {
 
 // Priyansh Bimbisariye, A0265903B
 const fillAndSubmitForm = () => {
-  fireEvent.change(screen.getByPlaceholderText("Enter Your Name"), {
+  fireEvent.change(screen.getByLabelText("Name"), {
     target: { value: "John Wick" },
   });
-  fireEvent.change(screen.getByPlaceholderText("Enter Your Email"), {
+  fireEvent.change(screen.getByLabelText("Email"), {
     target: { value: "john.wick@example.com" },
   });
-  fireEvent.change(screen.getByPlaceholderText("Enter Your Password"), {
+  fireEvent.change(screen.getByLabelText("Password"), {
     target: { value: "BabaYaga123" },
   });
-  fireEvent.change(screen.getByPlaceholderText("Enter Your Phone"), {
+  fireEvent.change(screen.getByLabelText("Phone"), {
     target: { value: "9876543210" },
   });
-  fireEvent.change(screen.getByPlaceholderText("Enter Your Address"), {
+  fireEvent.change(screen.getByLabelText("Address"), {
     target: { value: "Kent Ridge" },
   });
-  fireEvent.change(screen.getByPlaceholderText("Enter Your DOB"), {
+  fireEvent.change(screen.getByLabelText("DOB"), {
     target: { value: "1990-09-02" },
   });
-  fireEvent.change(
-    screen.getByPlaceholderText("What is Your Favorite sports"),
-    { target: { value: "Fencing" } },
-  );
+  fireEvent.change(screen.getByLabelText("Answer"), {
+    target: { value: "Fencing" },
+  });
   fireEvent.click(screen.getByRole("button", { name: /register/i }));
 };
 
@@ -75,10 +74,6 @@ const fillAndSubmitForm = () => {
 describe("Register page integration", () => {
   beforeEach(() => {
     localStorage.clear();
-    jest.spyOn(console, "log").mockImplementation(() => {});
-  });
-  afterEach(() => {
-    console.log.mockRestore();
   });
 
   // Priyansh Bimbisariye, A0265903B

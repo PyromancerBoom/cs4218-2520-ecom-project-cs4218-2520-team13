@@ -34,7 +34,6 @@ const Register = () => {
         toast.error(res.data.message);
       }
     } catch (error) {
-      console.log(error);
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
@@ -52,6 +51,7 @@ const Register = () => {
               className="form-control"
               id="exampleInputName1"
               placeholder="Enter Your Name"
+              aria-label="Name"
               required
               autoFocus
             />
@@ -63,7 +63,8 @@ const Register = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="form-control"
               id="exampleInputEmail1"
-              placeholder="Enter Your Email "
+              placeholder="Enter Your Email"
+              aria-label="Email"
               required
             />
           </div>
@@ -75,6 +76,7 @@ const Register = () => {
               className="form-control"
               id="exampleInputPassword1"
               placeholder="Enter Your Password"
+              aria-label="Password"
               required
             />
           </div>
@@ -86,6 +88,7 @@ const Register = () => {
               className="form-control"
               id="exampleInputPhone1"
               placeholder="Enter Your Phone"
+              aria-label="Phone"
               required
             />
           </div>
@@ -97,6 +100,7 @@ const Register = () => {
               className="form-control"
               id="exampleInputaddress1"
               placeholder="Enter Your Address"
+              aria-label="Address"
               required
             />
           </div>
@@ -108,6 +112,7 @@ const Register = () => {
               className="form-control"
               id="exampleInputDOB1"
               placeholder="Enter Your DOB"
+              aria-label="DOB"
               required
             />
           </div>
@@ -119,6 +124,7 @@ const Register = () => {
               className="form-control"
               id="exampleInputanswer1"
               placeholder="What is Your Favorite sports"
+              aria-label="Answer"
               required
             />
           </div>

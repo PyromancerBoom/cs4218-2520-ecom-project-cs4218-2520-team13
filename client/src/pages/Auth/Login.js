@@ -38,13 +38,12 @@ const Login = () => {
             user: res.data.user,
             token: res.data.token,
         });
-        localStorage.setItem("auth", JSON.stringify(res.data));
+        localStorage.setItem("auth", JSON.stringify({ user: res.data.user, token: res.data.token }));
         navigate(location.state || "/");
       } else {
         toast.error(res.data.message);
       }
     } catch (error) {
-      console.log(error);
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
@@ -62,7 +61,8 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="form-control"
               id="exampleInputEmail1"
-              placeholder="Enter Your Email "
+              placeholder="Enter Your Email"
+              aria-label="Email"
               required
             />
           </div>
@@ -74,6 +74,7 @@ const Login = () => {
               className="form-control"
               id="exampleInputPassword1"
               placeholder="Enter Your Password"
+              aria-label="Password"
               required
             />
           </div>

@@ -57,10 +57,10 @@ const fillAndSubmitForm = (
   email = "john@example.com",
   password = "password123",
 ) => {
-  fireEvent.change(screen.getByPlaceholderText("Enter Your Email"), {
+  fireEvent.change(screen.getByLabelText("Email"), {
     target: { value: email },
   });
-  fireEvent.change(screen.getByPlaceholderText("Enter Your Password"), {
+  fireEvent.change(screen.getByLabelText("Password"), {
     target: { value: password },
   });
   fireEvent.click(screen.getByRole("button", { name: /login/i }));
@@ -70,10 +70,6 @@ const fillAndSubmitForm = (
 describe("Login page integration", () => {
   beforeEach(() => {
     localStorage.clear();
-    jest.spyOn(console, "log").mockImplementation(() => {});
-  });
-  afterEach(() => {
-    console.log.mockRestore();
   });
 
   // Priyansh Bimbisariye, A0265903B
@@ -177,7 +173,6 @@ describe("Login page integration", () => {
     localStorage.setItem(
       "auth",
       JSON.stringify({
-        success: true,
         user: mockUser,
         token: mockToken,
       }),
