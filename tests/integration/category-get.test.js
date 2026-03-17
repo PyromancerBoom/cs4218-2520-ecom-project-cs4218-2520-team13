@@ -9,7 +9,7 @@ let mongoServer;
 
 describe("Category Integration Tests", () => {
 
-    // A0338250J LOU, YING-WEN
+
     beforeAll(async () => {
         consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
 
@@ -24,7 +24,7 @@ describe("Category Integration Tests", () => {
 
 
 
-    // A0338250J LOU, YING-WEN
+
     afterAll(async () => {
         await mongoose.disconnect();
         await mongoServer.stop();
@@ -35,7 +35,7 @@ describe("Category Integration Tests", () => {
         }
     });
 
-    // A0338250J LOU, YING-WEN
+
     beforeEach(async () => {
         await categoryModel.deleteMany({});
         await categoryModel.create([

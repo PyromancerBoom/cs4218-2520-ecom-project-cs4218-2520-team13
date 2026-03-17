@@ -1,4 +1,5 @@
 // A0338250J LOU, YING-WEN
+//use admin@test.sg to test admin category management features
 import { test, expect } from '@playwright/test';
 
 const BASE_URL = "http://localhost:3000";

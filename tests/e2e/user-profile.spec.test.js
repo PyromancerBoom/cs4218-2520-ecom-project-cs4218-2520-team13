@@ -1,4 +1,5 @@
 // A0338250J LOU, YING-WEN
+// use cs4218@test.com to test user profile management features
 import { test, expect } from '@playwright/test';
 
 const BASE_URL = "http://localhost:3000";
@@ -63,7 +64,6 @@ test.describe("User Profile Management - Integration Suite", () => {
     });
 
     test("Security: Constrained Fields", async ({ page }) => {
-        // Try multiple ways to find the email input if placeholder fails
         const emailInput = page.locator('input[type="email"]').first();
 
         await expect(emailInput).not.toBeEditable();
