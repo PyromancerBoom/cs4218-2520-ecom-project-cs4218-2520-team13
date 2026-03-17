@@ -20,7 +20,8 @@ export default {
   transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js)$)"],
 
   // run all frontend tests (exclude _site, which contains MarkBind-generated Vue files)
-  testMatch: ["<rootDir>/client/src/**/*.test.js"],
+  testMatch: ["<rootDir>/client/src/**/*.test.js",
+    "<rootDir>/client/src/**/__tests__/**/*.test.js"],
   testPathIgnorePatterns: ["/node_modules/", "<rootDir>/client/src/_site/"],
 
   // jest code coverage
@@ -29,6 +30,7 @@ export default {
     "client/src/**/*.{js,jsx}",
     "!client/src/**/*.test.{js,jsx}",
     "!client/src/_site/**",
+    "!client/src/__tests__/**"
   ],
   setupFilesAfterEnv: ["<rootDir>/client/src/setupTests.js"],
 };

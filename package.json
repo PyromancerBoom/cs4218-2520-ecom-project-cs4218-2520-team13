@@ -8,10 +8,10 @@
     "server": "nodemon server.js",
     "client": "npm start --prefix ./client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "sonarqube": "sonarqube-scanner",
-    "test": "npm run test:backend; b=$?; npm run test:frontend; f=$?; [ $b -eq 0 ] && [ $f -eq 0 ]",
-    "test:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js",
-    "test:backend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js"
+    "sonarqube": "sonar-scanner",
+    "test": "npm run test:frontend & npm run test:backend",
+    "test:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js --coverage --coverageDirectory=coverage/frontend",
+    "test:backend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js --coverage --coverageDirectory=coverage/backend"
   },
   "keywords": [],
   "author": "RP",
@@ -38,12 +38,15 @@
     "@babel/core": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-react": "^7.24.1",
-    "@playwright/test": "^1.44.0",
+    "@playwright/test": "^1.58.2",
     "@types/node": "^20.12.12",
     "babel-jest": "^29.7.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "sonarqube-scanner": "^3.3.0"
+    "mongodb-memory-server": "^11.0.1",
+    "msw": "^2.12.10",
+    "sonarqube-scanner": "^4.3.4",
+    "supertest": "^7.2.2"
   }
 }

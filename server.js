@@ -19,7 +19,9 @@ const app = express();
 //middlewares
 app.use(cors());
 app.use(express.json());
-app.use(morgan('dev'));
+if (process.env.NODE_ENV !== 'test') {
+    app.use(morgan('dev'));
+}
 
 //routes
 app.use("/api/v1/auth", authRoutes);
@@ -28,12 +30,16 @@ app.use("/api/v1/product", productRoutes);
 
 // rest api
 
-app.get('/', (req,res) => {
+app.get('/', (req, res) => {
     res.send("<h1>Welcome to ecommerce app</h1>");
 });
 
 const PORT = process.env.PORT || 6060;
 
-app.listen(PORT, () => {
-    console.log(`Server running on ${process.env.DEV_MODE} mode on ${PORT}`.bgCyan.white);
-});
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => {
+        console.log(`Server running on ${process.env.DEV_MODE} mode on ${PORT}`.bgCyan.white);
+    });
+}
+
+export default app;
