@@ -7,7 +7,7 @@ export default {
 
   // which test to run - all backend tests, excluding client and node_modules
   testMatch: ["<rootDir>/**/*.test.js"],
-  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/client/"],
+  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/client/", "<rootDir>/tests/e2e/"],
 
   // jest code coverage
   collectCoverage: true,
