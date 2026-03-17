@@ -181,7 +181,7 @@ describe('createCategoryController', () => {
             // assert
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.body).toEqual({
-                success: true,
+                success: false,
                 message: "Category Already Exists",
             });
             expect(mockCategoryFindOne).toHaveBeenCalledWith({ name: "ExistingCategory" });

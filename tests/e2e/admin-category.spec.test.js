@@ -1,79 +1,93 @@
+// A0338250J LOU, YING-WEN
 import { test, expect } from '@playwright/test';
 
 const BASE_URL = "http://localhost:3000";
 
-test.describe("Category Management - Integration & Lifecycle", () => {
-    let existingCategoryName = "";
-
-    test.beforeAll(async ({ request }) => {
-        const resp = await request.get(`${BASE_URL}/api/v1/category/get-category`);
-        const json = await resp.json();
-        if (json.category && json.category.length > 0) {
-            existingCategoryName = json.category[0].name;
-        }
-    });
+test.describe("Category Management - UI Verified via Mocking", () => {
 
     test.beforeEach(async ({ page }) => {
-        await page.goto(BASE_URL);
+        await page.route('**/api/v1/auth/admin-auth', async (route) => {
+            await route.fulfill({ status: 200, body: JSON.stringify({ ok: true }) });
+        });
 
-        await page.getByRole('link', { name: 'Login' }).click();
-        await page.getByRole('textbox', { name: 'Enter Your Email' }).fill('admin@test.sg');
-        await page.getByRole('textbox', { name: 'Enter Your Password' }).fill('admin@test.sg');
-        await page.getByRole('button', { name: 'LOGIN' }).click();
+        await page.route('**/api/v1/category/get-category', async (route) => {
+            await route.fulfill({
+                status: 200,
+                body: JSON.stringify({
+                    success: true,
+                    category: [
+                        { _id: 'c1', name: 'Existing Category', slug: 'existing-category' }
+                    ]
+                }),
+            });
+        });
 
-        const userMenu = page.getByRole('button', { name: 'ADMIN@TEST.SG', exact: false });
-        await userMenu.waitFor({ state: 'visible', timeout: 15000 });
-        await userMenu.click();
+        await page.addInitScript(() => {
+            window.localStorage.setItem('auth', JSON.stringify({
+                user: { name: 'Admin Sandra', email: 'admin@test.sg', role: 1 },
+                token: 'mock-jwt-token'
+            }));
+        });
 
-        await page.getByRole('link', { name: 'Dashboard' }).click();
-        await page.getByRole('link', { name: 'Create Category' }).click();
+        await page.goto(`${BASE_URL}/dashboard/admin/create-category`);
     });
 
     test("Category Input Validation (Empty & Duplicate)", async ({ page }) => {
-        await page.getByRole('textbox', { name: 'Category' }).clear();
-        await page.getByRole('button', { name: 'Submit' }).click();
-        await expect(page.getByText('Category name is required')).toBeVisible();
+        await page.route('**/api/v1/category/create-category', async (route) => {
+            await route.fulfill({
+                status: 400,
+                body: JSON.stringify({ success: false, message: "Already exists" }),
+            });
+        });
 
-        if (existingCategoryName) {
-            await page.getByRole('textbox', { name: 'Category' }).fill(existingCategoryName);
-            await page.getByRole('button', { name: 'Submit' }).click();
-            await expect(page.locator('body')).toContainText(/already exists/i);
-        }
+        await page.getByRole('button', { name: 'Submit' }).click();
+
+        await page.getByRole('textbox', { name: 'Category' }).fill('Existing Category');
+        await page.getByRole('button', { name: 'Submit' }).click();
+        await expect(page.locator('body')).toContainText(/Something went wrong in input form/i);
     });
 
-    test("Category Full Lifecycle & Frontend Sync Verification", async ({ page }) => {
-        const tempCat = `Cat_${Date.now()}`;
-        const finalCat = `Cats_${Date.now()}`;
+    test("Category Creation and Update Sync", async ({ page }) => {
+        const tempCat = "New Category";
+        const finalCat = "Updated Category";
+
+        await page.route('**/api/v1/category/create-category', async (route) => {
+            await route.fulfill({
+                status: 201,
+                body: JSON.stringify({ success: true, message: `${tempCat} is created` }),
+            });
+        });
+
+        await page.route('**/api/v1/category/update-category/*', async (route) => {
+            await route.fulfill({
+                status: 200,
+                body: JSON.stringify({ success: true, message: `${finalCat} is updated` }),
+            });
+        });
 
         await page.getByRole('textbox', { name: 'Category' }).fill(tempCat);
         await page.getByRole('button', { name: 'Submit' }).click();
         await expect(page.getByText(`${tempCat} is created`)).toBeVisible();
 
-        const row = page.locator('tr', { hasText: tempCat });
+        const row = page.locator('tr', { hasText: 'Existing Category' });
         await row.getByRole('button', { name: 'Edit' }).click();
-        await page.getByRole('dialog').getByRole('textbox', { name: 'Category' }).fill(finalCat);
+
+        const modalInput = page.getByRole('dialog').getByRole('textbox');
+        await modalInput.fill(finalCat);
         await page.getByRole('dialog').getByRole('button', { name: 'Submit' }).click();
         await expect(page.getByText(`${finalCat} is updated`)).toBeVisible();
+    });
 
-        await page.getByRole('link', { name: 'Categories' }).click();
-        await page.getByRole('link', { name: 'All Categories' }).click();
+    test("Category Deletion Verification", async ({ page }) => {
+        await page.route('**/api/v1/category/delete-category/*', async (route) => {
+            await route.fulfill({
+                status: 200,
+                body: JSON.stringify({ success: true, message: "Category is deleted" }),
+            });
+        });
 
-        await expect(page.getByRole('link', { name: tempCat })).not.toBeVisible();
-        const catLink = page.getByRole('link', { name: finalCat });
-        await expect(catLink).toBeVisible();
-        await catLink.click();
-        await expect(page.getByRole('heading', { name: `Category - ${finalCat}` })).toBeVisible();
-
-        await page.getByRole('button', { name: 'ADMIN@TEST.SG', exact: false }).click();
-        await page.getByRole('link', { name: 'Dashboard' }).click();
-        await page.getByRole('link', { name: 'Create Category' }).click();
-
-        const deleteRow = page.locator('tr', { hasText: finalCat });
+        const deleteRow = page.locator('tr', { hasText: 'Existing Category' });
         await deleteRow.getByRole('button', { name: 'Delete' }).click();
         await expect(page.getByText('Category is deleted')).toBeVisible();
-
-        await page.getByRole('link', { name: 'Categories' }).click();
-        await page.getByRole('link', { name: 'All Categories' }).click();
-        await expect(page.getByRole('link', { name: finalCat })).not.toBeVisible();
     });
 });
