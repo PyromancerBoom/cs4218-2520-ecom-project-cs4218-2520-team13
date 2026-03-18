@@ -240,7 +240,7 @@ describe("Login Component", () => {
     );
     expect(localStorage.setItem).toHaveBeenCalledWith(
       "auth",
-      JSON.stringify(mockResponse.data),
+      JSON.stringify({ user: mockResponse.data.user, token: mockResponse.data.token }),
     );
   });
 

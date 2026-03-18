@@ -43,7 +43,7 @@ describe('Orders Component', () => {
       _id: 'order1',
       status: 'Not Process',
       buyer: { name: 'Alice' },
-      createAt: new Date('2024-01-01'),
+      createdAt: new Date('2024-01-01'),
       payment: { success: true },
       products: [
         {
@@ -58,7 +58,7 @@ describe('Orders Component', () => {
       _id: 'order2',
       status: 'Processing',
       buyer: { name: 'Bob' },
-      createAt: new Date('2024-01-02'),
+      createdAt: new Date('2024-01-02'),
       payment: { success: false },
       products: [
         {
@@ -146,15 +146,15 @@ describe('Orders Component', () => {
     });
 
     // Wei Sheng, A0259272X
-    it('should display formatted date from o.createAt using moment(o.createAt).fromNow()', async () => {
+    it('should display formatted date from o.createdAt using moment(o.createdAt).fromNow()', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
       render(<Orders />);
 
       expect(await screen.findAllByText('3 days ago')).toHaveLength(2);
-      expect(moment).toHaveBeenCalledWith(mockOrders[0].createAt);
-      expect(moment).toHaveBeenCalledWith(mockOrders[1].createAt);
+      expect(moment).toHaveBeenCalledWith(mockOrders[0].createdAt);
+      expect(moment).toHaveBeenCalledWith(mockOrders[1].createdAt);
     });
 
     // Wei Sheng, A0259272X
@@ -336,7 +336,7 @@ describe('Orders Component', () => {
   describe('Table structure', () => {
 
     // Wei Sheng, A0259272X
-    it('should display table headers: #, Status, Buyer, date, Payment, Quantity', async () => {
+    it('should display table headers: #, Status, Buyer, Date, Payment, Quantity', async () => {
       useAuth.mockReturnValue([{ token: 'user-token' }, mockSetAuth]);
       axios.get.mockResolvedValueOnce({ data: mockOrders });
 
@@ -346,7 +346,7 @@ describe('Orders Component', () => {
       expect(within(firstTable).getByRole('columnheader', { name: '#' })).toBeInTheDocument();
       expect(within(firstTable).getByRole('columnheader', { name: 'Status' })).toBeInTheDocument();
       expect(within(firstTable).getByRole('columnheader', { name: 'Buyer' })).toBeInTheDocument();
-      expect(within(firstTable).getByRole('columnheader', { name: 'date' })).toBeInTheDocument();
+      expect(within(firstTable).getByRole('columnheader', { name: 'Date' })).toBeInTheDocument();
       expect(within(firstTable).getByRole('columnheader', { name: 'Payment' })).toBeInTheDocument();
       expect(within(firstTable).getByRole('columnheader', { name: 'Quantity' })).toBeInTheDocument();
     });
