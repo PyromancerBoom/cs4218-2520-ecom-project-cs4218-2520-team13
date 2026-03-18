@@ -5,8 +5,10 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import CategoryForm from "../../components/Form/CategoryForm";
 import { Modal } from "antd";
+import { useAuth } from "../../context/auth";
 
 const CreateCategory = () => {
+  const [auth] = useAuth();
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
   const [visible, setVisible] = useState(false);
@@ -23,7 +25,7 @@ const CreateCategory = () => {
       const { data } = await axios.post("/api/v1/category/create-category", {
         name,
       });
-      if (data?.success) {
+      if (data?.success && data?.message !== "Category Already Exists") {
         toast.success(`${name} is created`);
         setName("");
         getAllCategory();
@@ -42,6 +44,8 @@ const CreateCategory = () => {
       const { data } = await axios.get("/api/v1/category/get-category");
       if (data.success) {
         setCategories(data.category);
+      } else {
+        toast.error(data.message);
       }
     } catch (error) {
       console.log(error);
@@ -50,8 +54,8 @@ const CreateCategory = () => {
   };
 
   useEffect(() => {
-    getAllCategory();
-  }, []);
+    if (auth?.token) getAllCategory();
+  }, [auth?.token]);
 
   //update category
   const handleUpdate = async (e) => {
