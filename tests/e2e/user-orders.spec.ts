@@ -5,6 +5,7 @@ import {
   seedUser, seedProduct, seedOrder,
 } from '../helpers/e2eDb.js';
 
+// LOW WEI SHENG, A0259272X
 test.describe('User order history', () => {
   const userPassword = 'userpass123';
   let userEmail: string;
@@ -61,6 +62,7 @@ test.describe('User order history', () => {
     await page.reload();
   }
 
+  // LOW WEI SHENG, A0259272X
   test('user navigates to Orders via UserMenu and sees their orders', async ({ page }) => {
     await loginAsUser(page);
     await page.goto('/dashboard/user');
@@ -71,6 +73,7 @@ test.describe('User order history', () => {
     await expect(page.getByText('Processing')).toBeVisible();
   });
 
+  // LOW WEI SHENG, A0259272X
   test('user sees exactly their own orders — other user orders are absent', async ({ page }) => {
     await loginAsUser(page);
     await page.goto('/dashboard/user/orders');
@@ -78,18 +81,21 @@ test.describe('User order history', () => {
     await expect(orderRows).toHaveCount(2);
   });
 
+  // LOW WEI SHENG, A0259272X
   test('payment success shows "Success"', async ({ page }) => {
     await loginAsUser(page);
     await page.goto('/dashboard/user/orders');
     await expect(page.getByText('Success')).toBeVisible();
   });
 
+  // LOW WEI SHENG, A0259272X
   test('payment failure shows "Failed"', async ({ page }) => {
     await loginAsUser(page);
     await page.goto('/dashboard/user/orders');
     await expect(page.getByText('Failed')).toBeVisible();
   });
 
+  // LOW WEI SHENG, A0259272X
   test('product name and price are visible in order card', async ({ page }) => {
     await loginAsUser(page);
     await page.goto('/dashboard/user/orders');
@@ -97,6 +103,7 @@ test.describe('User order history', () => {
     await expect(page.getByText(/12\.50|12\.5/)).toBeVisible();
   });
 
+  // LOW WEI SHENG, A0259272X
   test('relative date is displayed as a moment.js relative string', async ({ page }) => {
     await loginAsUser(page);
     await page.goto('/dashboard/user/orders');
@@ -107,6 +114,7 @@ test.describe('User order history', () => {
     expect(dateTexts.length).toBeGreaterThan(0);
   });
 
+  // LOW WEI SHENG, A0259272X
   test('user with no orders sees empty state without crash', async ({ page }) => {
     const { user: emptyUser } = await seedUser({ email: 'empty@e2e.test', plainPassword: 'pass123' });
     const res = await page.request.post('http://localhost:6060/api/v1/auth/login', {
@@ -124,6 +132,7 @@ test.describe('User order history', () => {
     await expect(rows).toHaveCount(0);
   });
 
+  // LOW WEI SHENG, A0259272X
   test('Dashboard page has UserMenu with a working Orders link', async ({ page }) => {
     await loginAsUser(page);
     await page.goto('/dashboard/user');
@@ -133,6 +142,7 @@ test.describe('User order history', () => {
     await expect(page).toHaveURL(/\/dashboard\/user\/orders/);
   });
 
+  // LOW WEI SHENG, A0259272X
   test('Authorization header is sent with the orders request', async ({ page }) => {
     let authHeader: string | null = null;
     await page.route('**/api/v1/auth/orders', async route => {

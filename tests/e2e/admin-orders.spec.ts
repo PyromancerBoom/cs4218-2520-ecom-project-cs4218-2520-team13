@@ -6,6 +6,7 @@ import {
   seedAdmin, seedUser, seedProduct, seedOrder,
 } from '../helpers/e2eDb.js';
 
+// LOW WEI SHENG, A0259272X
 test.describe('Admin order status management', () => {
   let adminEmail: string;
   const adminPassword = 'admin123';
@@ -43,6 +44,7 @@ test.describe('Admin order status management', () => {
     await page.locator('.ant-select-item-option').filter({ hasText: optionText }).first().click();
   }
 
+  // LOW WEI SHENG, A0259272X
   test('admin sees order list on /dashboard/admin/orders', async ({ page }) => {
     const { user: buyer } = await seedUser({ email: 'buyer-read@e2e.test' });
     const product = await seedProduct();
@@ -57,6 +59,7 @@ test.describe('Admin order status management', () => {
     await mongoose.model('Order').findByIdAndDelete(order._id);
   });
 
+  // LOW WEI SHENG, A0259272X
   test.describe('status update — isolated mutation tests (tests 2 and 3)', () => {
     let isolatedOrderId: string;
 
@@ -71,6 +74,7 @@ test.describe('Admin order status management', () => {
       await mongoose.model('Order').findByIdAndDelete(isolatedOrderId);
     });
 
+    // LOW WEI SHENG, A0259272X
     test('status update reflects in UI immediately after selection', async ({ page }) => {
       await loginAsAdmin(page);
       await page.goto('/dashboard/admin/orders');
@@ -79,6 +83,7 @@ test.describe('Admin order status management', () => {
       await expect(page.locator('.ant-select-selector').first()).toContainText('Processing');
     });
 
+    // LOW WEI SHENG, A0259272X
     test('status update persists after page reload (API round-trip confirmed)', async ({ page }) => {
       await loginAsAdmin(page);
       await page.goto('/dashboard/admin/orders');
@@ -96,6 +101,7 @@ test.describe('Admin order status management', () => {
     });
   });
 
+  // LOW WEI SHENG, A0259272X
   test.describe('status cycling — isolated mutation tests', () => {
     let mutationOrderId: string;
 
@@ -111,6 +117,7 @@ test.describe('Admin order status management', () => {
     });
 
     for (const status of ['Not Process', 'Processing', 'Shipped', 'delivered', 'cancel']) {
+      // LOW WEI SHENG, A0259272X
       test(`status "${status}" can be set and persists`, async ({ page }) => {
         await loginAsAdmin(page);
         await page.goto('/dashboard/admin/orders');
@@ -135,6 +142,7 @@ test.describe('Admin order status management', () => {
     }
   });
 
+  // LOW WEI SHENG, A0259272X
   test('multiple orders appear sorted newest-first', async ({ page }) => {
     const { user: buyer } = await seedUser();
     const product = await seedProduct();
@@ -163,6 +171,7 @@ test.describe('Admin order status management', () => {
     await mongoose.model('Order').deleteMany({ _id: { $in: [older._id, newer._id] } });
   });
 
+  // LOW WEI SHENG, A0259272X
   test('Authorization header is sent with the all-orders request', async ({ page }) => {
     let authHeader: string | null = null;
     await page.route('**/api/v1/auth/all-orders', async route => {
@@ -177,6 +186,7 @@ test.describe('Admin order status management', () => {
     expect(authHeader).toBeTruthy();
   });
 
+  // LOW WEI SHENG, A0259272X
   test('page does not crash when status update returns 500', async ({ page }) => {
     const { user: buyer } = await seedUser();
     const product = await seedProduct();
@@ -197,6 +207,7 @@ test.describe('Admin order status management', () => {
     await mongoose.model('Order').findByIdAndDelete(order._id);
   });
 
+  // LOW WEI SHENG, A0259272X
   test('non-admin is redirected away from /dashboard/admin/orders', async ({ page }) => {
     const { user: regularUser } = await seedUser({ email: 'regular@e2e.test', plainPassword: 'pass123' });
     const res = await page.request.post('http://localhost:6060/api/v1/auth/login', {

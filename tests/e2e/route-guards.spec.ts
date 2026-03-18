@@ -5,6 +5,7 @@ import {
   seedUser, seedAdmin,
 } from '../helpers/e2eDb.js';
 
+// LOW WEI SHENG, A0259272X
 test.describe('Route access control', () => {
   let regularEmail: string;
   let adminEmail: string;
@@ -40,22 +41,26 @@ test.describe('Route access control', () => {
     await page.reload();
   }
 
+  // LOW WEI SHENG, A0259272X
   test('unauthenticated user navigating to /dashboard/user is redirected to /login', async ({ page }) => {
     await page.goto('/dashboard/user');
     await expect(page).toHaveURL('/', { timeout: 8000 });  // Spinner redirects to "/" (path="" = login page)
   });
 
+  // LOW WEI SHENG, A0259272X
   test('unauthenticated user navigating to /dashboard/admin is redirected', async ({ page }) => {
     await page.goto('/dashboard/admin');
     await expect(page).toHaveURL('/login', { timeout: 8000 });  // AdminRoute redirects to "/login"
   });
 
+  // LOW WEI SHENG, A0259272X
   test('regular user navigating to /dashboard/admin is redirected', async ({ page }) => {
     await login(page, regularEmail);
     await page.goto('/dashboard/admin');
     await expect(page).toHaveURL('/login', { timeout: 8000 });  // AdminRoute redirects non-admins to "/login"
   });
 
+  // LOW WEI SHENG, A0259272X
   test('regular user can access /dashboard/user', async ({ page }) => {
     await login(page, regularEmail);
     await page.goto('/dashboard/user');
@@ -64,6 +69,7 @@ test.describe('Route access control', () => {
     await expect(page.getByRole('link', { name: /profile/i })).toBeVisible();
   });
 
+  // LOW WEI SHENG, A0259272X
   test('admin can access /dashboard/admin', async ({ page }) => {
     await login(page, adminEmail);
     await page.goto('/dashboard/admin');
@@ -72,6 +78,7 @@ test.describe('Route access control', () => {
     await expect(page.getByText(/admin/i).first()).toBeVisible();
   });
 
+  // LOW WEI SHENG, A0259272X
   test('after logout, navigating to /dashboard/user redirects to login', async ({ page }) => {
     await login(page, regularEmail);
     await page.goto('/dashboard/user');
@@ -81,6 +88,7 @@ test.describe('Route access control', () => {
     await expect(page).toHaveURL('/', { timeout: 8000 });
   });
 
+  // LOW WEI SHENG, A0259272X
   test('invalid token in localStorage causes redirect from /dashboard/user', async ({ page }) => {
     // Inject a bad token directly — simulates an expired or tampered JWT
     await page.goto('/');
@@ -91,6 +99,7 @@ test.describe('Route access control', () => {
     await expect(page).toHaveURL('/', { timeout: 8000 });
   });
 
+  // LOW WEI SHENG, A0259272X
   test('/admin-auth endpoint returns { ok: false } for non-admin token', async ({ page }) => {
     let adminAuthResponse: any = null;
     await page.route('**/api/v1/auth/admin-auth', async route => {
