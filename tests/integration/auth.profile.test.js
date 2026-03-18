@@ -1,5 +1,6 @@
+// LOW WEI SHENG, A0259272X
 // tests/integration/auth.profile.test.js
-// Wei Sheng, A0259272X
+// LOW WEI SHENG, A0259272X
 // Integration tests for PUT /api/v1/auth/profile (user profile update)
 import request from 'supertest';
 import bcrypt from 'bcrypt';
@@ -87,14 +88,14 @@ describe('PUT /api/v1/auth/profile', () => {
     expect(res.body.error).toMatch(/6 character/i);
   });
 
-  it('omitting password leaves existing password unchanged', async () => {
+  it('BUG-05 boundary: empty string password leaves existing password unchanged', async () => {
     const { user, plainPassword } = await createUser();
     const token = generateToken(user._id);
 
     await request(app)
       .put('/api/v1/auth/profile')
       .set('Authorization', token)
-      .send({ name: 'No Password Change' });
+      .send({ password: "" });
 
     const unchanged = await userModel.findById(user._id);
     const stillWorks = await bcrypt.compare(plainPassword, unchanged.password);

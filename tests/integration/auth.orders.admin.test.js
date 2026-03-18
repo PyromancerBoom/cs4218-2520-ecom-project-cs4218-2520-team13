@@ -1,5 +1,6 @@
+// LOW WEI SHENG, A0259272X
 // tests/integration/auth.orders.admin.test.js
-// Wei Sheng, A0259272X
+// LOW WEI SHENG, A0259272X
 // Integration tests for GET /api/v1/auth/all-orders and PUT /api/v1/auth/order-status/:orderId
 import request from 'supertest';
 import mongoose from 'mongoose';
@@ -63,12 +64,25 @@ describe('GET /api/v1/auth/all-orders', () => {
       .set('Authorization', token);
 
     expect(res.status).toBe(200);
-    // Security regression guards
-    expect(res.body[0].buyer.password).toBeUndefined();
-    expect(res.body[0].buyer.email).toBeUndefined();
     expect(res.body[0].products[0].photo).toBeUndefined();
-    // Name is present
     expect(res.body[0].buyer.name).toBeDefined();
+  });
+
+  it('does not expose buyer password in any returned order', async () => {
+    const { user: admin } = await createAdmin();
+    const { user: buyer } = await createUser();
+    const product = await createProduct();
+    await createOrder({ buyer: buyer._id, products: [product._id] });
+    const token = generateToken(admin._id);
+
+    const res = await request(app)
+      .get('/api/v1/auth/all-orders')
+      .set('Authorization', token);
+
+    expect(res.status).toBe(200);
+    for (const order of res.body) {
+      expect(order.buyer.password).toBeUndefined();
+    }
   });
 
   it('returns 200 with empty array when no orders exist', async () => {

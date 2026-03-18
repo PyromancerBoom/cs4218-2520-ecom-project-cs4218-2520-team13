@@ -1,5 +1,6 @@
+// LOW WEI SHENG, A0259272X
 // tests/e2e/user-orders.spec.ts
-// Wei Sheng, A0259272X
+// LOW WEI SHENG, A0259272X
 // E2E tests for user order history viewing flow.
 import { test, expect } from '@playwright/test';
 import {
@@ -30,14 +31,14 @@ test.describe('User order history', () => {
       products: [product1._id],
       payment: { success: true },
       status: 'Not Process',
-      createdAt: oneDayAgo,
+      createAt: oneDayAgo,
     });
     await seedOrder({
       buyer: user._id,
       products: [product2._id],
       payment: { success: false },
       status: 'Processing',
-      createdAt: oneDayAgo,
+      createAt: oneDayAgo,
     });
 
     // Other user's order — must NOT appear for our test user

@@ -1,5 +1,6 @@
+// LOW WEI SHENG, A0259272X
 // tests/e2e/admin-orders.spec.ts
-// Wei Sheng, A0259272X
+// LOW WEI SHENG, A0259272X
 // E2E tests for admin order status management flow.
 import { test, expect } from '@playwright/test';
 import mongoose from 'mongoose';
@@ -17,10 +18,6 @@ test.describe('Admin order status management', () => {
     await clearTestCollections();
     const { user: admin } = await seedAdmin({ email: 'admin@e2e.test', plainPassword: adminPassword });
     adminEmail = admin.email;
-    const { user: buyer } = await seedUser({ email: 'buyer@e2e.test' });
-    const product = await seedProduct();
-    // Seed a stable read-only order for non-mutation tests
-    await seedOrder({ buyer: buyer._id, products: [product._id], status: 'Not Process' });
   });
 
   test.afterAll(async () => {
@@ -37,35 +34,63 @@ test.describe('Admin order status management', () => {
     await page.waitForURL(/dashboard/);
   }
 
+  // Helper: select an Ant Design Select option by clicking the selector then the option text
+  async function selectAntOption(page, selectorLocator, optionText: string) {
+    await selectorLocator.click();
+    await page.locator('.ant-select-dropdown').getByText(optionText, { exact: true }).click();
+  }
+
   test('admin sees order list on /dashboard/admin/orders', async ({ page }) => {
+    const { user: buyer } = await seedUser({ email: 'buyer-read@e2e.test' });
+    const product = await seedProduct();
+    const order = await seedOrder({ buyer: buyer._id, products: [product._id], status: 'Not Process' });
+
     await loginAsAdmin(page);
     await page.goto('/dashboard/admin/orders');
     await expect(page.getByText('Not Process')).toBeVisible();
     await expect(page.getByText('E2E Product')).toBeVisible();
+
+    // cleanup
+    await mongoose.model('Order').findByIdAndDelete(order._id);
   });
 
-  test('status update reflects in UI immediately after selection', async ({ page }) => {
-    await loginAsAdmin(page);
-    await page.goto('/dashboard/admin/orders');
-    const dropdown = page.locator('select').first();
-    await dropdown.selectOption('Processing');
-    await expect(dropdown).toHaveValue('Processing');
-  });
+  test.describe('status update — isolated mutation tests (tests 2 and 3)', () => {
+    let isolatedOrderId: string;
 
-  test('status update persists after page reload (API round-trip confirmed)', async ({ page }) => {
-    await loginAsAdmin(page);
-    await page.goto('/dashboard/admin/orders');
-    const dropdown = page.locator('select').first();
+    test.beforeEach(async () => {
+      const { user: buyer } = await seedUser();
+      const product = await seedProduct();
+      const order = await seedOrder({ buyer: buyer._id, products: [product._id], status: 'Not Process' });
+      isolatedOrderId = order._id.toString();
+    });
 
-    const responsePromise = page.waitForResponse(
-      r => r.url().includes('/order-status/') && r.request().method() === 'PUT'
-    );
-    await dropdown.selectOption('Shipped');
-    const response = await responsePromise;
-    expect(response.status()).toBe(200);
+    test.afterEach(async () => {
+      await mongoose.model('Order').findByIdAndDelete(isolatedOrderId);
+    });
 
-    await page.reload();
-    await expect(page.locator('select').first()).toHaveValue('Shipped');
+    test('status update reflects in UI immediately after selection', async ({ page }) => {
+      await loginAsAdmin(page);
+      await page.goto('/dashboard/admin/orders');
+      const selector = page.locator('.ant-select-selector').first();
+      await selectAntOption(page, selector, 'Processing');
+      await expect(page.locator('.ant-select-selector').first()).toContainText('Processing');
+    });
+
+    test('status update persists after page reload (API round-trip confirmed)', async ({ page }) => {
+      await loginAsAdmin(page);
+      await page.goto('/dashboard/admin/orders');
+
+      const responsePromise = page.waitForResponse(
+        r => r.url().includes('/order-status/') && r.request().method() === 'PUT'
+      );
+      const selector = page.locator('.ant-select-selector').first();
+      await selectAntOption(page, selector, 'Shipped');
+      const response = await responsePromise;
+      expect(response.status()).toBe(200);
+
+      await page.reload();
+      await expect(page.locator('.ant-select-selector').first()).toContainText('Shipped');
+    });
   });
 
   test.describe('status cycling — isolated mutation tests', () => {
@@ -86,18 +111,22 @@ test.describe('Admin order status management', () => {
       test(`status "${status}" can be set and persists`, async ({ page }) => {
         await loginAsAdmin(page);
         await page.goto('/dashboard/admin/orders');
-        // Find the row for the mutation order and change its status
-        const dropdown = page.locator(`[data-order-id="${mutationOrderId}"] select`).or(
-          page.locator('select').last() // fallback if no data attribute
+        // Find the Ant Design Select for the mutation order row, falling back to the last selector
+        const selectorLocator = page.locator(`[data-order-id="${mutationOrderId}"] .ant-select-selector`).or(
+          page.locator('.ant-select-selector').last()
         );
         const responsePromise = page.waitForResponse(
           r => r.url().includes('/order-status/') && r.request().method() === 'PUT'
         );
-        await dropdown.selectOption(status);
+        await selectAntOption(page, selectorLocator, status);
         const response = await responsePromise;
         expect(response.status()).toBe(200);
         await page.reload();
-        await expect(dropdown).toHaveValue(status);
+        await expect(
+          page.locator(`[data-order-id="${mutationOrderId}"] .ant-select-selector`).or(
+            page.locator('.ant-select-selector').last()
+          )
+        ).toContainText(status);
       });
     }
   });
@@ -112,10 +141,15 @@ test.describe('Admin order status management', () => {
     await loginAsAdmin(page);
     await page.goto('/dashboard/admin/orders');
 
-    const statuses = await page.locator('select').allInnerTexts();
+    const selectors = page.locator('.ant-select-selector');
+    const count = await selectors.count();
+    const texts: string[] = [];
+    for (let i = 0; i < count; i++) {
+      texts.push(await selectors.nth(i).innerText());
+    }
     // "Shipped" (newer) should appear before "Processing" (older)
-    const shippedIndex = statuses.findIndex(s => s.includes('Shipped'));
-    const processingIndex = statuses.findIndex(s => s.includes('Processing'));
+    const shippedIndex = texts.findIndex(s => s.includes('Shipped'));
+    const processingIndex = texts.findIndex(s => s.includes('Processing'));
     expect(shippedIndex).toBeLessThan(processingIndex);
 
     // cleanup extra orders
@@ -135,16 +169,23 @@ test.describe('Admin order status management', () => {
   });
 
   test('page does not crash when status update returns 500', async ({ page }) => {
+    const { user: buyer } = await seedUser();
+    const product = await seedProduct();
+    const order = await seedOrder({ buyer: buyer._id, products: [product._id], status: 'Not Process' });
+
     await loginAsAdmin(page);
     await page.goto('/dashboard/admin/orders');
 
     await page.route('**/api/v1/auth/order-status/**', route =>
       route.fulfill({ status: 500, body: JSON.stringify({ success: false }) })
     );
-    const dropdown = page.locator('select').first();
-    await dropdown.selectOption('Processing');
+    const selector = page.locator('.ant-select-selector').first();
+    await selectAntOption(page, selector, 'Processing');
     // Page must still be functional — heading or key element still present
     await expect(page.getByText(/order/i).first()).toBeVisible();
+
+    // cleanup
+    await mongoose.model('Order').findByIdAndDelete(order._id);
   });
 
   test('non-admin is redirected away from /dashboard/admin/orders', async ({ page }) => {

@@ -1,5 +1,6 @@
+// LOW WEI SHENG, A0259272X
 // client/src/__tests__/integration/handlers/auth.handlers.js
-// Wei Sheng, A0259272X
+// LOW WEI SHENG, A0259272X
 // Reusable MSW handlers for auth-related endpoints.
 import { http, HttpResponse } from 'msw';
 

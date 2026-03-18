@@ -1,5 +1,6 @@
+// LOW WEI SHENG, A0259272X
 // client/src/__tests__/integration/RouteGuards.integration.test.js
-// Wei Sheng, A0259272X
+// LOW WEI SHENG, A0259272X
 // Frontend integration tests for Private.js and AdminRoute.js using MSW.
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -17,12 +18,14 @@ jest.mock('../../context/auth', () => ({
 // Mock mongoose to prevent the server-side module from loading in jsdom.
 jest.mock('mongoose', () => ({ set: jest.fn() }));
 
+
 import axios from 'axios';
 import Private from '../../components/Routes/Private';
 import AdminRoute from '../../components/Routes/AdminRoute';
 import { useAuth } from '../../context/auth';
+import * as SpinnerModule from '../../components/Spinner';
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 beforeEach(() => {
   // Mirror what AuthProvider does: set the axios default Authorization header.
   // Without AuthProvider rendered, this is the only way axios picks up the token.
@@ -161,6 +164,27 @@ describe('Private route guard', () => {
 
     await waitFor(() => expect(userAuthCalled).toBe(true));
     expect(adminAuthCalled).toBe(false);
+  });
+
+  // Test 8: Spinner path prop — Private.js passes path="" (redirects to `/`),
+  // unlike AdminRoute.js which passes no path (defaults to "login").
+  it('Spinner path prop | Absent token | Spinner receives `path=""` (redirects to `/`)', async () => {
+    useAuth.mockReturnValue([{ token: '' }, jest.fn()]);
+
+    // Spy on the real Spinner so we can inspect the props it receives while
+    // still rendering its actual output (required by other assertions in the suite).
+    const spinnerSpy = jest.spyOn(SpinnerModule, 'default');
+
+    renderPrivate();
+
+    // Spinner should be rendered immediately (no API call needed when token is absent)
+    await waitFor(() => expect(spinnerSpy).toHaveBeenCalled());
+
+    // Private.js explicitly passes path="" to Spinner (navigates to root `/`)
+    const lastCallProps = spinnerSpy.mock.calls[spinnerSpy.mock.calls.length - 1][0];
+    expect(lastCallProps.path).toBe('');
+
+    spinnerSpy.mockRestore();
   });
 });
 

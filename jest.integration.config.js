@@ -1,3 +1,4 @@
+// LOW WEI SHENG, A0259272X
 // jest.integration.config.js
 export default {
   testEnvironment: 'node',

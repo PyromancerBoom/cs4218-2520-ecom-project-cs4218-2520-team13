@@ -1,5 +1,6 @@
+// LOW WEI SHENG, A0259272X
 // tests/helpers/db.js
-// Wei Sheng, A0259272X
+// LOW WEI SHENG, A0259272X
 // Shared helpers for backend integration tests and E2E seed/teardown.
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
@@ -32,7 +33,7 @@ export const clearCollections = async () => {
 
 /**
  * Insert a regular user (role 0).
- * Returns { user, plainPassword } — plainPassword is needed to call loginAs().
+ * Returns { user, plainPassword } — plainPassword is needed to call generateToken().
  */
 export const createUser = async (overrides = {}) => {
   const plainPassword = overrides.plainPassword || 'password123';
@@ -40,7 +41,6 @@ export const createUser = async (overrides = {}) => {
   const user = await userModel.create({
     name: 'Test User',
     email: `user-${Date.now()}-${Math.random()}@test.com`,
-    password: hashed,
     phone: '12345678',
     address: '123 Test Street',
     answer: 'test answer',

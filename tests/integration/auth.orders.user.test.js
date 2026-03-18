@@ -1,5 +1,6 @@
+// LOW WEI SHENG, A0259272X
 // tests/integration/auth.orders.user.test.js
-// Wei Sheng, A0259272X
+// LOW WEI SHENG, A0259272X
 // Integration tests for GET /api/v1/auth/orders (user order retrieval)
 import request from 'supertest';
 import mongoose from 'mongoose';
@@ -68,7 +69,8 @@ describe('GET /api/v1/auth/orders', () => {
     const { user: userA } = await createUser();
     const { user: userB } = await createUser();
     const product = await createProduct();
-    // userA has 1 order; userB has 2 orders
+    // userA has 2 orders; userB has 2 orders
+    await createOrder({ buyer: userA._id, products: [product._id] });
     await createOrder({ buyer: userA._id, products: [product._id] });
     await createOrder({ buyer: userB._id, products: [product._id] });
     await createOrder({ buyer: userB._id, products: [product._id] });
@@ -79,7 +81,7 @@ describe('GET /api/v1/auth/orders', () => {
       .set('Authorization', token);
 
     expect(res.status).toBe(200);
-    expect(res.body).toHaveLength(1);
+    expect(res.body).toHaveLength(2);
     expect(res.body[0].buyer._id.toString()).toBe(userA._id.toString());
   });
 

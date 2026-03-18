@@ -1,5 +1,6 @@
+// LOW WEI SHENG, A0259272X
 // tests/e2e/route-guards.spec.ts
-// Wei Sheng, A0259272X
+// LOW WEI SHENG, A0259272X
 // E2E tests for protected and admin route access control.
 import { test, expect } from '@playwright/test';
 import {
@@ -47,13 +48,13 @@ test.describe('Route access control', () => {
 
   test('unauthenticated user navigating to /dashboard/admin is redirected', async ({ page }) => {
     await page.goto('/dashboard/admin');
-    await expect(page).not.toHaveURL(/\/dashboard\/admin/);
+    await expect(page).toHaveURL('/login');  // AdminRoute redirects to "/login"
   });
 
   test('regular user navigating to /dashboard/admin is redirected', async ({ page }) => {
     await login(page, regularEmail);
     await page.goto('/dashboard/admin');
-    await expect(page).not.toHaveURL(/\/dashboard\/admin/);
+    await expect(page).toHaveURL('/login');  // AdminRoute redirects non-admins to "/login"
   });
 
   test('regular user can access /dashboard/user', async ({ page }) => {
