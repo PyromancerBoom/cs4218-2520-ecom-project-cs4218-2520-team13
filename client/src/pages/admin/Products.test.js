@@ -21,6 +21,9 @@ jest.mock('../../components/Layout', () => {
 jest.mock('react-router-dom', () => ({
   Link: ({ children, to }) => <a href={to} data-testid="product-link">{children}</a>
 }));
+jest.mock('../../context/auth', () => ({
+  useAuth: () => [{ token: 'test-token' }],
+}));
 
 // Wei Sheng, A0259272X
 describe('Products Component', () => {
@@ -53,7 +56,7 @@ describe('Products Component', () => {
 
     // Wei Sheng, A0259272X
     it('should fetch products from /api/v1/product/get-product exactly once on mount', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
+      axios.get.mockResolvedValueOnce({ data: { success: true, products: mockProducts } });
 
       render(<Products />);
 
@@ -68,7 +71,7 @@ describe('Products Component', () => {
 
     // Wei Sheng, A0259272X
     it('should display product name from p.name', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
+      axios.get.mockResolvedValueOnce({ data: { success: true, products: mockProducts } });
 
       render(<Products />);
 
@@ -81,7 +84,7 @@ describe('Products Component', () => {
 
     // Wei Sheng, A0259272X
     it('should display product description from p.description', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
+      axios.get.mockResolvedValueOnce({ data: { success: true, products: mockProducts } });
 
       render(<Products />);
 
@@ -94,7 +97,7 @@ describe('Products Component', () => {
 
     // Wei Sheng, A0259272X
     it('should render product cards with images', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
+      axios.get.mockResolvedValueOnce({ data: { success: true, products: mockProducts } });
 
       render(<Products />);
 
@@ -106,7 +109,7 @@ describe('Products Component', () => {
 
     // Wei Sheng, A0259272X
     it('should format product image src as /api/v1/product/product-photo/${p._id}', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
+      axios.get.mockResolvedValueOnce({ data: { success: true, products: mockProducts } });
 
       render(<Products />);
 
@@ -120,7 +123,7 @@ describe('Products Component', () => {
 
     // Wei Sheng, A0259272X
     it('should set alt attribute to product name', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
+      axios.get.mockResolvedValueOnce({ data: { success: true, products: mockProducts } });
 
       render(<Products />);
 
@@ -137,7 +140,7 @@ describe('Products Component', () => {
 
     // Wei Sheng, A0259272X
     it('should link to /dashboard/admin/product/${p.slug} when clicked', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
+      axios.get.mockResolvedValueOnce({ data: { success: true, products: mockProducts } });
 
       render(<Products />);
 
@@ -151,7 +154,7 @@ describe('Products Component', () => {
 
     // Wei Sheng, A0259272X
     it('should have unique key for each product link', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
+      axios.get.mockResolvedValueOnce({ data: { success: true, products: mockProducts } });
 
       render(<Products />);
 
@@ -201,7 +204,7 @@ describe('Products Component', () => {
 
     // Wei Sheng, A0259272X
     it('should render no product cards when products array is empty', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: [] } });
+      axios.get.mockResolvedValueOnce({ data: { success: true, products: [] } });
 
       render(<Products />);
 
@@ -217,7 +220,7 @@ describe('Products Component', () => {
 
     // Wei Sheng, A0259272X
     it('should render AdminMenu component', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
+      axios.get.mockResolvedValueOnce({ data: { success: true, products: mockProducts } });
 
       render(<Products />);
 
@@ -228,7 +231,7 @@ describe('Products Component', () => {
 
     // Wei Sheng, A0259272X
     it('should display "All Products List" heading', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
+      axios.get.mockResolvedValueOnce({ data: { success: true, products: mockProducts } });
 
       render(<Products />);
 
@@ -239,7 +242,7 @@ describe('Products Component', () => {
 
     // Wei Sheng, A0259272X
     it('should render within Layout component', async () => {
-      axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
+      axios.get.mockResolvedValueOnce({ data: { success: true, products: mockProducts } });
 
       render(<Products />);
 
