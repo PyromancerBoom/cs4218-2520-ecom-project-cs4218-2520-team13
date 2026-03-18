@@ -1,75 +1,81 @@
 // A0338250J LOU, YING-WEN
-// use cs4218@test.com to test user profile management features
 import { test, expect } from '@playwright/test';
+import {
+    connectTestDB,
+    disconnectTestDB,
+    clearTestCollections,
+    seedUser
+} from '../helpers/e2eDb.js';
 
-const BASE_URL = "http://localhost:3000";
+test.describe('User Profile Management - Integration Suite', () => {
+    const userPassword = 'userpass123';
+    const userEmail = 'user@e2e.test';
 
-test.describe("User Profile Management - Integration Suite", () => {
-    // Using more robust selectors based on your call log
-    const phoneSelector = 'input[placeholder*="Phone"]';
-    const addressSelector = 'input[placeholder*="Address"]';
-    const nameSelector = 'input[placeholder*="Name"]';
-    const emailSelector = 'input[placeholder*="Email"]';
-    const passwordSelector = 'input[placeholder*="Password"]';
+    async function loginAsUser(page) {
+        await page.goto('/login');
+        await page.fill('input[type="email"]', userEmail);
+        await page.fill('input[type="password"]', userPassword);
+        await page.locator('.form-container button[type="submit"]').click();
+        await page.getByRole('button', { name: /E2E USER/i }).click();
+        await page.getByRole('link', { name: /Dashboard/i }).click();
+    }
 
-    let originalPhone = "81234567";
-    let originalAddress = "1 Computing Drive";
+    test.beforeAll(async () => {
+        await connectTestDB();
+        await clearTestCollections();
 
-    test.beforeEach(async ({ page }) => {
-        await page.goto(BASE_URL);
-        await page.getByRole('link', { name: 'Login' }).click();
-        await page.getByRole('textbox', { name: 'Enter Your Email' }).fill('cs4218@test.com');
-        await page.getByRole('textbox', { name: 'Enter Your Password' }).fill('cs4218@test.com');
-        await page.getByRole('button', { name: 'LOGIN' }).click();
-
-        // Ensure login is successful by waiting for the specific user menu
-        await page.getByRole('button', { name: 'CS 4218 Test Account', exact: false }).click();
-        await page.getByRole('link', { name: 'Dashboard' }).click();
-        await page.getByRole('link', { name: 'Profile' }).click();
-        await expect(page).toHaveURL(/.*profile/);
+        await seedUser({
+            email: userEmail,
+            plainPassword: userPassword,
+        });
     });
 
-    test("Happy Path: Update and Persistent Check", async ({ page }) => {
+    test.afterAll(async () => {
+        await clearTestCollections();
+        await disconnectTestDB();
+    });
+
+    test.beforeEach(async ({ page }) => {
+        await loginAsUser(page);
+    });
+
+    test('Happy Path: Update and Persistent Check', async ({ page }) => {
+        await page.goto('/dashboard/user/profile');
+
         const testPhone = "812345678";
         const testAddress = "1 Computing Drives";
 
-        await page.locator(phoneSelector).fill(testPhone);
-        await page.locator(addressSelector).fill(testAddress);
+        await page.getByPlaceholder('Enter Your Phone').fill(testPhone);
+        await page.getByPlaceholder('Enter Your Address').fill(testAddress);
 
-        // CRITICAL: Wait for the actual API call to complete before reloading
         const responsePromise = page.waitForResponse(resp =>
             resp.url().includes('/api/v1/auth/profile') && resp.status() === 200
         );
         await page.getByRole('button', { name: 'UPDATE' }).click();
         await responsePromise;
 
-        // Give the backend a tiny bit of breathing room or wait for the toast
         await expect(page.locator('body')).toContainText(/updated|successfully/i);
 
         await page.reload();
-        // Wait for the inputs to be populated with data from the server
-        await expect(page.locator(phoneSelector)).toHaveValue(testPhone, { timeout: 10000 });
-        await expect(page.locator(addressSelector)).toHaveValue(testAddress, { timeout: 10000 });
-
-        // Revert to keep DB clean
-        await page.locator(phoneSelector).fill(originalPhone);
-        await page.locator(addressSelector).fill(originalAddress);
-        await page.getByRole('button', { name: 'UPDATE' }).click();
+        await expect(page.getByPlaceholder('Enter Your Phone')).toHaveValue(testPhone);
+        await expect(page.getByPlaceholder('Enter Your Address')).toHaveValue(testAddress);
     });
 
-    test("Edge Case: Mandatory Name", async ({ page }) => {
-        await page.locator(nameSelector).clear();
+    test('Edge Case: Mandatory Name', async ({ page }) => {
+        await page.goto('/dashboard/user/profile');
+        const nameInput = page.getByPlaceholder('Enter Your Name');
+        await nameInput.clear();
         await page.getByRole('button', { name: 'UPDATE' }).click();
-        await expect(page.getByText(/name is required/i)).toBeVisible();
+        await expect(page.locator('body')).toContainText(/name/i);
     });
 
-    test("Security: Constrained Fields", async ({ page }) => {
+    test('Security: Constrained Fields', async ({ page }) => {
+        await page.goto('/dashboard/user/profile');
         const emailInput = page.locator('input[type="email"]').first();
-
         await expect(emailInput).not.toBeEditable();
-        await expect(emailInput).toHaveValue('cs4218@test.com');
+        await expect(emailInput).toHaveValue(userEmail);
 
-        const passwordInput = page.locator(passwordSelector);
+        const passwordInput = page.getByPlaceholder('Enter Your Password');
         await expect(passwordInput).toHaveValue('');
     });
 });

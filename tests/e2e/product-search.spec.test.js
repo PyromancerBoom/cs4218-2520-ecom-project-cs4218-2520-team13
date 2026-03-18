@@ -1,64 +1,90 @@
 // A0338250J LOU, YING-WEN
 import { test, expect } from '@playwright/test';
+import {
+    connectTestDB,
+    disconnectTestDB,
+    clearTestCollections,
+    seedProduct
+} from '../helpers/e2eDb.js';
+
+test.describe.configure({ mode: 'serial' });
+const BASE_URL = "http://localhost:3000";
 
 test.describe('Search Functionality E2E & Edge Case Tests', () => {
 
+    test.beforeAll(async () => {
+        await connectTestDB();
+    });
+
+    test.afterAll(async () => {
+        await disconnectTestDB();
+    });
+
     test.beforeEach(async ({ page }) => {
-        await page.goto('http://localhost:3000/', { waitUntil: 'domcontentloaded' });
+        await clearTestCollections();
+
+        await seedProduct({
+            name: 'Novel Product',
+            price: 29.99,
+            description: 'A very interesting mystery novel for testing.'
+        });
+
+        await page.goto(`${BASE_URL}/`, { waitUntil: 'domcontentloaded' });
     });
 
     test('should search for a product and show results correctly', async ({ page }) => {
-        const searchBox = page.getByRole('searchbox', { name: 'Search' });
-
+        const searchBox = page.getByPlaceholder(/Search/i);
         await searchBox.fill('Novel');
 
-        // Use Promise.all to ensure we catch the navigation triggered by the click
         await Promise.all([
-            page.waitForURL(/.*search/, { timeout: 10000 }),
-            page.getByRole('button', { name: 'Search' }).first().click()
+            page.waitForURL(/.*search/),
+            page.locator('.search-form button[type="submit"]').or(page.getByRole('button', { name: 'Search' }).first()).click()
         ]);
 
-        await expect(page.getByRole('main')).toContainText('Novel');
-        await expect(page.getByRole('heading', { name: 'Novel', level: 5 })).toBeVisible();
+        await expect(page.locator('main')).toContainText('Novel');
+        await expect(page.getByText('Novel Product')).toBeVisible();
     });
 
     test('should search and add product to cart', async ({ page }) => {
-        const searchBox = page.getByRole('searchbox', { name: 'Search' });
+        const searchBox = page.getByPlaceholder(/Search/i);
         await searchBox.fill('Novel');
 
-        // Alternative: Pressing Enter can sometimes bypass button-specific UI bugs
         await Promise.all([
-            page.waitForURL(/.*search/, { timeout: 10000 }),
+            page.waitForURL(/.*search/),
             searchBox.press('Enter')
         ]);
 
-        const productCard = page.locator('.card').filter({ hasText: 'Novel' }).first();
+        const productCard = page.locator('.card').filter({ hasText: 'Novel Product' }).first();
         await productCard.waitFor({ state: 'visible' });
 
         await productCard.getByRole('button', { name: /ADD TO CART/i }).click();
 
-        await expect(page.getByText('Item Added to cart')).toBeVisible();
+        await expect(page.locator('body')).toContainText(/Added to cart/i);
         await expect(page.locator('.ant-badge-count')).toHaveText('1');
     });
 
     test('should handle empty search keyword', async ({ page }) => {
-        await page.getByRole('button', { name: 'Search' }).first().click();
-        await expect(page.getByText('Please enter a keyword to')).toBeVisible();
+        const searchButton = page.locator('.search-form button[type="submit"]').or(page.getByRole('button', { name: 'Search' }).first());
+        await searchButton.click();
+
+        await expect(page.locator('body')).toContainText(/enter a keyword/i);
     });
 
     test('should navigate to details from search result', async ({ page }) => {
-        await page.getByRole('searchbox', { name: 'Search' }).fill('Novel');
+        const searchBox = page.getByPlaceholder(/Search/i);
+        await searchBox.fill('Novel');
 
         await Promise.all([
-            page.waitForURL(/.*search/, { timeout: 10000 }),
-            page.getByRole('button', { name: 'Search' }).first().click()
+            page.waitForURL(/.*search/),
+            searchBox.press('Enter')
         ]);
 
-        const moreDetailsBtn = page.getByRole('button', { name: 'More Details' }).first();
+        const moreDetailsBtn = page.getByRole('button', { name: /More Details/i }).first();
         await moreDetailsBtn.waitFor({ state: 'visible' });
         await moreDetailsBtn.click();
 
-        await expect(page.locator('h1')).toContainText('Product Details');
-        await expect(page.getByRole('heading', { name: /Name : Novel/i })).toBeVisible();
+        await expect(page).toHaveURL(/.*product\/.*/);
+        await expect(page.locator('h1')).toContainText(/Product Details/i);
+        await expect(page.getByText('Novel Product')).toBeVisible();
     });
 });

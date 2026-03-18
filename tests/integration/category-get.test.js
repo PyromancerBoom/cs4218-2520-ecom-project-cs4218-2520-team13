@@ -53,7 +53,6 @@ describe("Category Integration Tests", () => {
         expect(res.body.message).toBe("All Categories List");
         expect(res.body.category).toHaveLength(2);
 
-        // 修改第 52-53 行
         expect(res.body.category).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({ name: "Electronics", slug: "electronics" }),
