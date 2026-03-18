@@ -11,11 +11,13 @@ import {
   createUser, createProduct, createOrder, generateToken,
 } from '../helpers/db.js';
 
+// LOW WEI SHENG, A0259272X
 describe('GET /api/v1/auth/orders', () => {
   beforeAll(startMemoryDB);
   afterAll(stopMemoryDB);
   afterEach(clearCollections);
 
+  // LOW WEI SHENG, A0259272X
   it('returns 200 with array of orders for authenticated user', async () => {
     const { user } = await createUser();
     const product = await createProduct();
@@ -31,6 +33,7 @@ describe('GET /api/v1/auth/orders', () => {
     expect(res.body).toHaveLength(2);
   });
 
+  // LOW WEI SHENG, A0259272X
   it('populates products without photo field', async () => {
     const { user } = await createUser();
     const product = await createProduct();
@@ -48,6 +51,7 @@ describe('GET /api/v1/auth/orders', () => {
     expect(p.photo).toBeUndefined(); // security: photo excluded via "-photo" projection
   });
 
+  // LOW WEI SHENG, A0259272X
   it('populates buyer with name only — no email or password', async () => {
     const { user } = await createUser();
     const product = await createProduct();
@@ -65,6 +69,7 @@ describe('GET /api/v1/auth/orders', () => {
     expect(buyer.password).toBeUndefined(); // security regression guard
   });
 
+  // LOW WEI SHENG, A0259272X
   it('returns only the requesting user\'s own orders (multi-user isolation)', async () => {
     const { user: userA } = await createUser();
     const { user: userB } = await createUser();
@@ -85,6 +90,7 @@ describe('GET /api/v1/auth/orders', () => {
     expect(res.body[0].buyer._id.toString()).toBe(userA._id.toString());
   });
 
+  // LOW WEI SHENG, A0259272X
   it('returns 200 with empty array when user has no orders', async () => {
     const { user } = await createUser();
     const token = generateToken(user._id);
@@ -97,11 +103,13 @@ describe('GET /api/v1/auth/orders', () => {
     expect(res.body).toEqual([]);
   });
 
+  // LOW WEI SHENG, A0259272X
   it('returns 401 when no Authorization header is provided', async () => {
     const res = await request(app).get('/api/v1/auth/orders');
     expect(res.status).toBe(401);
   });
 
+  // LOW WEI SHENG, A0259272X
   it('returns 401 for an invalid token string', async () => {
     const res = await request(app)
       .get('/api/v1/auth/orders')
@@ -110,6 +118,7 @@ describe('GET /api/v1/auth/orders', () => {
     expect(res.status).toBe(401);
   });
 
+  // LOW WEI SHENG, A0259272X
   it('returns 401 for a token signed with a wrong secret', async () => {
     // JWT signed with different secret — middleware should reject it
     const badToken = 'eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2NjYifQ.wrongsignature';
@@ -120,6 +129,7 @@ describe('GET /api/v1/auth/orders', () => {
     expect(res.status).toBe(401);
   });
 
+  // LOW WEI SHENG, A0259272X
   it('ghost access: valid JWT for a deleted user returns 200 with empty array', async () => {
     // KNOWN GAP: requireSignIn does not check DB existence — trusts token signature.
     // A deleted user's token still passes middleware and returns empty orders.
@@ -137,6 +147,7 @@ describe('GET /api/v1/auth/orders', () => {
     expect(res.body).toEqual([]);
   });
 
+  // LOW WEI SHENG, A0259272X
   it('sort order: documents that getOrdersController has no sort guarantee', async () => {
     // NOTE: getOrdersController uses find() without .sort().
     // Order is insertion order (MongoDB default), which is NOT guaranteed to match

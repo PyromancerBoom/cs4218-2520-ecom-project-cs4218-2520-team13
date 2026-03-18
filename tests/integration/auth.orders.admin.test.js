@@ -11,11 +11,13 @@ import {
 } from '../helpers/db.js';
 
 // ─── GET /api/v1/auth/all-orders ──────────────────────────────────────────────
+// LOW WEI SHENG, A0259272X
 describe('GET /api/v1/auth/all-orders', () => {
   beforeAll(startMemoryDB);
   afterAll(stopMemoryDB);
   afterEach(clearCollections);
 
+  // LOW WEI SHENG, A0259272X
   it('returns 200 with all orders when requested by admin', async () => {
     const { user: admin } = await createAdmin();
     const { user: buyer1 } = await createUser();
@@ -34,6 +36,7 @@ describe('GET /api/v1/auth/all-orders', () => {
     expect(res.body).toHaveLength(3);
   });
 
+  // LOW WEI SHENG, A0259272X
   it('returns orders sorted by createdAt descending', async () => {
     const { user: admin } = await createAdmin();
     const { user: buyer } = await createUser();
@@ -52,6 +55,7 @@ describe('GET /api/v1/auth/all-orders', () => {
     expect(res.body[1]._id).toBe(oldest._id.toString());
   });
 
+  // LOW WEI SHENG, A0259272X
   it('populates products without photo and buyer with name only', async () => {
     const { user: admin } = await createAdmin();
     const { user: buyer } = await createUser();
@@ -68,6 +72,7 @@ describe('GET /api/v1/auth/all-orders', () => {
     expect(res.body[0].buyer.name).toBeDefined();
   });
 
+  // LOW WEI SHENG, A0259272X
   it('does not expose buyer password in any returned order', async () => {
     const { user: admin } = await createAdmin();
     const { user: buyer } = await createUser();
@@ -85,6 +90,7 @@ describe('GET /api/v1/auth/all-orders', () => {
     }
   });
 
+  // LOW WEI SHENG, A0259272X
   it('returns 200 with empty array when no orders exist', async () => {
     const { user: admin } = await createAdmin();
     const token = generateToken(admin._id);
@@ -97,6 +103,7 @@ describe('GET /api/v1/auth/all-orders', () => {
     expect(res.body).toEqual([]);
   });
 
+  // LOW WEI SHENG, A0259272X
   it('returns 401 for non-admin user', async () => {
     const { user } = await createUser();
     const token = generateToken(user._id);
@@ -108,6 +115,7 @@ describe('GET /api/v1/auth/all-orders', () => {
     expect(res.status).toBe(401);
   });
 
+  // LOW WEI SHENG, A0259272X
   it('returns 401 when unauthenticated', async () => {
     const res = await request(app).get('/api/v1/auth/all-orders');
     expect(res.status).toBe(401);
@@ -115,11 +123,13 @@ describe('GET /api/v1/auth/all-orders', () => {
 });
 
 // ─── PUT /api/v1/auth/order-status/:orderId ───────────────────────────────────
+// LOW WEI SHENG, A0259272X
 describe('PUT /api/v1/auth/order-status/:orderId', () => {
   beforeAll(startMemoryDB);
   afterAll(stopMemoryDB);
   afterEach(clearCollections);
 
+  // LOW WEI SHENG, A0259272X
   it('updates order status and returns updated order', async () => {
     const { user: admin } = await createAdmin();
     const { user: buyer } = await createUser();
@@ -136,6 +146,7 @@ describe('PUT /api/v1/auth/order-status/:orderId', () => {
     expect(res.body.status).toBe('Processing');
   });
 
+  // LOW WEI SHENG, A0259272X
   it('accepts all five valid enum status values', async () => {
     const { user: admin } = await createAdmin();
     const { user: buyer } = await createUser();
@@ -154,6 +165,7 @@ describe('PUT /api/v1/auth/order-status/:orderId', () => {
     }
   });
 
+  // LOW WEI SHENG, A0259272X
   it('BUG-02 (fixed): rejects invalid status value with non-200 response', async () => {
     const { user: admin } = await createAdmin();
     const { user: buyer } = await createUser();
@@ -169,6 +181,7 @@ describe('PUT /api/v1/auth/order-status/:orderId', () => {
     expect(res.status).not.toBe(200);
   });
 
+  // LOW WEI SHENG, A0259272X
   it('BUG-03 (fixed): returns 404 when orderId does not exist in DB', async () => {
     const { user: admin } = await createAdmin();
     const token = generateToken(admin._id);
@@ -182,6 +195,7 @@ describe('PUT /api/v1/auth/order-status/:orderId', () => {
     expect(res.status).toBe(404);
   });
 
+  // LOW WEI SHENG, A0259272X
   it('BUG-04 (fixed): returns 400 for malformed orderId format', async () => {
     const { user: admin } = await createAdmin();
     const token = generateToken(admin._id);
@@ -194,6 +208,7 @@ describe('PUT /api/v1/auth/order-status/:orderId', () => {
     expect(res.status).toBe(400);
   });
 
+  // LOW WEI SHENG, A0259272X
   it('returns 401 for non-admin user', async () => {
     const { user } = await createUser();
     const { user: buyer } = await createUser();
@@ -208,6 +223,7 @@ describe('PUT /api/v1/auth/order-status/:orderId', () => {
     expect(res.status).toBe(401);
   });
 
+  // LOW WEI SHENG, A0259272X
   it('returns 401 when unauthenticated', async () => {
     const order = await createOrder({});
 

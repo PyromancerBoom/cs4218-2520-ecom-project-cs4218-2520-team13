@@ -55,7 +55,9 @@ const renderOrders = () =>
     </MemoryRouter>
   );
 
+// LOW WEI SHENG, A0259272X
 describe('Orders component — frontend integration', () => {
+  // LOW WEI SHENG, A0259272X
   it('renders order status, buyer name, payment status, and product details', async () => {
     server.use(...ordersHandlers());
     renderOrders();
@@ -69,6 +71,7 @@ describe('Orders component — frontend integration', () => {
     });
   });
 
+  // LOW WEI SHENG, A0259272X
   it('truncates product description to 30 characters', async () => {
     server.use(...ordersHandlers());
     renderOrders();
@@ -80,18 +83,21 @@ describe('Orders component — frontend integration', () => {
     });
   });
 
+  // LOW WEI SHENG, A0259272X
   it('shows "Success" for payment.success = true', async () => {
     server.use(...ordersHandlers([mockOrder({ payment: { success: true } })]));
     renderOrders();
     await waitFor(() => expect(screen.getByText('Success')).toBeInTheDocument());
   });
 
+  // LOW WEI SHENG, A0259272X
   it('shows "Failed" for payment.success = false', async () => {
     server.use(...ordersHandlers([mockOrder({ payment: { success: false } })]));
     renderOrders();
     await waitFor(() => expect(screen.getByText('Failed')).toBeInTheDocument());
   });
 
+  // LOW WEI SHENG, A0259272X
   it('renders all products in an order with multiple products', async () => {
     const order = mockOrder({
       products: [
@@ -110,6 +116,7 @@ describe('Orders component — frontend integration', () => {
     });
   });
 
+  // LOW WEI SHENG, A0259272X
   it('renders all orders when multiple orders are returned', async () => {
     const orders = [
       mockOrder({ _id: 'o1', status: 'Not Process' }),
@@ -126,12 +133,14 @@ describe('Orders component — frontend integration', () => {
     });
   });
 
+  // LOW WEI SHENG, A0259272X
   it('renders the mocked relative date string', async () => {
     server.use(...ordersHandlers());
     renderOrders();
     await waitFor(() => expect(screen.getByText('2 days ago')).toBeInTheDocument());
   });
 
+  // LOW WEI SHENG, A0259272X
   it('does not call the API when token is absent', async () => {
     useAuth.mockReturnValue([{ user: null, token: '' }, jest.fn()]);
     let apiCalled = false;
@@ -147,6 +156,7 @@ describe('Orders component — frontend integration', () => {
     expect(apiCalled).toBe(false);
   });
 
+  // LOW WEI SHENG, A0259272X
   it('renders no orders when API returns empty array', async () => {
     server.use(...ordersHandlers([]));
     renderOrders();
@@ -157,6 +167,7 @@ describe('Orders component — frontend integration', () => {
     });
   });
 
+  // LOW WEI SHENG, A0259272X
   it('does not crash when API returns 500', async () => {
     server.use(
       http.get('/api/v1/auth/orders', () => HttpResponse.json({}, { status: 500 }))
@@ -165,6 +176,7 @@ describe('Orders component — frontend integration', () => {
     await new Promise(r => setTimeout(r, 100));
   });
 
+  // LOW WEI SHENG, A0259272X
   it('shows a loading state before the response resolves', async () => {
     let resolveResponse;
     server.use(
@@ -184,6 +196,7 @@ describe('Orders component — frontend integration', () => {
     await waitFor(() => expect(screen.getByText('Not Process')).toBeInTheDocument());
   });
 
+  // LOW WEI SHENG, A0259272X
   it('sends the Authorization header with the request', async () => {
     let capturedAuthHeader;
     server.use(
@@ -197,6 +210,7 @@ describe('Orders component — frontend integration', () => {
     await waitFor(() => expect(capturedAuthHeader).toBe('test-token'));
   });
 
+  // LOW WEI SHENG, A0259272X
   it('does not crash when a product has an empty description', async () => {
     // Orders.js calls p.description.substring(0,30) — empty string is safe, undefined is not
     const order = mockOrder({
@@ -207,6 +221,7 @@ describe('Orders component — frontend integration', () => {
     await waitFor(() => expect(screen.getByText('No Desc Product')).toBeInTheDocument());
   });
 
+  // LOW WEI SHENG, A0259272X
   it('shows "Failed" when order payment.success is missing', async () => {
     // Orders.js uses o?.payment.success — if payment:{} then success is undefined → "Failed"
     const order = mockOrder({ payment: {} });
@@ -215,6 +230,7 @@ describe('Orders component — frontend integration', () => {
     await waitFor(() => expect(screen.getByText('Failed')).toBeInTheDocument());
   });
 
+  // LOW WEI SHENG, A0259272X
   it('does not crash when order has no products array', async () => {
     const order = mockOrder({ products: undefined });
     server.use(...ordersHandlers([order]));

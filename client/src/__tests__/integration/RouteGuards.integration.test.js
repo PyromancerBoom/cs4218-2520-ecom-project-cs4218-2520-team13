@@ -63,7 +63,9 @@ const renderAdminRoute = () =>
   );
 
 // ─── Private.js ───────────────────────────────────────────────────────────────
+// LOW WEI SHENG, A0259272X
 describe('Private route guard', () => {
+  // LOW WEI SHENG, A0259272X
   it('renders protected content when /user-auth returns { ok: true }', async () => {
     useAuth.mockReturnValue([{ token: 'valid-token' }, jest.fn()]);
     server.use(...userAuthHandlers(true));
@@ -74,6 +76,7 @@ describe('Private route guard', () => {
     );
   });
 
+  // LOW WEI SHENG, A0259272X
   it('renders Spinner (not protected content) when /user-auth returns { ok: false }', async () => {
     useAuth.mockReturnValue([{ token: 'valid-token' }, jest.fn()]);
     server.use(...userAuthHandlers(false));
@@ -86,6 +89,7 @@ describe('Private route guard', () => {
     });
   });
 
+  // LOW WEI SHENG, A0259272X
   it('renders Spinner and does not call API when token is absent', async () => {
     useAuth.mockReturnValue([{ token: '' }, jest.fn()]);
     let apiCalled = false;
@@ -102,6 +106,7 @@ describe('Private route guard', () => {
     expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument();
   });
 
+  // LOW WEI SHENG, A0259272X
   it('renders Spinner while auth check is in flight (loading state)', async () => {
     useAuth.mockReturnValue([{ token: 'valid-token' }, jest.fn()]);
     let resolveResponse;
@@ -123,6 +128,7 @@ describe('Private route guard', () => {
     );
   });
 
+  // LOW WEI SHENG, A0259272X
   it('renders Spinner and does not crash on 401 response', async () => {
     useAuth.mockReturnValue([{ token: 'expired-token' }, jest.fn()]);
     server.use(
@@ -136,6 +142,7 @@ describe('Private route guard', () => {
     );
   });
 
+  // LOW WEI SHENG, A0259272X
   it('renders Spinner and does not crash on network error', async () => {
     useAuth.mockReturnValue([{ token: 'valid-token' }, jest.fn()]);
     server.use(
@@ -146,6 +153,7 @@ describe('Private route guard', () => {
     expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument();
   });
 
+  // LOW WEI SHENG, A0259272X
   it('calls /api/v1/auth/user-auth — not /admin-auth', async () => {
     useAuth.mockReturnValue([{ token: 'valid-token' }, jest.fn()]);
     let userAuthCalled = false;
@@ -168,6 +176,7 @@ describe('Private route guard', () => {
 
   // Test 8: Spinner path prop — Private.js passes path="" (redirects to `/`),
   // unlike AdminRoute.js which passes no path (defaults to "login").
+  // LOW WEI SHENG, A0259272X
   it('Spinner path prop | Absent token | Spinner receives `path=""` (redirects to `/`)', async () => {
     useAuth.mockReturnValue([{ token: '' }, jest.fn()]);
 
@@ -189,7 +198,9 @@ describe('Private route guard', () => {
 });
 
 // ─── AdminRoute.js ────────────────────────────────────────────────────────────
+// LOW WEI SHENG, A0259272X
 describe('AdminRoute guard', () => {
+  // LOW WEI SHENG, A0259272X
   it('renders protected content when /admin-auth returns { ok: true }', async () => {
     useAuth.mockReturnValue([{ token: 'admin-token' }, jest.fn()]);
     server.use(...adminAuthHandlers(true));
@@ -200,6 +211,7 @@ describe('AdminRoute guard', () => {
     );
   });
 
+  // LOW WEI SHENG, A0259272X
   it('renders Spinner when /admin-auth returns { ok: false }', async () => {
     useAuth.mockReturnValue([{ token: 'user-token' }, jest.fn()]);
     server.use(...adminAuthHandlers(false));
@@ -210,6 +222,7 @@ describe('AdminRoute guard', () => {
     );
   });
 
+  // LOW WEI SHENG, A0259272X
   it('renders Spinner and does not call API when token is absent', async () => {
     useAuth.mockReturnValue([{ token: '' }, jest.fn()]);
     let apiCalled = false;
@@ -226,6 +239,7 @@ describe('AdminRoute guard', () => {
     expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument();
   });
 
+  // LOW WEI SHENG, A0259272X
   it('renders Spinner while auth check is in flight (loading state)', async () => {
     useAuth.mockReturnValue([{ token: 'admin-token' }, jest.fn()]);
     let resolveResponse;
@@ -246,6 +260,7 @@ describe('AdminRoute guard', () => {
     );
   });
 
+  // LOW WEI SHENG, A0259272X
   it('renders Spinner and does not crash on 401 response', async () => {
     useAuth.mockReturnValue([{ token: 'expired' }, jest.fn()]);
     server.use(
@@ -259,6 +274,7 @@ describe('AdminRoute guard', () => {
     );
   });
 
+  // LOW WEI SHENG, A0259272X
   it('renders Spinner and does not crash on network error', async () => {
     useAuth.mockReturnValue([{ token: 'admin-token' }, jest.fn()]);
     server.use(
@@ -269,6 +285,7 @@ describe('AdminRoute guard', () => {
     expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument();
   });
 
+  // LOW WEI SHENG, A0259272X
   it('calls /api/v1/auth/admin-auth — not /user-auth', async () => {
     useAuth.mockReturnValue([{ token: 'admin-token' }, jest.fn()]);
     let userAuthCalled = false;
