@@ -11,7 +11,8 @@
     "sonarqube": "sonarqube-scanner",
     "test": "npm run test:backend; b=$?; npm run test:frontend; f=$?; [ $b -eq 0 ] && [ $f -eq 0 ]",
     "test:frontend": "node node_modules/jest/bin/jest.js --config jest.frontend.config.js",
-    "test:backend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js"
+    "test:backend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js",
+    "test:e2e": "playwright test"
   },
   "keywords": [],
   "author": "RP",
