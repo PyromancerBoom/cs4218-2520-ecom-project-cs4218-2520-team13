@@ -1,12 +1,12 @@
 import request from "supertest";
-import { createApp } from "../testUtils/appFactory.js";
+import { createApp } from "../../testUtils/appFactory.js";
 import {
   connectTestDB,
   clearTestDB,
   disconnectTestDB,
-} from "../testUtils/dbHandler.js";
-import userModel from "../models/userModel.js";
-import { comparePassword } from "../helpers/authHelper.js";
+} from "../../testUtils/dbHandler.js";
+import userModel from "../../models/userModel.js";
+import { comparePassword } from "../../helpers/authHelper.js";
 
 // Priyansh Bimbisariye, A0265903B
 

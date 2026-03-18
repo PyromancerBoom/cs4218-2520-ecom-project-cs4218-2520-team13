@@ -10,7 +10,7 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom/extend-expect";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
-import AdminOrders from "./AdminOrders";
+import AdminOrders from "../../pages/admin/AdminOrders";
 import { AuthProvider } from "../../context/auth";
 
 // Priyansh Bimbisariye, A0265903B

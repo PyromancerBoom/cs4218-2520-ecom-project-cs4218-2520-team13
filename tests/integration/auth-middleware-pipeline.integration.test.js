@@ -1,13 +1,13 @@
 import request from "supertest";
 import mongoose from "mongoose";
-import { createApp } from "../testUtils/appFactory.js";
+import { createApp } from "../../testUtils/appFactory.js";
 import {
   connectTestDB,
   clearTestDB,
   disconnectTestDB,
-} from "../testUtils/dbHandler.js";
-import userModel from "../models/userModel.js";
-import productModel from "../models/productModel.js";
+} from "../../testUtils/dbHandler.js";
+import userModel from "../../models/userModel.js";
+import productModel from "../../models/productModel.js";
 
 // Priyansh Bimbisariye, A0265903B
 

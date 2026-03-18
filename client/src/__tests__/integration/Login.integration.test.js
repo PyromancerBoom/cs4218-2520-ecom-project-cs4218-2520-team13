@@ -4,7 +4,7 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom/extend-expect";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
-import Login from "./Login";
+import Login from "../../pages/Auth/Login";
 import { AuthProvider } from "../../context/auth";
 
 // unrelated mocks

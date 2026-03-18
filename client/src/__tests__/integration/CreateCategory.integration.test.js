@@ -10,7 +10,7 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom/extend-expect";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
-import CreateCategory from "./CreateCategory";
+import CreateCategory from "../../pages/admin/CreateCategory";
 import { AuthProvider } from "../../context/auth";
 
 // Priyansh Bimbisariye, A0265903B

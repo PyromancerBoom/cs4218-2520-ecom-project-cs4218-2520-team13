@@ -10,7 +10,7 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom/extend-expect";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
-import Products from "./Products";
+import Products from "../../pages/admin/Products";
 import { AuthProvider } from "../../context/auth";
 
 // Priyansh Bimbisariye, A0265903B
@@ -73,7 +73,6 @@ const renderProductsPage = () =>
   );
 
 // Priyansh Bimbisariye, A0265903B
-// top-down integration (Products + Layout + AdminMenu)
 describe("Admin Products page", () => {
   beforeEach(() => {
     localStorage.clear();
