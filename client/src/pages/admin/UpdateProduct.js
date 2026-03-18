@@ -94,7 +94,7 @@ const UpdateProduct = () => {
   //delete a product
   const handleDelete = async () => {
     try {
-      let answer = window.prompt(
+      let answer = window.confirm(
         "Are you sure you want to delete this product?",
       );
       if (!answer) return;
@@ -124,6 +124,7 @@ const UpdateProduct = () => {
                 size="large"
                 showSearch
                 className="form-select mb-3"
+                id="category-select"
                 onChange={(value) => {
                   setCategory(value);
                 }}
@@ -142,7 +143,14 @@ const UpdateProduct = () => {
                     type="file"
                     name="photo"
                     accept="image/*"
-                    onChange={(e) => setPhoto(e.target.files[0])}
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file && file.size >= 1000000) {
+                        toast.error("Photo must be less than 1MB");
+                        return;
+                      }
+                      setPhoto(file);
+                    }}
                     hidden
                   />
                 </label>
@@ -218,6 +226,7 @@ const UpdateProduct = () => {
                   size="large"
                   showSearch
                   className="form-select mb-3"
+                  id="shipping-select"
                   onChange={(value) => {
                     setShipping(value);
                   }}

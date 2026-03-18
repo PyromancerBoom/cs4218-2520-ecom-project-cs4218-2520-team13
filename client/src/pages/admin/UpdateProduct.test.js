@@ -395,7 +395,7 @@ describe("UpdateProduct Component", () => {
     // Priyansh Bimbisariye, A0265903B
     it("should delete product, show success toast, and navigate when user confirms", async () => {
       // arrange
-      window.prompt = jest.fn().mockReturnValue("Yes");
+      window.confirm = jest.fn().mockReturnValue(true);
       axios.delete.mockResolvedValue({ data: { success: true } });
       renderComponent();
       await waitForProductLoad();
@@ -405,7 +405,7 @@ describe("UpdateProduct Component", () => {
 
       // assert
       await waitFor(() => {
-        expect(window.prompt).toHaveBeenCalledWith(
+        expect(window.confirm).toHaveBeenCalledWith(
           "Are you sure you want to delete this product?",
         );
         expect(axios.delete).toHaveBeenCalledWith(
@@ -419,9 +419,9 @@ describe("UpdateProduct Component", () => {
     });
 
     // Priyansh Bimbisariye, A0265903B
-    it("should not delete product when user cancels or enters empty string", async () => {
-      // arrang
-      window.prompt = jest.fn().mockReturnValue(null);
+    it("should not delete product when user cancels", async () => {
+      // arrange
+      window.confirm = jest.fn().mockReturnValue(false);
       renderComponent();
       await waitForProductLoad();
 
@@ -431,21 +431,12 @@ describe("UpdateProduct Component", () => {
       // assert
       expect(axios.delete).not.toHaveBeenCalled();
       expect(mockNavigate).not.toHaveBeenCalled();
-
-      // arrange , empty string
-      window.prompt = jest.fn().mockReturnValue("");
-
-      // act
-      fireEvent.click(screen.getByText("DELETE PRODUCT"));
-
-      // assert
-      expect(axios.delete).not.toHaveBeenCalled();
     });
 
     // Priyansh Bimbisariye, A0265903B
     it("should show error toast when delete API throws an exception", async () => {
       // arrange
-      window.prompt = jest.fn().mockReturnValue("Yes");
+      window.confirm = jest.fn().mockReturnValue(true);
       axios.delete.mockRejectedValue(new Error("Server Error"));
       renderComponent();
       await waitForProductLoad();
