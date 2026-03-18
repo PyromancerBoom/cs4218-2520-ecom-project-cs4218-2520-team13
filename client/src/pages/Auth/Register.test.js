@@ -80,9 +80,6 @@ describe("Register Component", () => {
     fireEvent.change(getByPlaceholderText("Enter Your Address"), {
       target: { value: "123 Street" },
     });
-    fireEvent.change(getByPlaceholderText("Enter Your DOB"), {
-      target: { value: "2000-01-01" },
-    });
     fireEvent.change(getByPlaceholderText("What is Your Favorite sports"), {
       target: { value: "Football" },
     });
@@ -120,9 +117,6 @@ describe("Register Component", () => {
     });
     fireEvent.change(getByPlaceholderText("Enter Your Address"), {
       target: { value: "123 Street" },
-    });
-    fireEvent.change(getByPlaceholderText("Enter Your DOB"), {
-      target: { value: "2000-01-01" },
     });
     fireEvent.change(getByPlaceholderText("What is Your Favorite sports"), {
       target: { value: "Football" },
@@ -165,9 +159,6 @@ describe("Register Component", () => {
     });
     fireEvent.change(getByPlaceholderText("Enter Your Address"), {
       target: { value: "123 Street" },
-    });
-    fireEvent.change(getByPlaceholderText("Enter Your DOB"), {
-      target: { value: "2000-01-01" },
     });
     fireEvent.change(getByPlaceholderText("What is Your Favorite sports"), {
       target: { value: "Football" },

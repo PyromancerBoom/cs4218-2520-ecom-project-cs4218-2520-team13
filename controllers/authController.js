@@ -9,30 +9,30 @@ export const registerController = async (req, res) => {
     const { name, email, password, phone, address, answer } = req.body;
     //validations
     if (!name) {
-      return res.send({ message: "Name is Required" });
+      return res.status(400).send({ message: "Name is Required" });
     }
     if (!email) {
-      return res.send({ message: "Email is Required" });
+      return res.status(400).send({ message: "Email is Required" });
     }
     if (!password) {
-      return res.send({ message: "Password is Required" });
+      return res.status(400).send({ message: "Password is Required" });
     }
     if (!phone) {
-      return res.send({ message: "Phone no is Required" });
+      return res.status(400).send({ message: "Phone no is Required" });
     }
     if (!address) {
-      return res.send({ message: "Address is Required" });
+      return res.status(400).send({ message: "Address is Required" });
     }
     if (!answer) {
-      return res.send({ message: "Answer is Required" });
+      return res.status(400).send({ message: "Answer is Required" });
     }
     //check user
     const existingUser = await userModel.findOne({ email });
     //existing user
     if (existingUser) {
-      return res.status(200).send({
+      return res.status(409).send({
         success: false,
-        message: "Already Register please login",
+        message: "Already registered please login",
       });
     }
     //register user
@@ -50,7 +50,14 @@ export const registerController = async (req, res) => {
     res.status(201).send({
       success: true,
       message: "User Registered Successfully",
-      user,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        role: user.role,
+      },
     });
   } catch (error) {
     console.log(error);
@@ -83,7 +90,7 @@ export const loginController = async (req, res) => {
     }
     const match = await comparePassword(password, user.password);
     if (!match) {
-      return res.status(200).send({
+      return res.status(401).send({
         success: false,
         message: "Invalid Password",
       });
@@ -289,11 +296,9 @@ export const updateRoleController = async (req, res) => {
   try {
     const { id } = req.params;
     const { role } = req.body;
-    const user = await userModel.findByIdAndUpdate(
-      id,
-      { role },
-      { new: true }
-    ).select("-password");
+    const user = await userModel
+      .findByIdAndUpdate(id, { role }, { new: true })
+      .select("-password");
 
     res.status(200).send({
       success: true,
