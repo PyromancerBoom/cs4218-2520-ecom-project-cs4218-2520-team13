@@ -4,7 +4,6 @@ import {
   screen,
   waitFor,
   fireEvent,
-  act,
 } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom/extend-expect";
@@ -151,6 +150,7 @@ describe("Admin CreateCategory page", () => {
     );
 
     let getCallCount = 0;
+    let capturedCreateBody;
 
     server.use(
       http.get("*/api/v1/category/get-category", () => {
@@ -167,8 +167,7 @@ describe("Admin CreateCategory page", () => {
         });
       }),
       http.post("*/api/v1/category/create-category", async ({ request }) => {
-        const body = await request.json();
-        expect(body).toEqual({ name: "Toys" });
+        capturedCreateBody = await request.json();
         return HttpResponse.json({
           success: true,
           message: "new category created",
@@ -190,6 +189,7 @@ describe("Admin CreateCategory page", () => {
 
     const toastMsg = await screen.findByText("Toys is created");
     expect(toastMsg).toBeInTheDocument();
+    expect(capturedCreateBody).toEqual({ name: "Toys" });
 
     await waitFor(() => expect(screen.getByText("Toys")).toBeInTheDocument());
   });
@@ -241,6 +241,7 @@ describe("Admin CreateCategory page", () => {
     );
 
     let getCallCount = 0;
+    let capturedUpdateBody;
 
     server.use(
       http.get("*/api/v1/category/get-category", () => {
@@ -263,8 +264,7 @@ describe("Admin CreateCategory page", () => {
       http.put(
         "*/api/v1/category/update-category/cat-1",
         async ({ request }) => {
-          const body = await request.json();
-          expect(body).toEqual({ name: "Updated Electronics" });
+          capturedUpdateBody = await request.json();
           return HttpResponse.json({
             success: true,
             message: "Category Updated Successfully",
@@ -294,6 +294,7 @@ describe("Admin CreateCategory page", () => {
 
     const toastMsg = await screen.findByText("Updated Electronics is updated");
     expect(toastMsg).toBeInTheDocument();
+    expect(capturedUpdateBody).toEqual({ name: "Updated Electronics" });
 
     await waitFor(() =>
       expect(screen.getByText("Updated Electronics")).toBeInTheDocument(),
@@ -441,9 +442,9 @@ describe("Admin CreateCategory page", () => {
 
     renderCreateCategoryPage();
 
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 100));
-    });
+    await waitFor(() =>
+      expect(screen.getByText("Manage Category")).toBeInTheDocument()
+    );
 
     expect(apiCallSpy).not.toHaveBeenCalled();
 

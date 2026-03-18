@@ -4,7 +4,6 @@ import {
   screen,
   waitFor,
   fireEvent,
-  act,
 } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom/extend-expect";
@@ -268,9 +267,9 @@ describe("Admin Products page", () => {
 
     renderProductsPage();
 
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 100));
-    });
+    await waitFor(() =>
+      expect(screen.getByText("All Products List")).toBeInTheDocument()
+    );
 
     expect(apiCallSpy).not.toHaveBeenCalled();
     expect(screen.queryByText("Laptop Pro")).not.toBeInTheDocument();
@@ -325,13 +324,8 @@ describe("Admin Products page", () => {
 
     renderProductsPage();
 
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 100));
-    });
-
-    expect(screen.queryByText("Laptop Pro")).not.toBeInTheDocument();
-
     const errorToast = await screen.findByText("DB error");
+    expect(screen.queryByText("Laptop Pro")).not.toBeInTheDocument();
     expect(errorToast).toBeInTheDocument();
   });
 });
