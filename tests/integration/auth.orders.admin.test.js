@@ -1,6 +1,3 @@
-// LOW WEI SHENG, A0259272X
-// tests/integration/auth.orders.admin.test.js
-// LOW WEI SHENG, A0259272X
 // Integration tests for GET /api/v1/auth/all-orders and PUT /api/v1/auth/order-status/:orderId
 import request from 'supertest';
 import mongoose from 'mongoose';

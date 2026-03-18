@@ -1,6 +1,3 @@
-// LOW WEI SHENG, A0259272X
-// client/src/__tests__/integration/RouteGuards.integration.test.js
-// LOW WEI SHENG, A0259272X
 // Frontend integration tests for Private.js and AdminRoute.js using MSW.
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';

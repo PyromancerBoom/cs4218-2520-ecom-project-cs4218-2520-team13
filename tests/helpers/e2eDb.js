@@ -1,6 +1,3 @@
-// LOW WEI SHENG, A0259272X
-// tests/helpers/e2eDb.js
-// LOW WEI SHENG, A0259272X
 // Connects to the local test MongoDB for E2E seed and teardown.
 // The E2E server (Express) also connects to the same MONGO_URL.
 import mongoose from 'mongoose';

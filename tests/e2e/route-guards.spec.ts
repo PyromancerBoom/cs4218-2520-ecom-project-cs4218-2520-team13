@@ -1,6 +1,3 @@
-// LOW WEI SHENG, A0259272X
-// tests/e2e/route-guards.spec.ts
-// LOW WEI SHENG, A0259272X
 // E2E tests for protected and admin route access control.
 import { test, expect } from '@playwright/test';
 import {

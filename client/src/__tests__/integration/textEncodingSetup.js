@@ -1,5 +1,3 @@
-// client/src/__tests__/integration/textEncodingSetup.js
-// LOW WEI SHENG, A0259272X
 // Must run BEFORE fetchSetup.js in setupFiles.
 // undici (imported by fetchSetup.js) calls `new TextDecoder()` and references
 // ReadableStream/WritableStream/TransformStream at module-evaluation time — before

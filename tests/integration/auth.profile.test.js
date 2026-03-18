@@ -1,6 +1,3 @@
-// LOW WEI SHENG, A0259272X
-// tests/integration/auth.profile.test.js
-// LOW WEI SHENG, A0259272X
 // Integration tests for PUT /api/v1/auth/profile (user profile update)
 import request from 'supertest';
 import bcrypt from 'bcrypt';

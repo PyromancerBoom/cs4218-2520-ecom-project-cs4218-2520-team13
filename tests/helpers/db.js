@@ -1,6 +1,3 @@
-// LOW WEI SHENG, A0259272X
-// tests/helpers/db.js
-// LOW WEI SHENG, A0259272X
 // Shared helpers for backend integration tests and E2E seed/teardown.
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';

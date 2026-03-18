@@ -1,6 +1,3 @@
-// LOW WEI SHENG, A0259272X
-// tests/e2e/admin-orders.spec.ts
-// LOW WEI SHENG, A0259272X
 // E2E tests for admin order status management flow.
 import { test, expect } from '@playwright/test';
 import mongoose from 'mongoose';

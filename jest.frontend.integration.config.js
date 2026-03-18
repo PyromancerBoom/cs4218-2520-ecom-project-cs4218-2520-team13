@@ -1,5 +1,3 @@
-// LOW WEI SHENG, A0259272X
-// jest.frontend.integration.config.js
 import base from './jest.frontend.config.js';
 
 export default {

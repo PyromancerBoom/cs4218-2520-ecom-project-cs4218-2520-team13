@@ -1,6 +1,3 @@
-// LOW WEI SHENG, A0259272X
-// client/src/__tests__/integration/globalSetup.cjs
-// LOW WEI SHENG, A0259272X
 // CJS setup file — CommonJS require() is synchronous, so each global assignment
 // completes before the next require() runs. This guarantees that TextDecoder,
 // ReadableStream, MessagePort, etc. are in `global` BEFORE undici loads (undici

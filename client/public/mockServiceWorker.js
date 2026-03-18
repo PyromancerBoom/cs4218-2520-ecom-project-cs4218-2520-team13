@@ -1,4 +1,3 @@
-// LOW WEI SHENG, A0259272X
 /* eslint-disable */
 /* tslint:disable */
 

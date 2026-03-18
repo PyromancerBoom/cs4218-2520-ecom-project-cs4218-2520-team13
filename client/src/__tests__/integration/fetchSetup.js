@@ -1,6 +1,3 @@
-// LOW WEI SHENG, A0259272X
-// client/src/__tests__/integration/fetchSetup.js
-// LOW WEI SHENG, A0259272X
 // Polyfill Fetch API and remaining Web globals into jsdom's window so MSW/node loads.
 // Requires textEncodingSetup.js to have run first (sets TextDecoder, ReadableStream, etc.
 // which undici needs at module-evaluation time before this file's code can run).

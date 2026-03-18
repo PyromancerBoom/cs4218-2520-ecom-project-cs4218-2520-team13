@@ -1,5 +1,3 @@
-// LOW WEI SHENG, A0259272X
-// client/src/__tests__/integration/silenceConsole.js
 // Suppresses console.log and the React act() console.error warnings during
 // frontend integration tests. Keeps test output clean without hiding real failures.
 beforeAll(() => {
