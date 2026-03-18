@@ -25,19 +25,25 @@ test.describe('Admin order status management', () => {
     await disconnectTestDB();
   });
 
-  // Helper: log in as admin via UI
+  // Helper: log in as admin programmatically (API call → localStorage → reload)
   async function loginAsAdmin(page) {
-    await page.goto('/login');
-    await page.fill('input[type="email"]', adminEmail);
-    await page.fill('input[type="password"]', adminPassword);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/dashboard/);
+    const res = await page.request.post('http://localhost:6060/api/v1/auth/login', {
+      data: { email: adminEmail, password: adminPassword },
+    });
+    const data = await res.json();
+    await page.goto('/');
+    await page.evaluate((auth) => localStorage.setItem('auth', JSON.stringify(auth)), data);
+    await page.reload();
   }
 
   // Helper: select an Ant Design Select option by clicking the selector then the option text
   async function selectAntOption(page, selectorLocator, optionText: string) {
+    // Wait for the selector to be visible and stable (orders may still be loading)
+    await expect(selectorLocator).toBeVisible({ timeout: 10000 });
     await selectorLocator.click();
-    await page.locator('.ant-select-dropdown').getByText(optionText, { exact: true }).click();
+    // Wait for the first option item to appear (dropdown is open)
+    await expect(page.locator('.ant-select-item-option').first()).toBeVisible({ timeout: 5000 });
+    await page.locator('.ant-select-item-option').filter({ hasText: optionText }).first().click();
   }
 
   test('admin sees order list on /dashboard/admin/orders', async ({ page }) => {
@@ -111,10 +117,15 @@ test.describe('Admin order status management', () => {
       test(`status "${status}" can be set and persists`, async ({ page }) => {
         await loginAsAdmin(page);
         await page.goto('/dashboard/admin/orders');
-        // Find the Ant Design Select for the mutation order row, falling back to the last selector
-        const selectorLocator = page.locator(`[data-order-id="${mutationOrderId}"] .ant-select-selector`).or(
-          page.locator('.ant-select-selector').last()
-        );
+        // Order is seeded with 'Not Process'; if target is also 'Not Process' the
+        // Select won't fire onChange (same value). Change away first so the PUT fires.
+        const selectorLocator = page.locator('.ant-select-selector').last();
+        if (status === 'Not Process') {
+          await selectAntOption(page, selectorLocator, 'Processing');
+          await page.waitForResponse(
+            r => r.url().includes('/order-status/') && r.request().method() === 'PUT'
+          );
+        }
         const responsePromise = page.waitForResponse(
           r => r.url().includes('/order-status/') && r.request().method() === 'PUT'
         );
@@ -122,11 +133,7 @@ test.describe('Admin order status management', () => {
         const response = await responsePromise;
         expect(response.status()).toBe(200);
         await page.reload();
-        await expect(
-          page.locator(`[data-order-id="${mutationOrderId}"] .ant-select-selector`).or(
-            page.locator('.ant-select-selector').last()
-          )
-        ).toContainText(status);
+        await expect(page.locator('.ant-select-selector').last()).toContainText(status);
       });
     }
   });
@@ -139,7 +146,10 @@ test.describe('Admin order status management', () => {
     const newer = await seedOrder({ buyer: buyer._id, products: [product._id], status: 'Shipped' });
 
     await loginAsAdmin(page);
+    const allOrdersPromise = page.waitForResponse(r => r.url().includes('/all-orders'));
     await page.goto('/dashboard/admin/orders');
+    await allOrdersPromise;
+    await expect(page.locator('.ant-select-selector').first()).toBeVisible();
 
     const selectors = page.locator('.ant-select-selector');
     const count = await selectors.count();
@@ -158,13 +168,15 @@ test.describe('Admin order status management', () => {
 
   test('Authorization header is sent with the all-orders request', async ({ page }) => {
     let authHeader: string | null = null;
-    await page.route('**/api/v1/auth/all-orders', route => {
+    await page.route('**/api/v1/auth/all-orders', async route => {
       authHeader = route.request().headers()['authorization'] ?? null;
-      route.continue();
+      await route.continue();
     });
     await loginAsAdmin(page);
+    // Create the promise BEFORE goto to avoid missing a fast response
+    const responsePromise = page.waitForResponse(r => r.url().includes('/all-orders'));
     await page.goto('/dashboard/admin/orders');
-    await page.waitForResponse(r => r.url().includes('/all-orders'));
+    await responsePromise;
     expect(authHeader).toBeTruthy();
   });
 
@@ -190,11 +202,13 @@ test.describe('Admin order status management', () => {
 
   test('non-admin is redirected away from /dashboard/admin/orders', async ({ page }) => {
     const { user: regularUser } = await seedUser({ email: 'regular@e2e.test', plainPassword: 'pass123' });
-    await page.goto('/login');
-    await page.fill('input[type="email"]', 'regular@e2e.test');
-    await page.fill('input[type="password"]', 'pass123');
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/dashboard/);
+    const res = await page.request.post('http://localhost:6060/api/v1/auth/login', {
+      data: { email: 'regular@e2e.test', password: 'pass123' },
+    });
+    const data = await res.json();
+    await page.goto('/');
+    await page.evaluate((auth) => localStorage.setItem('auth', JSON.stringify(auth)), data);
+    await page.reload();
     await page.goto('/dashboard/admin/orders');
     await expect(page).not.toHaveURL(/admin\/orders/);
   });

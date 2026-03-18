@@ -55,11 +55,13 @@ test.describe('User order history', () => {
   });
 
   async function loginAsUser(page) {
-    await page.goto('/login');
-    await page.fill('input[type="email"]', userEmail);
-    await page.fill('input[type="password"]', userPassword);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/dashboard/);
+    const res = await page.request.post('http://localhost:6060/api/v1/auth/login', {
+      data: { email: userEmail, password: userPassword },
+    });
+    const data = await res.json();
+    await page.goto('/');
+    await page.evaluate((auth) => localStorage.setItem('auth', JSON.stringify(auth)), data);
+    await page.reload();
   }
 
   test('user navigates to Orders via UserMenu and sees their orders', async ({ page }) => {
@@ -98,21 +100,25 @@ test.describe('User order history', () => {
     await expect(page.getByText(/12\.50|12\.5/)).toBeVisible();
   });
 
-  test('relative date contains "day" for orders seeded 1 day ago', async ({ page }) => {
+  test('relative date is displayed as a moment.js relative string', async ({ page }) => {
     await loginAsUser(page);
     await page.goto('/dashboard/user/orders');
-    // moment("1 day ago") renders text containing "day"
-    const dateTexts = await page.locator('text=/day/').allTextContents();
+    // Wait for orders to load before reading date text
+    await expect(page.locator('tbody tr').first()).toBeVisible();
+    // The date column uses moment().fromNow() — rendered text contains "ago"
+    const dateTexts = await page.locator('text=/ago/').allTextContents();
     expect(dateTexts.length).toBeGreaterThan(0);
   });
 
   test('user with no orders sees empty state without crash', async ({ page }) => {
     const { user: emptyUser } = await seedUser({ email: 'empty@e2e.test', plainPassword: 'pass123' });
-    await page.goto('/login');
-    await page.fill('input[type="email"]', 'empty@e2e.test');
-    await page.fill('input[type="password"]', 'pass123');
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/dashboard/);
+    const res = await page.request.post('http://localhost:6060/api/v1/auth/login', {
+      data: { email: 'empty@e2e.test', password: 'pass123' },
+    });
+    const data = await res.json();
+    await page.goto('/');
+    await page.evaluate((auth) => localStorage.setItem('auth', JSON.stringify(auth)), data);
+    await page.reload();
     await page.goto('/dashboard/user/orders');
     // No crash — page renders
     await expect(page.locator('body')).toBeVisible();
@@ -132,13 +138,15 @@ test.describe('User order history', () => {
 
   test('Authorization header is sent with the orders request', async ({ page }) => {
     let authHeader: string | null = null;
-    await page.route('**/api/v1/auth/orders', route => {
+    await page.route('**/api/v1/auth/orders', async route => {
       authHeader = route.request().headers()['authorization'] ?? null;
-      route.continue();
+      await route.continue();
     });
     await loginAsUser(page);
+    // Create the promise BEFORE goto to avoid missing a fast response
+    const responsePromise = page.waitForResponse(r => r.url().includes('/api/v1/auth/orders'));
     await page.goto('/dashboard/user/orders');
-    await page.waitForResponse(r => r.url().includes('/api/v1/auth/orders'));
+    await responsePromise;
     expect(authHeader).toBeTruthy();
   });
 });

@@ -15,7 +15,7 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'cross-env NODE_ENV=production MONGO_URL=mongodb://localhost:27017/ecom-test node server.js',
+      command: 'cross-env NODE_ENV=production MONGO_URL=mongodb://localhost:27017/ecom-test JWT_SECRET=your-secret-key BRAINTREE_MERCHANT_ID=test BRAINTREE_PUBLIC_KEY=test BRAINTREE_PRIVATE_KEY=test node server.js',
       url: 'http://localhost:6060/api/v1/auth/user-auth',
       reuseExistingServer: !process.env.CI,
       timeout: 30_000,

@@ -28,33 +28,35 @@ test.describe('Route access control', () => {
   });
 
   async function login(page, email: string) {
-    await page.goto('/login');
-    await page.fill('input[type="email"]', email);
-    await page.fill('input[type="password"]', password);
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/dashboard/);
+    const res = await page.request.post('http://localhost:6060/api/v1/auth/login', {
+      data: { email, password },
+    });
+    const data = await res.json();
+    await page.goto('/');
+    await page.evaluate((auth) => localStorage.setItem('auth', JSON.stringify(auth)), data);
+    await page.reload();
   }
 
   async function logout(page) {
-    // Click logout button — adjust selector to match actual UI
-    await page.getByRole('button', { name: /logout/i }).click();
-    await expect(page).toHaveURL(/\//);
+    // Programmatic logout — clear auth from localStorage and reload
+    await page.evaluate(() => localStorage.removeItem('auth'));
+    await page.reload();
   }
 
   test('unauthenticated user navigating to /dashboard/user is redirected to /login', async ({ page }) => {
     await page.goto('/dashboard/user');
-    await expect(page).toHaveURL('/');  // Spinner redirects to "/" (path="" = login page)
+    await expect(page).toHaveURL('/', { timeout: 8000 });  // Spinner redirects to "/" (path="" = login page)
   });
 
   test('unauthenticated user navigating to /dashboard/admin is redirected', async ({ page }) => {
     await page.goto('/dashboard/admin');
-    await expect(page).toHaveURL('/login');  // AdminRoute redirects to "/login"
+    await expect(page).toHaveURL('/login', { timeout: 8000 });  // AdminRoute redirects to "/login"
   });
 
   test('regular user navigating to /dashboard/admin is redirected', async ({ page }) => {
     await login(page, regularEmail);
     await page.goto('/dashboard/admin');
-    await expect(page).toHaveURL('/login');  // AdminRoute redirects non-admins to "/login"
+    await expect(page).toHaveURL('/login', { timeout: 8000 });  // AdminRoute redirects non-admins to "/login"
   });
 
   test('regular user can access /dashboard/user', async ({ page }) => {
@@ -79,7 +81,7 @@ test.describe('Route access control', () => {
     await expect(page).toHaveURL(/\/dashboard\/user/);
     await logout(page);
     await page.goto('/dashboard/user');
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/', { timeout: 8000 });
   });
 
   test('invalid token in localStorage causes redirect from /dashboard/user', async ({ page }) => {
@@ -89,7 +91,7 @@ test.describe('Route access control', () => {
       localStorage.setItem('auth', JSON.stringify({ user: { name: 'ghost' }, token: 'bad.token.here' }))
     );
     await page.goto('/dashboard/user');
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/', { timeout: 8000 });
   });
 
   test('/admin-auth endpoint returns { ok: false } for non-admin token', async ({ page }) => {

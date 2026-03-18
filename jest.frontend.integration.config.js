@@ -27,4 +27,11 @@ export default {
     ...base.moduleNameMapper,
     '^until-async$': '<rootDir>/client/src/__tests__/integration/__mocks__/until-async.js',
   },
+  setupFilesAfterEnv: [
+    ...(base.setupFilesAfterEnv || []),
+    '<rootDir>/client/src/__tests__/integration/silenceConsole.js',
+  ],
+  // MSW keeps internal handles open after server.close(); force-exit prevents
+  // the "worker process failed to exit gracefully" warning.
+  forceExit: true,
 };
