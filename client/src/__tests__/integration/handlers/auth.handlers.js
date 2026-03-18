@@ -1,6 +1,7 @@
 // Reusable MSW handlers for auth-related endpoints.
 import { http, HttpResponse } from 'msw';
 
+// LOW WEI SHENG, A0259272X
 export const mockOrder = (overrides = {}) => ({
   _id: 'order-id-1',
   status: 'Not Process',
@@ -18,18 +19,22 @@ export const mockOrder = (overrides = {}) => ({
   ...overrides,
 });
 
+// LOW WEI SHENG, A0259272X
 export const ordersHandlers = (orders = [mockOrder()]) => [
   http.get('/api/v1/auth/orders', () => HttpResponse.json(orders)),
 ];
 
+// LOW WEI SHENG, A0259272X
 export const userAuthHandlers = (ok = true) => [
   http.get('/api/v1/auth/user-auth', () => HttpResponse.json({ ok })),
 ];
 
+// LOW WEI SHENG, A0259272X
 export const adminAuthHandlers = (ok = true) => [
   http.get('/api/v1/auth/admin-auth', () => HttpResponse.json({ ok })),
 ];
 
+// LOW WEI SHENG, A0259272X
 export const mockUpdatedUser = (overrides = {}) => ({
   _id: 'user-id-1',
   name: 'Test User',
@@ -39,14 +44,17 @@ export const mockUpdatedUser = (overrides = {}) => ({
   ...overrides,
 });
 
+// LOW WEI SHENG, A0259272X
 export const profileUpdateHandlers = (updatedUser = mockUpdatedUser()) => [
   http.put('/api/v1/auth/profile', () => HttpResponse.json({ updatedUser })),
 ];
 
+// LOW WEI SHENG, A0259272X
 export const allOrdersHandlers = (orders = [mockOrder()]) => [
   http.get('/api/v1/auth/all-orders', () => HttpResponse.json(orders)),
 ];
 
+// LOW WEI SHENG, A0259272X
 export const orderStatusHandlers = (orderId = ':orderId', updatedOrder = {}) => [
   http.put(`/api/v1/auth/order-status/${orderId}`, () =>
     HttpResponse.json({ ...mockOrder(), ...updatedOrder })

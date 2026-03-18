@@ -11,6 +11,7 @@ test.describe('Route access control', () => {
   let adminEmail: string;
   const password = 'testpass123';
 
+  // LOW WEI SHENG, A0259272X
   test.beforeAll(async () => {
     await connectTestDB();
     await clearTestCollections();
@@ -20,11 +21,13 @@ test.describe('Route access control', () => {
     adminEmail = admin.email;
   });
 
+  // LOW WEI SHENG, A0259272X
   test.afterAll(async () => {
     await clearTestCollections();
     await disconnectTestDB();
   });
 
+  // LOW WEI SHENG, A0259272X
   async function login(page, email: string) {
     const res = await page.request.post('http://localhost:6060/api/v1/auth/login', {
       data: { email, password },
@@ -35,6 +38,7 @@ test.describe('Route access control', () => {
     await page.reload();
   }
 
+  // LOW WEI SHENG, A0259272X
   async function logout(page) {
     // Programmatic logout — clear auth from localStorage and reload
     await page.evaluate(() => localStorage.removeItem('auth'));

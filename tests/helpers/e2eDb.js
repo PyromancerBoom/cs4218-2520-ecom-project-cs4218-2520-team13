@@ -8,16 +8,19 @@ import productModel from '../../models/productModel.js';
 
 const TEST_DB_URL = process.env.MONGO_URL || 'mongodb://localhost:27017/ecom-test';
 
+// LOW WEI SHENG, A0259272X
 export const connectTestDB = async () => {
   if (mongoose.connection.readyState === 0) {
     await mongoose.connect(TEST_DB_URL);
   }
 };
 
+// LOW WEI SHENG, A0259272X
 export const disconnectTestDB = async () => {
   await mongoose.disconnect();
 };
 
+// LOW WEI SHENG, A0259272X
 export const clearTestCollections = async () => {
   await Promise.all([
     userModel.deleteMany({}),
@@ -26,6 +29,7 @@ export const clearTestCollections = async () => {
   ]);
 };
 
+// LOW WEI SHENG, A0259272X
 export const seedUser = async (overrides = {}) => {
   const plainPassword = overrides.plainPassword || 'password123';
   const hashed = await bcrypt.hash(plainPassword, 10);
@@ -42,10 +46,12 @@ export const seedUser = async (overrides = {}) => {
   return { user, plainPassword };
 };
 
+// LOW WEI SHENG, A0259272X
 export const seedAdmin = async (overrides = {}) => {
   return seedUser({ role: 1, name: 'E2E Admin', ...overrides });
 };
 
+// LOW WEI SHENG, A0259272X
 export const seedProduct = async (overrides = {}) => {
   return productModel.create({
     name: 'E2E Product',
@@ -58,6 +64,7 @@ export const seedProduct = async (overrides = {}) => {
   });
 };
 
+// LOW WEI SHENG, A0259272X
 export const seedOrder = async (overrides = {}) => {
   return orderModel.create({
     products: [],

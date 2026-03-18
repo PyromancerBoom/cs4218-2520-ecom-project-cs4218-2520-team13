@@ -11,6 +11,7 @@ test.describe('Admin order status management', () => {
   let adminEmail: string;
   const adminPassword = 'admin123';
 
+  // LOW WEI SHENG, A0259272X
   test.beforeAll(async () => {
     await connectTestDB();
     await clearTestCollections();
@@ -18,11 +19,13 @@ test.describe('Admin order status management', () => {
     adminEmail = admin.email;
   });
 
+  // LOW WEI SHENG, A0259272X
   test.afterAll(async () => {
     await clearTestCollections();
     await disconnectTestDB();
   });
 
+  // LOW WEI SHENG, A0259272X
   // Helper: log in as admin programmatically (API call → localStorage → reload)
   async function loginAsAdmin(page) {
     const res = await page.request.post('http://localhost:6060/api/v1/auth/login', {
@@ -34,6 +37,7 @@ test.describe('Admin order status management', () => {
     await page.reload();
   }
 
+  // LOW WEI SHENG, A0259272X
   // Helper: select an Ant Design Select option by clicking the selector then the option text
   async function selectAntOption(page, selectorLocator, optionText: string) {
     // Wait for the selector to be visible and stable (orders may still be loading)
@@ -63,6 +67,7 @@ test.describe('Admin order status management', () => {
   test.describe('status update — isolated mutation tests (tests 2 and 3)', () => {
     let isolatedOrderId: string;
 
+    // LOW WEI SHENG, A0259272X
     test.beforeEach(async () => {
       const { user: buyer } = await seedUser();
       const product = await seedProduct();
@@ -70,6 +75,7 @@ test.describe('Admin order status management', () => {
       isolatedOrderId = order._id.toString();
     });
 
+    // LOW WEI SHENG, A0259272X
     test.afterEach(async () => {
       await mongoose.model('Order').findByIdAndDelete(isolatedOrderId);
     });

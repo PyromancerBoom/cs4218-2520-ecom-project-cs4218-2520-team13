@@ -10,6 +10,7 @@ test.describe('User order history', () => {
   const userPassword = 'userpass123';
   let userEmail: string;
 
+  // LOW WEI SHENG, A0259272X
   test.beforeAll(async () => {
     await connectTestDB();
     await clearTestCollections();
@@ -47,11 +48,13 @@ test.describe('User order history', () => {
     });
   });
 
+  // LOW WEI SHENG, A0259272X
   test.afterAll(async () => {
     await clearTestCollections();
     await disconnectTestDB();
   });
 
+  // LOW WEI SHENG, A0259272X
   async function loginAsUser(page) {
     const res = await page.request.post('http://localhost:6060/api/v1/auth/login', {
       data: { email: userEmail, password: userPassword },
