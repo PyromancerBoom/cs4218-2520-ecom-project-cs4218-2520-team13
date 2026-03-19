@@ -1,30 +1,37 @@
-import { defineConfig, devices } from '@playwright/test';
+const { defineConfig } = require("@playwright/test");
 
-export default defineConfig({
-  testDir: './tests/e2e',
-  fullyParallel: false, // sequential to avoid DB conflicts between specs
-  retries: process.env.CI ? 2 : 0,
+module.exports = defineConfig({
+  testDir: "./tests/e2e",
+  timeout: 60000,
+  expect: { timeout: 10000 },
+  fullyParallel: false,
+  retries: 0,
   workers: 1,
-  reporter: 'html',
+  reporter: "list",
   use: {
-    baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry',
+    baseURL: "http://localhost:3000",
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: "chromium",
+      use: { browserName: "chromium" },
+    },
   ],
+  globalSetup: "./tests/setup/global-setup.js",
+  globalTeardown: "./tests/setup/global-teardown.js",
   webServer: [
     {
-      command: 'cross-env NODE_ENV=production MONGO_URL=mongodb://localhost:27017/ecom-test node server.js',
-      url: 'http://localhost:6060/api/v1/auth/user-auth',
+      command:
+        "npx cross-env MONGO_URL=mongodb://localhost:27017/ecommerce_e2e node server.js",
+      port: 6060,
       reuseExistingServer: !process.env.CI,
-      timeout: 30_000,
     },
     {
-      command: 'cross-env REACT_APP_API=http://localhost:6060 npm start --prefix client',
-      url: 'http://localhost:3000',
+      command: "npm start --prefix ./client",
+      url: "http://localhost:3000",
       reuseExistingServer: !process.env.CI,
-      timeout: 120_000,
     },
   ],
 });

@@ -38,7 +38,7 @@ const Orders = () => {
                         <th scope="col">#</th>
                         <th scope="col">Status</th>
                         <th scope="col">Buyer</th>
-                        <th scope="col"> date</th>
+                        <th scope="col">Date</th>
                         <th scope="col">Payment</th>
                         <th scope="col">Quantity</th>
                       </tr>
@@ -48,7 +48,7 @@ const Orders = () => {
                         <td>{i + 1}</td>
                         <td>{o?.status}</td>
                         <td>{o?.buyer?.name}</td>
-                        <td>{moment(o?.createAt).fromNow()}</td>
+                        <td>{moment(o?.createdAt).fromNow()}</td>
                         <td>{o?.payment.success ? "Success" : "Failed"}</td>
                         <td>{o?.products?.length}</td>
                       </tr>
@@ -57,16 +57,16 @@ const Orders = () => {
                   <div className="container">
                     {o?.products?.map((p, i) => (
                       <div className="row mb-2 p-3 card flex-row" key={p._id}>
-                        <div className="col-md-4">
+                        <div className="col-auto">
                           <img
                             src={`/api/v1/product/product-photo/${p._id}`}
-                            className="card-img-top"
                             alt={p.name}
-                            width="100px"
-                            height={"100px"}
+                            width="150px"
+                            height={"150px"}
+                            style={{ objectFit: "cover" }}
                           />
                         </div>
-                        <div className="col-md-8">
+                        <div className="col">
                           <p>{p.name}</p>
                           <p>{p.description.substring(0, 30)}</p>
                           <p>Price : {p.price}</p>

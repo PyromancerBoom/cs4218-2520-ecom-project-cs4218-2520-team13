@@ -5,9 +5,13 @@ export default {
   // when testing backend
   testEnvironment: "node",
 
-  // which test to run - all backend tests, excluding client and node_modules
+  // set dummy env vars
+  setupFiles: ["<rootDir>/testUtils/envSetup.js"],
+
+  // which test to run - all backend tests, excluding client, node_modules,
+  // and tests/integration (those run via jest.integration.config.js)
   testMatch: ["<rootDir>/**/*.test.js"],
-  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/client/", "<rootDir>/tests/e2e/"],
+  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/client/", "<rootDir>/tests/"],
 
   // jest code coverage
   collectCoverage: true,

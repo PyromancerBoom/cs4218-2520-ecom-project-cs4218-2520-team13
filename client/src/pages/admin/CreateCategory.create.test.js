@@ -23,6 +23,9 @@ jest.mock("../../components/Form/CategoryForm", () =>
     )
 );
 jest.mock("antd", () => ({ Modal: ({ children, visible }) => visible ? <div data-testid="modal">{children}</div> : null }));
+jest.mock("../../context/auth", () => ({
+    useAuth: jest.fn(() => [{ user: { name: "Admin", role: 1 }, token: "admin-token" }, jest.fn()]),
+}));
 
 
 // Priyansh Bimbisariye, A0265903B

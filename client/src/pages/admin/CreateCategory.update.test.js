@@ -46,6 +46,9 @@ jest.mock("antd", () => ({
         </div>
     ) : null
 }));
+jest.mock("../../context/auth", () => ({
+    useAuth: jest.fn(() => [{ user: { name: "Admin", role: 1 }, token: "admin-token" }, jest.fn()]),
+}));
 
 
 // Priyansh Bimbisariye, A0265903B
