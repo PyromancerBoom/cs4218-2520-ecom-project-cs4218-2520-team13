@@ -8,10 +8,10 @@ export default {
   // set dummy env vars
   setupFiles: ["<rootDir>/testUtils/envSetup.js"],
 
-  // which test to run - all backend tests, excluding client, node_modules,
-  // and tests/integration (those run via jest.integration.config.js)
+  // which test to run - backend unit tests + backend integration tests in tests/integration/
+  // excludes client/ (frontend, handled by jest.frontend.config.js)
   testMatch: ["<rootDir>/**/*.test.js"],
-  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/client/", "<rootDir>/tests/"],
+  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/client/"],
 
   // jest code coverage
   collectCoverage: true,
