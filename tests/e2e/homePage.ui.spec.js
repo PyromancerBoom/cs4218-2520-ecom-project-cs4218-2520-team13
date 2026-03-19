@@ -36,6 +36,7 @@ let combinedPriceRange = null;
 test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
   test.beforeAll(async () => {
     await connectTestDB();
+    await clearTestCollections();
     const category = await seedCategory({ name: "Home Test Category", slug: "home-test-category" });
     // Two products in different price ranges so filter tests run rather than being skipped
     await seedProduct({ name: "Home Test Product 1", slug: "home-test-product-1", price: 9.99, category: category._id });

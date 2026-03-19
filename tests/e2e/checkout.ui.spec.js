@@ -58,6 +58,7 @@ test.describe("Checkout and Payment Flow - E2E UI Tests", () => {
 
   test.beforeAll(async () => {
     await connectTestDB();
+    await clearTestCollections();
     await seedProduct({ name: "Checkout Test Product 1", slug: "checkout-test-product-1", price: 9.99 });
     await seedProduct({ name: "Checkout Test Product 2", slug: "checkout-test-product-2", price: 19.99 });
   });

@@ -37,6 +37,7 @@ async function registerUser(page, userData) {
 test.describe("Cart Page UI Tests", () => {
   test.beforeAll(async () => {
     await connectTestDB();
+    await clearTestCollections();
     await seedProduct({ name: "Cart Test Product 1", slug: "cart-test-product-1", price: 9.99 });
     await seedProduct({ name: "Cart Test Product 2", slug: "cart-test-product-2", price: 19.99 });
   });
