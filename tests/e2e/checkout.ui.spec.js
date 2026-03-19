@@ -15,7 +15,6 @@ const TEST_USER = {
   password: "Test@1234",
   phone: "91234567",
   address: "10 Checkout Street",
-  dob: "2000-01-01",
   answer: "Football",
 };
 
@@ -23,11 +22,10 @@ const TEST_USER = {
 async function registerUser(page, userData) {
   await page.goto(`${BASE_URL}/register`, { waitUntil: "domcontentloaded" });
   await page.getByPlaceholder("Enter Your Name").fill(userData.name);
-  await page.getByPlaceholder("Enter Your Email ").fill(userData.email);
+  await page.getByPlaceholder("Enter Your Email").fill(userData.email);
   await page.getByPlaceholder("Enter Your Password").fill(userData.password);
   await page.getByPlaceholder("Enter Your Phone").fill(userData.phone);
   await page.getByPlaceholder("Enter Your Address").fill(userData.address);
-  await page.getByPlaceholder("Enter Your DOB").fill(userData.dob);
   await page.getByPlaceholder("What is Your Favorite sports").fill(userData.answer);
   await page.getByRole("button", { name: "REGISTER" }).click();
   await page.waitForURL("**/login", { timeout: 10000, waitUntil: "domcontentloaded" });
@@ -35,7 +33,7 @@ async function registerUser(page, userData) {
 
 async function loginUser(page, email, password) {
   await page.goto(`${BASE_URL}/login`, { waitUntil: "domcontentloaded" });
-  await page.getByPlaceholder("Enter Your Email ").fill(email);
+  await page.getByPlaceholder("Enter Your Email").fill(email);
   await page.getByPlaceholder("Enter Your Password").fill(password);
   await page.getByRole("button", { name: "LOGIN" }).click();
   await page.waitForURL((url) => !url.pathname.includes("/login"), {
@@ -63,7 +61,6 @@ test.describe("Checkout and Payment Flow - E2E UI Tests", () => {
         password: TEST_USER.password,
         phone: TEST_USER.phone,
         address: TEST_USER.address,
-        DOB: TEST_USER.dob,
         answer: TEST_USER.answer,
       },
     });

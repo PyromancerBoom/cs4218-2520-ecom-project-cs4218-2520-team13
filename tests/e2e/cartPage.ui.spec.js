@@ -24,7 +24,6 @@ async function registerUser(page, userData) {
   await page.getByPlaceholder("Enter Your Password").fill(userData.password);
   await page.getByPlaceholder("Enter Your Phone").fill(userData.phone);
   await page.getByPlaceholder("Enter Your Address").fill(userData.address);
-  await page.getByPlaceholder("Enter Your DOB").fill(userData.dob);
   await page
     .getByPlaceholder("What is Your Favorite sports")
     .fill(userData.answer);
@@ -378,7 +377,6 @@ test.describe("Cart Page UI Tests", () => {
           password: testUserPassword,
           phone: "1234567890",
           address: "123 Test Street, Test City",
-          dob: "2000-01-01",
           answer: "cricket",
         });
       } catch (e) {
@@ -489,7 +487,6 @@ test.describe("Cart Page UI Tests", () => {
         password,
         phone: "9876543210",
         address: "456 Redirect St",
-        dob: "1999-06-15",
         answer: "football",
       });
 

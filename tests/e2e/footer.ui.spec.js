@@ -10,8 +10,7 @@ const BASE_URL = "http://localhost:3000";
 
 
 async function gotoHome(page) {
-  await page.goto(BASE_URL);
-  await page.waitForLoadState("domcontentloaded");
+  await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
 }
 
 test.describe("Footer - Navigation Links UI Tests", () => {

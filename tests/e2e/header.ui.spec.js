@@ -37,7 +37,7 @@ async function injectAuth(page, user, token = "fake-ui-test-token") {
 
 async function loginUser(page, email, password) {
   await page.goto(`${BASE_URL}/login`);
-  await page.getByPlaceholder("Enter Your Email ").fill(email);
+  await page.getByPlaceholder("Enter Your Email").fill(email);
   await page.getByPlaceholder("Enter Your Password").fill(password);
   await page.getByRole("button", { name: "LOGIN" }).click();
   await page.waitForURL((url) => !url.pathname.includes("/login"), {
@@ -276,7 +276,7 @@ test.describe("Header - Authentication and Navigation UI Tests", () => {
       page,
     }) => {
       await page.goto(`${BASE_URL}/login`);
-      await page.getByPlaceholder("Enter Your Email ").fill(TEST_USER.email);
+      await page.getByPlaceholder("Enter Your Email").fill(TEST_USER.email);
       await page
         .getByPlaceholder("Enter Your Password")
         .fill(TEST_USER.password);
@@ -361,7 +361,7 @@ test.describe("Header - Authentication and Navigation UI Tests", () => {
     }) => {
       await page.goto(`${BASE_URL}/login`);
       await page
-        .getByPlaceholder("Enter Your Email ")
+        .getByPlaceholder("Enter Your Email")
         .fill("nonexistent@test.com");
       await page.getByPlaceholder("Enter Your Password").fill("WrongPass!");
       await page.getByRole("button", { name: "LOGIN" }).click();

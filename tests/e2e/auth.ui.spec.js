@@ -15,18 +15,16 @@ const TEST_USER = {
   password: "Test@1234",
   phone: "91234567",
   address: "10 Auth Street",
-  dob: "2000-01-01",
   answer: "Football",
 };
 
 async function fillRegisterForm(page, userData) {
   await page.goto(`${BASE_URL}/register`, { waitUntil: "domcontentloaded" });
   await page.getByPlaceholder("Enter Your Name").fill(userData.name);
-  await page.getByPlaceholder("Enter Your Email ").fill(userData.email);
+  await page.getByPlaceholder("Enter Your Email").fill(userData.email);
   await page.getByPlaceholder("Enter Your Password").fill(userData.password);
   await page.getByPlaceholder("Enter Your Phone").fill(userData.phone);
   await page.getByPlaceholder("Enter Your Address").fill(userData.address);
-  await page.getByPlaceholder("Enter Your DOB").fill(userData.dob);
   await page.getByPlaceholder("What is Your Favorite sports").fill(userData.answer);
 }
 
@@ -36,7 +34,7 @@ async function submitRegisterForm(page) {
 
 async function fillLoginForm(page, email, password) {
   await page.goto(`${BASE_URL}/login`, { waitUntil: "domcontentloaded" });
-  await page.getByPlaceholder("Enter Your Email ").fill(email);
+  await page.getByPlaceholder("Enter Your Email").fill(email);
   await page.getByPlaceholder("Enter Your Password").fill(password);
 }
 
@@ -51,11 +49,10 @@ test.describe("User Registration and Login Flow - E2E UI Tests", () => {
     test("should display the register form with all required fields", async ({ page }) => {
       await page.goto(`${BASE_URL}/register`, { waitUntil: "domcontentloaded" });
       await expect(page.getByPlaceholder("Enter Your Name")).toBeVisible();
-      await expect(page.getByPlaceholder("Enter Your Email ")).toBeVisible();
+      await expect(page.getByPlaceholder("Enter Your Email")).toBeVisible();
       await expect(page.getByPlaceholder("Enter Your Password")).toBeVisible();
       await expect(page.getByPlaceholder("Enter Your Phone")).toBeVisible();
       await expect(page.getByPlaceholder("Enter Your Address")).toBeVisible();
-      await expect(page.getByPlaceholder("Enter Your DOB")).toBeVisible();
       await expect(page.getByPlaceholder("What is Your Favorite sports")).toBeVisible();
       await expect(page.getByRole("button", { name: "REGISTER" })).toBeVisible();
     });
@@ -94,17 +91,16 @@ test.describe("User Registration and Login Flow - E2E UI Tests", () => {
       await fillRegisterForm(page, dupUser);
       await submitRegisterForm(page);
       await expect(page).toHaveURL(/\/register/, { timeout: 5000 });
-      await expect(page.getByText(/Already Register please login/i)).toBeVisible({ timeout: 8000 });
+      await expect(page.getByText(/Already registered please login/i)).toBeVisible({ timeout: 8000 });
     });
 
     //Aashim Mahindroo, A0265890R
     test("should not submit form when required Name field is empty", async ({ page }) => {
       await page.goto(`${BASE_URL}/register`, { waitUntil: "domcontentloaded" });
-      await page.getByPlaceholder("Enter Your Email ").fill(TEST_USER.email);
+      await page.getByPlaceholder("Enter Your Email").fill(TEST_USER.email);
       await page.getByPlaceholder("Enter Your Password").fill(TEST_USER.password);
       await page.getByPlaceholder("Enter Your Phone").fill(TEST_USER.phone);
       await page.getByPlaceholder("Enter Your Address").fill(TEST_USER.address);
-      await page.getByPlaceholder("Enter Your DOB").fill(TEST_USER.dob);
       await page.getByPlaceholder("What is Your Favorite sports").fill(TEST_USER.answer);
       await submitRegisterForm(page);
       await expect(page).toHaveURL(/\/register/);
@@ -117,7 +113,6 @@ test.describe("User Registration and Login Flow - E2E UI Tests", () => {
       await page.getByPlaceholder("Enter Your Password").fill(TEST_USER.password);
       await page.getByPlaceholder("Enter Your Phone").fill(TEST_USER.phone);
       await page.getByPlaceholder("Enter Your Address").fill(TEST_USER.address);
-      await page.getByPlaceholder("Enter Your DOB").fill(TEST_USER.dob);
       await page.getByPlaceholder("What is Your Favorite sports").fill(TEST_USER.answer);
       await submitRegisterForm(page);
       await expect(page).toHaveURL(/\/register/);
@@ -127,10 +122,9 @@ test.describe("User Registration and Login Flow - E2E UI Tests", () => {
     test("should not submit form when required Password field is empty", async ({ page }) => {
       await page.goto(`${BASE_URL}/register`, { waitUntil: "domcontentloaded" });
       await page.getByPlaceholder("Enter Your Name").fill(TEST_USER.name);
-      await page.getByPlaceholder("Enter Your Email ").fill(TEST_USER.email);
+      await page.getByPlaceholder("Enter Your Email").fill(TEST_USER.email);
       await page.getByPlaceholder("Enter Your Phone").fill(TEST_USER.phone);
       await page.getByPlaceholder("Enter Your Address").fill(TEST_USER.address);
-      await page.getByPlaceholder("Enter Your DOB").fill(TEST_USER.dob);
       await page.getByPlaceholder("What is Your Favorite sports").fill(TEST_USER.answer);
       await submitRegisterForm(page);
       await expect(page).toHaveURL(/\/register/);
@@ -146,7 +140,6 @@ test.describe("User Registration and Login Flow - E2E UI Tests", () => {
           password: TEST_USER.password,
           phone: TEST_USER.phone,
           address: TEST_USER.address,
-          DOB: TEST_USER.dob,
           answer: TEST_USER.answer,
         },
       });
@@ -155,7 +148,7 @@ test.describe("User Registration and Login Flow - E2E UI Tests", () => {
     //Aashim Mahindroo, A0265890R
     test("should display the login form with email, password fields and LOGIN button", async ({ page }) => {
       await page.goto(`${BASE_URL}/login`, { waitUntil: "domcontentloaded" });
-      await expect(page.getByPlaceholder("Enter Your Email ")).toBeVisible();
+      await expect(page.getByPlaceholder("Enter Your Email")).toBeVisible();
       await expect(page.getByPlaceholder("Enter Your Password")).toBeVisible();
       await expect(page.getByRole("button", { name: "LOGIN" })).toBeVisible();
     });
@@ -236,14 +229,15 @@ test.describe("User Registration and Login Flow - E2E UI Tests", () => {
       await fillLoginForm(page, "nonexistent@test.com", "WrongPass999!");
       await submitLoginForm(page);
       await expect(page).toHaveURL(/\/login/, { timeout: 5000 });
-      await expect(page.getByText(/Something went wrong|Invalid|wrong/i)).toBeVisible({ timeout: 8000 });
+      await expect(page.getByText(/Email is not registered|Invalid email or password|Something went wrong/i)).toBeVisible({ timeout: 8000 });
     });
 
     //Aashim Mahindroo, A0265890R
     test("should stay on /login and show error toast for wrong password", async ({ page }) => {
       await fillLoginForm(page, TEST_USER.email, "WrongPassword999!");
       await submitLoginForm(page);
-      await expect(page).toHaveURL(/\/login/, { timeout: 5000 });
+      await page.waitForTimeout(2000);
+      await expect(page).toHaveURL(/\/login/);
     });
   });
 
@@ -261,7 +255,7 @@ test.describe("User Registration and Login Flow - E2E UI Tests", () => {
       await page.waitForURL("**/login", { timeout: 10000, waitUntil: "domcontentloaded" });
       await expect(page).toHaveURL(/\/login/);
 
-      await page.getByPlaceholder("Enter Your Email ").fill(flowUser.email);
+      await page.getByPlaceholder("Enter Your Email").fill(flowUser.email);
       await page.getByPlaceholder("Enter Your Password").fill(flowUser.password);
       await submitLoginForm(page);
       await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 10000, waitUntil: "domcontentloaded" });

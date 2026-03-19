@@ -4,7 +4,7 @@ export default {
 
   // simulates browser environment in jest
   // e.g., using document.querySelector in your tests
-  testEnvironment: "jest-fixed-jsdom",
+  testEnvironment: "jest-environment-jsdom",
 
   // jest does not recognise jsx files by default, so we use babel to transform any jsx files
   transform: {
@@ -25,7 +25,6 @@ export default {
   testPathIgnorePatterns: [
     "/node_modules/",
     "<rootDir>/client/src/_site/",
-    "/client/src/__tests__/integration/",
   ],
 
   // jest code coverage
