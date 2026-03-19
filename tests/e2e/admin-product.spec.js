@@ -44,6 +44,29 @@ async function fillAndCreateProduct(
 // Priyansh Bimbisariye, A0265903B
 test.describe("Admin Product Management", () => {
   // Priyansh Bimbisariye, A0265903B
+  test.beforeAll(async () => {
+    const {
+      connectTestDB, seedAdmin, seedCategory, seedProduct,
+    } = await import("../helpers/e2eDb.js");
+    await connectTestDB();
+    await seedAdmin({ email: "admin@admin.com", plainPassword: "admin", name: "Admin" });
+    const category = await seedCategory({ name: "Test Category", slug: "test-category" });
+    await seedProduct({
+      name: "Seeded Test Product",
+      slug: "seeded-test-product",
+      description: "A seeded product for E2E testing",
+      category: category._id,
+    });
+  });
+
+  // Priyansh Bimbisariye, A0265903B
+  test.afterAll(async () => {
+    const { clearTestCollections, disconnectTestDB } = await import("../helpers/e2eDb.js");
+    await clearTestCollections();
+    await disconnectTestDB();
+  });
+
+  // Priyansh Bimbisariye, A0265903B
   test.beforeEach(async ({ page }) => {
     await page.goto("/login");
     await page.getByRole("textbox", { name: "Email" }).fill("admin@admin.com");
