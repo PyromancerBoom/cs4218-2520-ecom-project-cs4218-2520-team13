@@ -70,7 +70,7 @@ export const seedOrder = async (overrides = {}) => {
         products: [],
         payment: { success: true },
         buyer: new mongoose.Types.ObjectId(),
-        status: 'Not Process',
+        status: 'Not Processed',
         ...overrides,
     });
 };
