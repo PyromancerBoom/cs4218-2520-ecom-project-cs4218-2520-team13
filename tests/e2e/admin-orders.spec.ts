@@ -52,11 +52,11 @@ test.describe('Admin order status management', () => {
   test('admin sees order list on /dashboard/admin/orders', async ({ page }) => {
     const { user: buyer } = await seedUser({ email: 'buyer-read@e2e.test' });
     const product = await seedProduct();
-    const order = await seedOrder({ buyer: buyer._id, products: [product._id], status: 'Not Process' });
+    const order = await seedOrder({ buyer: buyer._id, products: [product._id], status: 'Not Processed' });
 
     await loginAsAdmin(page);
     await page.goto('/dashboard/admin/orders');
-    await expect(page.getByText('Not Process')).toBeVisible();
+    await expect(page.getByText('Not Processed')).toBeVisible();
     await expect(page.getByText('E2E Product')).toBeVisible();
 
     // cleanup
@@ -71,7 +71,7 @@ test.describe('Admin order status management', () => {
     test.beforeEach(async () => {
       const { user: buyer } = await seedUser();
       const product = await seedProduct();
-      const order = await seedOrder({ buyer: buyer._id, products: [product._id], status: 'Not Process' });
+      const order = await seedOrder({ buyer: buyer._id, products: [product._id], status: 'Not Processed' });
       isolatedOrderId = order._id.toString();
     });
 
@@ -114,7 +114,7 @@ test.describe('Admin order status management', () => {
     test.beforeEach(async () => {
       const { user: buyer } = await seedUser();
       const product = await seedProduct();
-      const order = await seedOrder({ buyer: buyer._id, products: [product._id], status: 'Not Process' });
+      const order = await seedOrder({ buyer: buyer._id, products: [product._id], status: 'Not Processed' });
       mutationOrderId = order._id.toString();
     });
 
@@ -122,15 +122,15 @@ test.describe('Admin order status management', () => {
       await mongoose.model('Order').findByIdAndDelete(mutationOrderId);
     });
 
-    for (const status of ['Not Process', 'Processing', 'Shipped', 'delivered', 'cancel']) {
+    for (const status of ['Not Processed', 'Processing', 'Shipped', 'Delivered', 'Cancel']) {
       // LOW WEI SHENG, A0259272X
       test(`status "${status}" can be set and persists`, async ({ page }) => {
         await loginAsAdmin(page);
         await page.goto('/dashboard/admin/orders');
-        // Order is seeded with 'Not Process'; if target is also 'Not Process' the
+        // Order is seeded with 'Not Processed'; if target is also 'Not Processed' the
         // Select won't fire onChange (same value). Change away first so the PUT fires.
         const selectorLocator = page.locator('.ant-select-selector').last();
-        if (status === 'Not Process') {
+        if (status === 'Not Processed') {
           await selectAntOption(page, selectorLocator, 'Processing');
           await page.waitForResponse(
             r => r.url().includes('/order-status/') && r.request().method() === 'PUT'
@@ -196,7 +196,7 @@ test.describe('Admin order status management', () => {
   test('page does not crash when status update returns 500', async ({ page }) => {
     const { user: buyer } = await seedUser();
     const product = await seedProduct();
-    const order = await seedOrder({ buyer: buyer._id, products: [product._id], status: 'Not Process' });
+    const order = await seedOrder({ buyer: buyer._id, products: [product._id], status: 'Not Processed' });
 
     await loginAsAdmin(page);
     await page.goto('/dashboard/admin/orders');

@@ -21,16 +21,16 @@ app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
 
 app.get('/', (req, res) => {
-  res.send("<h1>Welcome to ecommerce app</h1>");
+    res.send("<h1>Welcome to ecommerce app</h1>");
 });
 
 const PORT = process.env.PORT || 6060;
 
 if (process.env.NODE_ENV !== 'test') {
-  connectDB();
-  app.listen(PORT, () => {
-    console.log(`Server running on ${process.env.DEV_MODE} mode on ${PORT}`.bgCyan.white);
-  });
+    connectDB();
+    app.listen(PORT, () => {
+        console.log(`Server running on ${process.env.DEV_MODE} mode on ${PORT}`.bgCyan.white);
+    });
 }
 
 export default app;

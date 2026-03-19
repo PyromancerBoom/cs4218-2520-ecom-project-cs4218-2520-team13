@@ -47,7 +47,7 @@ jest.mock('slugify', () => jest.fn((name) => `mocked-slug-${name}`));
 const slugify = require('slugify');
 
 //LOU,YING-WEN A0338250J
-const { createCategoryController, categoryControlller, singleCategoryController, deleteCategoryController, updateCategoryController } = require('./categoryController.js');
+const { createCategoryController, categoryController, singleCategoryController, deleteCategoryController, updateCategoryController } = require('./categoryController.js');
 
 // Priyansh Bimbisariye, A0265903B
 describe('createCategoryController', () => {
@@ -181,7 +181,7 @@ describe('createCategoryController', () => {
             // assert
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.body).toEqual({
-                success: true,
+                success: false,
                 message: "Category Already Exists",
             });
             expect(mockCategoryFindOne).toHaveBeenCalledWith({ name: "ExistingCategory" });
@@ -416,7 +416,7 @@ describe('createCategoryController', () => {
     });
 });
 
-describe('categoryControlller', () => {
+describe('categoryController', () => {
     let req, res;
 
     beforeEach(() => {
@@ -437,7 +437,7 @@ describe('categoryControlller', () => {
             const mockCategories = [{ name: "Tech", slug: "tech" }];
             mockCategoryFind.mockResolvedValue(mockCategories);
 
-            await categoryControlller(req, res);
+            await categoryController(req, res);
 
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.send).toHaveBeenCalledWith({
@@ -450,7 +450,7 @@ describe('categoryControlller', () => {
         //LOU,YING-WEN A0338250J
         it('should return 200 and an empty array when no categories exist', async () => {
             mockCategoryFind.mockResolvedValue([]);
-            await categoryControlller(req, res);
+            await categoryController(req, res);
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
                 success: true,
@@ -467,7 +467,7 @@ describe('categoryControlller', () => {
             mockCategoryFind.mockRejectedValue(mockError);
             const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
 
-            await categoryControlller(req, res);
+            await categoryController(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
             expect(res.send).toHaveBeenCalledWith(expect.objectContaining({

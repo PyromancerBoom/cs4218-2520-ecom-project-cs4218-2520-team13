@@ -1,14 +1,22 @@
 const React = require("react");
 global.React = React;
+
+jest.mock("react-hot-toast", () => ({
+    error: jest.fn(),
+    success: jest.fn(),
+}));
+
+jest.mock("axios");
+jest.mock("../../context/search");
+
 const { render, screen, fireEvent, waitFor } = require("@testing-library/react");
 const axios = require("axios");
 const { MemoryRouter } = require("react-router-dom");
 const SearchInput = require("./SearchInput").default;
 const { useSearch } = require("../../context/search");
-require("@testing-library/jest-dom");
+const toast = require("react-hot-toast");
 
-jest.mock("axios");
-jest.mock("../../context/search");
+require("@testing-library/jest-dom");
 
 const mockNavigate = jest.fn();
 jest.mock("react-router-dom", () => ({
@@ -16,11 +24,9 @@ jest.mock("react-router-dom", () => ({
     useNavigate: () => mockNavigate,
 }));
 
-
 describe("SearchInput Component Unit Test", () => {
     const mockSetValues = jest.fn();
     const mockValues = { keyword: "", results: [] };
-
     let consoleSpy;
 
     beforeEach(() => {
@@ -33,7 +39,6 @@ describe("SearchInput Component Unit Test", () => {
         consoleSpy.mockRestore();
     });
 
-    //LOU,YING-WEN A0338250J
     it("should update keyword value on input change", () => {
         render(
             <MemoryRouter>
@@ -50,11 +55,14 @@ describe("SearchInput Component Unit Test", () => {
         });
     });
 
-    //LOU,YING-WEN A0338250J
     it("should call API and navigate on successful submit", async () => {
         const mockResults = [{ _id: "1", name: "Laptop" }];
-        axios.get.mockResolvedValue({ data: mockResults });
+        axios.get.mockResolvedValue({
+            data: { results: mockResults }
+        });
+
         useSearch.mockReturnValue([{ keyword: "laptop", results: [] }, mockSetValues]);
+
         render(
             <MemoryRouter>
                 <SearchInput />
@@ -74,7 +82,6 @@ describe("SearchInput Component Unit Test", () => {
         });
     });
 
-    //LOU,YING-WEN A0338250J
     it("should handle API error gracefully", async () => {
         axios.get.mockRejectedValue(new Error("API Error"));
         useSearch.mockReturnValue([{ keyword: "error", results: [] }, mockSetValues]);
@@ -93,7 +100,6 @@ describe("SearchInput Component Unit Test", () => {
         });
     });
 
-    //LOU,YING-WEN A0338250J
     it("should have correct accessibility attributes and input type", () => {
         render(
             <MemoryRouter>
@@ -109,7 +115,6 @@ describe("SearchInput Component Unit Test", () => {
         expect(button).toHaveAttribute("type", "submit");
     });
 
-    //LOU,YING-WEN A0338250J
     it("should prevent default form submission behavior", () => {
         const { createEvent } = require("@testing-library/react");
 
@@ -127,9 +132,7 @@ describe("SearchInput Component Unit Test", () => {
         expect(submitEvent.preventDefault).toHaveBeenCalled();
     });
 
-    //LOU,YING-WEN A0338250J
-    it("should handle submission with an empty keyword correctly", async () => {
-        axios.get.mockResolvedValue({ data: [] });
+    test("should handle submission with an empty keyword correctly", async () => {
         useSearch.mockReturnValue([{ keyword: "", results: [] }, mockSetValues]);
 
         render(
@@ -138,12 +141,11 @@ describe("SearchInput Component Unit Test", () => {
             </MemoryRouter>
         );
 
-        const form = screen.getByRole("search");
-        fireEvent.submit(form);
+        const submitButton = screen.getByRole("button", { name: /search/i });
+        fireEvent.click(submitButton);
 
-        await waitFor(() => {
-            expect(axios.get).toHaveBeenCalledWith("/api/v1/product/search/");
-            expect(mockNavigate).toHaveBeenCalledWith("/search");
-        });
+        expect(axios.get).not.toHaveBeenCalled();
+        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(toast.error).toHaveBeenCalledWith("Please enter a keyword to search");
     });
 });

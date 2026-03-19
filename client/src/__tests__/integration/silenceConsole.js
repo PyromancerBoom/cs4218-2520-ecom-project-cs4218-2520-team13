@@ -1,7 +1,7 @@
 // Suppresses console.log and the React act() console.error warnings during
 // frontend integration tests. Keeps test output clean without hiding real failures.
 beforeAll(() => {
-  jest.spyOn(console, 'log').mockImplementation(() => {});
+  jest.spyOn(console, 'log').mockImplementation(() => { });
   jest.spyOn(console, 'error').mockImplementation((msg, ...args) => {
     // Let through anything that isn't a known noisy React/MSW warning
     if (
@@ -18,6 +18,10 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  console.log.mockRestore();
-  console.error.mockRestore();
+  if (jest.isMockFunction(console.log)) {
+    console.log.mockRestore();
+  }
+  if (jest.isMockFunction(console.error)) {
+    console.error.mockRestore();
+  }
 });

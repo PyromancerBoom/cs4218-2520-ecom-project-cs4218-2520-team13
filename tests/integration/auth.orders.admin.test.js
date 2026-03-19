@@ -149,7 +149,7 @@ describe('PUT /api/v1/auth/order-status/:orderId', () => {
     const { user: buyer } = await createUser();
     const product = await createProduct();
     const token = generateToken(admin._id);
-    const validStatuses = ['Not Process', 'Processing', 'Shipped', 'delivered', 'cancel'];
+    const validStatuses = ['Not Processed', 'Processing', 'Shipped', 'Delivered', 'Cancel'];
 
     for (const status of validStatuses) {
       const order = await createOrder({ buyer: buyer._id, products: [product._id] });

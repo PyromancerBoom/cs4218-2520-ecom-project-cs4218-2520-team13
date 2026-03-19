@@ -12,3 +12,5 @@ coverage/
 
 # Playwright
 /playwright/.auth/
+# SonarQube
+.scannerwork/

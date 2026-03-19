@@ -33,6 +33,7 @@ export default {
     "client/src/**/*.{js,jsx}",
     "!client/src/**/*.test.{js,jsx}",
     "!client/src/_site/**",
+    "!client/src/__tests__/**"
   ],
   setupFilesAfterEnv: ["<rootDir>/client/src/setupTests.js"],
 };
