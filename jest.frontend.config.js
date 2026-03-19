@@ -4,7 +4,7 @@ export default {
 
   // simulates browser environment in jest
   // e.g., using document.querySelector in your tests
-  testEnvironment: "jest-fixed-jsdom",
+  testEnvironment: "jest-environment-jsdom",
 
   // jest does not recognise jsx files by default, so we use babel to transform any jsx files
   transform: {
@@ -20,11 +20,11 @@ export default {
   transformIgnorePatterns: ["[/\\\\]node_modules[/\\\\](?!(styleMock\\.js|msw|@mswjs|until-async)[/\\\\])"],
 
   // run all frontend tests (exclude _site, which contains MarkBind-generated Vue files)
+  // client/src/__tests__/integration/ is picked up automatically by the client/src/** glob
   testMatch: ["<rootDir>/client/src/**/*.test.js"],
   testPathIgnorePatterns: [
     "/node_modules/",
     "<rootDir>/client/src/_site/",
-    "/client/src/__tests__/integration/",
   ],
 
   // jest code coverage
