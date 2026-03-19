@@ -5,7 +5,8 @@ export default {
   // when testing backend
   testEnvironment: "node",
 
-  // which test to run - all backend tests, excluding client and node_modules
+  // which test to run - backend unit tests + backend integration tests in tests/integration/
+  // excludes client/ (frontend, handled by jest.frontend.config.js)
   testMatch: ["<rootDir>/**/*.test.js"],
   testPathIgnorePatterns: ["/node_modules/", "<rootDir>/client/"],
 

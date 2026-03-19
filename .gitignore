@@ -5,7 +5,6 @@ node_modules
 /playwright/.cache/
 
 coverage/
-tests/
 .github/
 .env*
 
