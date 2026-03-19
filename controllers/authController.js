@@ -184,10 +184,10 @@ export const updateProfileController = async (req, res) => {
     const updatedUser = await userModel.findByIdAndUpdate(
       req.user._id,
       {
-        name: name ?? user.name,
+        name: name || user.name,
         password: hashedPassword || user.password,
-        phone: phone ?? user.phone,
-        address: address ?? user.address,
+        phone: phone || user.phone,
+        address: address || user.address,
       },
       { new: true }
     ).select("-password");
