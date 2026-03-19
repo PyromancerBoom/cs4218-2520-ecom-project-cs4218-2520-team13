@@ -176,6 +176,7 @@ export const updateProfileController = async (req, res) => {
   try {
     const { name, email, password, address, phone } = req.body;
     const user = await userModel.findById(req.user._id);
+    // LOW WEI SHENG, A0259272X
     if (!user) {
       return res.status(404).send({ success: false, message: "User not found" });
     }
