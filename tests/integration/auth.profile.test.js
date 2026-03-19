@@ -144,4 +144,18 @@ describe('PUT /api/v1/auth/profile', () => {
 
     expect(res.status).toBe(401);
   });
+
+  // LOW WEI SHENG, A0259272X
+  it('returns 404 when the token references a deleted user', async () => {
+    const { user } = await createUser();
+    const token = generateToken(user._id);
+    await userModel.findByIdAndDelete(user._id);
+
+    const res = await request(app)
+      .put('/api/v1/auth/profile')
+      .set('Authorization', token)
+      .send({ name: 'Ghost' });
+
+    expect(res.status).toBe(404);
+  });
 });

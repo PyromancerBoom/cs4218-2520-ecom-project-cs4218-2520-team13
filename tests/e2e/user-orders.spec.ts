@@ -29,15 +29,15 @@ test.describe('User order history', () => {
       buyer: user._id,
       products: [product1._id],
       payment: { success: true },
-      status: 'Not Process',
-      createAt: oneDayAgo,
+      status: 'Not Processed',
+      createdAt: oneDayAgo,
     });
     await seedOrder({
       buyer: user._id,
       products: [product2._id],
       payment: { success: false },
       status: 'Processing',
-      createAt: oneDayAgo,
+      createdAt: oneDayAgo,
     });
 
     // Other user's order — must NOT appear for our test user
@@ -72,7 +72,7 @@ test.describe('User order history', () => {
     await page.getByRole('link', { name: /orders/i }).click();
     await expect(page).toHaveURL(/orders/);
     // Both of the user's orders are visible
-    await expect(page.getByText('Not Process')).toBeVisible();
+    await expect(page.getByText('Not Processed')).toBeVisible();
     await expect(page.getByText('Processing')).toBeVisible();
   });
 
