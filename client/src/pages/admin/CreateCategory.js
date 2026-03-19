@@ -5,7 +5,10 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import CategoryForm from "../../components/Form/CategoryForm";
 import { Modal } from "antd";
+import { useAuth } from "../../context/auth";
+
 const CreateCategory = () => {
+  const [auth] = useAuth();
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
   const [visible, setVisible] = useState(false);
@@ -14,19 +17,24 @@ const CreateCategory = () => {
   //handle Form
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!name || name.trim() === "") {
+      toast.error("Category name is required");
+      return;
+    }
     try {
       const { data } = await axios.post("/api/v1/category/create-category", {
         name,
       });
-      if (data?.success) {
+      if (data?.success && data?.message !== "Category Already Exists") {
         toast.success(`${name} is created`);
+        setName("");
         getAllCategory();
       } else {
         toast.error(data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error("somthing went wrong in input form");
+      toast.error("Something went wrong in input form");
     }
   };
 
@@ -36,20 +44,26 @@ const CreateCategory = () => {
       const { data } = await axios.get("/api/v1/category/get-category");
       if (data.success) {
         setCategories(data.category);
+      } else {
+        toast.error(data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error("Something wwent wrong in getting catgeory");
+      toast.error("Something went wrong in getting category");
     }
   };
 
   useEffect(() => {
-    getAllCategory();
-  }, []);
+    if (auth?.token) getAllCategory();
+  }, [auth?.token]);
 
   //update category
   const handleUpdate = async (e) => {
     e.preventDefault();
+    if (!updatedName || updatedName.trim() === "") {
+      toast.error("Category name is required");
+      return;
+    }
     try {
       const { data } = await axios.put(
         `/api/v1/category/update-category/${selected._id}`,
@@ -65,24 +79,29 @@ const CreateCategory = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error("Somtihing went wrong");
+      toast.error("Something went wrong");
     }
   };
   //delete category
   const handleDelete = async (pId) => {
+    // Validate category ID
+    if (!pId || pId === undefined) {
+      toast.error("Invalid category ID");
+      return;
+    }
+
     try {
       const { data } = await axios.delete(
         `/api/v1/category/delete-category/${pId}`
       );
-      if (data.success) {
-        toast.success(`category is deleted`);
-
+      if (data?.success) {
+        toast.success(`Category is deleted`);
         getAllCategory();
       } else {
-        toast.error(data.message);
+        toast.error(data?.message || "Something went wrong");
       }
     } catch (error) {
-      toast.error("Somtihing went wrong");
+      toast.error("Something went wrong");
     }
   };
   return (
@@ -110,32 +129,30 @@ const CreateCategory = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {categories?.map((c) => (
-                    <>
-                      <tr>
-                        <td key={c._id}>{c.name}</td>
-                        <td>
-                          <button
-                            className="btn btn-primary ms-2"
-                            onClick={() => {
-                              setVisible(true);
-                              setUpdatedName(c.name);
-                              setSelected(c);
-                            }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-danger ms-2"
-                            onClick={() => {
-                              handleDelete(c._id);
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    </>
+                  {categories?.map((c, index) => (
+                    <tr key={c._id || index}>
+                      <td>{c.name}</td>
+                      <td>
+                        <button
+                          className="btn btn-primary ms-2"
+                          onClick={() => {
+                            setVisible(true);
+                            setUpdatedName(c.name);
+                            setSelected(c);
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="btn btn-danger ms-2"
+                          onClick={() => {
+                            handleDelete(c._id);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
                   ))}
                 </tbody>
               </table>

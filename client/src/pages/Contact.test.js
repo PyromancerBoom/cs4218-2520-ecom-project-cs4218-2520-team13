@@ -25,7 +25,7 @@ jest.mock("react-icons/bi", () => ({
     BiSupport: () => <span data-testid="support-icon" />,
 }));
 
-
+// Lim Yik Seng, A0338506B
 describe('Contact Page Unit Tests', () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -39,6 +39,7 @@ describe('Contact Page Unit Tests', () => {
         );
     };
 
+    // Lim Yik Seng, A0338506B
     it('should display the correct document title via Layout', async () => {
         renderSetup();
         // Verifying if Layout prop 'title' correctly updates document title
@@ -47,6 +48,7 @@ describe('Contact Page Unit Tests', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     it('should render the contact page heading and description', () => {
         // Act
         renderSetup();
@@ -56,6 +58,7 @@ describe('Contact Page Unit Tests', () => {
         expect(screen.getByText(/For any query or info about product, feel free to call anytime. We are available 24X7./i)).toBeInTheDocument();
     });
 
+    // Lim Yik Seng, A0338506B
     it("should display the contact image with correct attributes", () => {
         // Act
         renderSetup();
@@ -67,6 +70,7 @@ describe('Contact Page Unit Tests', () => {
         expect(contactImg).toHaveStyle({ width: "100%" });
     });
 
+    // Lim Yik Seng, A0338506B
     it("should display email, phone, and support info with their respective icons", () => {
         // Act
         renderSetup();

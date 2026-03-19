@@ -20,12 +20,4 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  /* Start the dev server before running tests */
-  // Uncomment the following if you want Playwright to auto-start the server:
-  // webServer: {
-  //   command: "npm run dev",
-  //   url: "http://localhost:3000",
-  //   reuseExistingServer: !process.env.CI,
-  //   timeout: 120000,
-  // },
 });

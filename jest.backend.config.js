@@ -5,6 +5,9 @@ export default {
   // when testing backend
   testEnvironment: "node",
 
+  // set dummy env vars
+  setupFiles: ["<rootDir>/testUtils/envSetup.js"],
+
   // which test to run - backend unit tests + backend integration tests in tests/integration/
   // excludes client/ (frontend, handled by jest.frontend.config.js)
   testMatch: ["<rootDir>/**/*.test.js"],

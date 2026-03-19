@@ -875,7 +875,7 @@ describe('updateProductController', () => {
 
 
 
-// Yik Seng, A0338506B
+// Lim Yik Seng, A0338506B
 import {
   getProductController,
   getSingleProductController,
@@ -894,6 +894,7 @@ import { error } from 'console';
 jest.mock("../models/productModel");
 jest.mock("../models/categoryModel");
 
+// Lim Yik Seng, A0338506B
 describe('Product Controller Unit Tests (getProductController, getSingleProductController, productPhotoController, productFiltersController, productCountController, productListController, searchProductController, relatedProductController, productCategoryController)', () => {
     let req, res;
     beforeEach(() => {
@@ -907,6 +908,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         };
     });
 
+    // Lim Yik Seng, A0338506B
     it("getProductController should return 500 status when database operation fails", async () => {
         // Arrange
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -937,6 +939,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         consoleSpy.mockRestore();
     });
 
+    // Lim Yik Seng, A0338506B
     // Success Path: Empty Result
     it("getProductController should return 200 and counTotal 0 when no products are found", async () => {
         // Arrange
@@ -962,6 +965,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Success Path: Single Item
     it("getProductController should return correct data structure and 200 status", async () => {
         // Arrange
@@ -989,6 +993,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         }));
     });
 
+    // Lim Yik Seng, A0338506B
     it("getProductController should apply correct database constraints (limit 12, sort by newest)", async () => {
         // Arrange
         const limitSpy = jest.fn().mockReturnThis();
@@ -1011,6 +1016,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         expect(sortSpy).toHaveBeenCalledWith({ createdAt: -1 });
     });
 
+    // Lim Yik Seng, A0338506B
     // Failure Path: Database/Server Error
     it("getSingleProductController should handle errors and return 500 status code", async () => {
         // Arrange
@@ -1036,6 +1042,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         consoleSpy.mockRestore();
     });
 
+    // Lim Yik Seng, A0338506B
     // Success Path: Product Not Found
     it("getSingleProductController should return 200 with product as null when the slug does not exist", async () => {
         // Arrange
@@ -1057,6 +1064,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         }));
     });
 
+    // Lim Yik Seng, A0338506B
     // Success Path: Product Found
     it("getSingleProductController should return 200 and the product data when a valid slug is provided", async () => {
         // Arrange
@@ -1080,6 +1088,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         });
     });
 
+    // Lim Yik Seng, A0338506B
     //  Query Parameters Verification
     it("getSingleProductController should call findOne with the correct slug and populate category", async () => {
         // Arrange
@@ -1097,6 +1106,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         expect(findOneSpy).toHaveBeenCalledWith({ slug: "iphone-15-pro" });
     });
 
+    // Lim Yik Seng, A0338506B
     // Success Path: Product and Photo Data Exist
     it("productPhotoController should return 200 and photo data when everything is valid", async () => {
         // Arrange
@@ -1123,6 +1133,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         
     });
 
+    // Lim Yik Seng, A0338506B
     // Failure Path: Product Not Found
     it("productPhotoController should return 404 when product is not found", async () => {
         // Arrange
@@ -1144,6 +1155,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         });
     });
 
+    // Lim Yik Seng, A0338506B
     //  Failure Path: Product exists but photo field is missing
     it("productPhotoController should return 404 when product has no photo field", async () => {
         // Arrange
@@ -1166,6 +1178,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         });
     });
 
+    // Lim Yik Seng, A0338506B
     //  Failure Path: Product exists but photo.data is null
     it("productPhotoController should return 404 when photo data is null", async () => {
         // Arrange
@@ -1193,6 +1206,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Failure Path: Database Error
     it("productPhotoController should return 500 when database query fails", async () => {
         // Arrange
@@ -1219,6 +1233,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         consoleSpy.mockRestore();
     });
 
+    // Lim Yik Seng, A0338506B
     // Success Path: No filters provided (Fetch all)
     it("productFiltersController should return all products when checked and radio are empty", async () => {
         // Arrange
@@ -1239,6 +1254,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Success Path: Filter by category (checked) only
     it("productFiltersController should filter by category when checked has values", async () => {
         // Arrange
@@ -1264,6 +1280,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Success Path: Filter by price (radio) only
     it("productFiltersController should filter by price range when radio has values", async () => {
         // Arrange
@@ -1288,6 +1305,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Success Path: Combined filters (Both checked and radio)
     it("productFiltersController should filter by both category and price", async () => {
         // Arrange
@@ -1314,6 +1332,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Failure Path: Catch Error (e.g., Database Failure)
     it("productFiltersController should return 400 when database find fails", async () => {
         // Arrange
@@ -1337,6 +1356,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         consoleSpy.mockRestore();
     });
 
+    // Lim Yik Seng, A0338506B
     // Failure Path: Input Validation Error (Triggering the "checked.length" crash)
     it("productFiltersController should return 400 if checked is undefined", async () => {
         // Arrange
@@ -1356,6 +1376,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         consoleSpy.mockRestore();
     });
 
+    // Lim Yik Seng, A0338506B
     // Failure Path: radio is undefined while checked is valid
     it("productFiltersController should return 400 if radio is undefined", async () => {
         // Arrange
@@ -1376,6 +1397,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         consoleSpy.mockRestore();
     });
 
+    // Lim Yik Seng, A0338506B
     // Success Path
     it("productCountController should return 200 and the total count of products", async () => {
         // Arrange
@@ -1394,6 +1416,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Failure Path
     it("productCountController should return 500 when database fails", async () => {
         // Arrange
@@ -1415,6 +1438,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         consoleSpy.mockRestore();
     });
 
+    // Lim Yik Seng, A0338506B
     // Testing boundary values and invalid inputs using a loop
     test.each([
         { input: "abc", expectedSkip: 0, description: "invalid string NaN" },
@@ -1438,6 +1462,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         expect(res.status).toHaveBeenCalledWith(200);
     });
 
+    // Lim Yik Seng, A0338506B
     // Success Path - Page 2
     it("productListController should skip 6 products when page 2 is requested", async () => {
         // Arrange
@@ -1461,6 +1486,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Failure Path
     it("productListController should return 500 when database fails", async () => {
         // Arrange
@@ -1486,6 +1512,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         consoleSpy.mockRestore();
     });
 
+    // Lim Yik Seng, A0338506B
     // Invalid Keywords (The 'if' block)
     test.each([
         { input: "", desc: "empty string" },
@@ -1506,6 +1533,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         expect(productModel.find).not.toHaveBeenCalled(); 
     });
 
+    // Lim Yik Seng, A0338506B
     // Success Path
     it("searchProductController should return 200 and products matching the keyword", async () => {
         // Arrange
@@ -1533,6 +1561,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Failure Path
     it("searchProductController should return 500 when database fails", async () => {
         // Arrange
@@ -1555,6 +1584,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         consoleSpy.mockRestore();
     });
 
+    // Lim Yik Seng, A0338506B
     //  Validation Path: Missing pid or cid 
     test.each([
         { params: { cid: "cat123" }, desc: "missing pid" },
@@ -1575,6 +1605,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         expect(productModel.find).not.toHaveBeenCalled(); 
     });
 
+    // Lim Yik Seng, A0338506B
     //  Success Path: Found related products
     it("should return 200 and related products (excluding current pid)", async () => {
         // Arrange
@@ -1604,6 +1635,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         });
     });
 
+    // Lim Yik Seng, A0338506B
     //  Failure Path: Database Error
     it("should return 500 when database fails", async () => {
         // Arrange
@@ -1629,6 +1661,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         consoleSpy.mockRestore();
     });
 
+    // Lim Yik Seng, A0338506B
     // Failure Path: Missing Slug
     it("should return 400 if slug is missing", async () => {
         // Arrange
@@ -1645,6 +1678,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         }));
     });
 
+    // Lim Yik Seng, A0338506B
     // Failure Path: Category Not Found in DB
     it("should return 404 if category is not found in database", async () => {
         // Arrange
@@ -1663,6 +1697,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         expect(productModel.find).not.toHaveBeenCalled(); // Verify early return (efficiency)
     });
 
+    // Lim Yik Seng, A0338506B
     // Success Path: Valid Slug and Existing Data
     it("should return 200 and products when valid slug is provided", async () => {
         // Arrange
@@ -1689,6 +1724,7 @@ describe('Product Controller Unit Tests (getProductController, getSingleProductC
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Failure Path: Database/Server Exception
     it("should return 500 when database operation throws an error", async () => {
         // Arrange

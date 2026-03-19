@@ -53,11 +53,13 @@ const mockRelatedProducts = [
   }
 ];
 
+// Lim Yik Seng, A0338506B
 describe('ProductDetails Page Unit Tests', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
+    // Lim Yik Seng, A0338506B
     it('should not trigger getProduct API when slug is missing in params', async () => {
         // Arrange
         axios.get.mockResolvedValue({ data: { category: [] } });
@@ -79,6 +81,7 @@ describe('ProductDetails Page Unit Tests', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Verifying the API request is made with the correct URL
     it('should trigger the getProduct API call with the exact slug from params', async () => {
         // Arrange
@@ -106,6 +109,7 @@ describe('ProductDetails Page Unit Tests', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Verifying data from the API is correctly mapped to the layout
     it('should render main product name, description and price without triggering related products', async () => {
         // Arrange
@@ -145,6 +149,7 @@ describe('ProductDetails Page Unit Tests', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Branch Logic: Should trigger getSimilarProduct when both IDs exist
     it('should call getSimilarProduct when both product _id and category _id are present', async () => {
         // Arrange: Use full mock data to satisfy the 'if' condition
@@ -167,6 +172,7 @@ describe('ProductDetails Page Unit Tests', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // Branch Logic: Should NOT call getSimilarProduct when product _id is missing
     it('should not call getSimilarProduct when product _id is missing', async () => {
         // Arrange: Local override to remove _id
@@ -191,6 +197,7 @@ describe('ProductDetails Page Unit Tests', () => {
         );
     });
 
+    // Lim Yik Seng, A0338506B
     // Branch Logic: Should NOT call getSimilarProduct when category _id is missing
     it('should not call getSimilarProduct when category _id is missing', async () => {
         // Arrange: Local override 
@@ -218,6 +225,7 @@ describe('ProductDetails Page Unit Tests', () => {
         );
     });
 
+    // Lim Yik Seng, A0338506B
     // Branch Logic: Should NOT call getSimilarProduct when both IDs are missing
     it('should not call getSimilarProduct when both product _id and category _id are missing', async () => {
         // Arrange: Kill both IDs
@@ -246,6 +254,7 @@ describe('ProductDetails Page Unit Tests', () => {
         );
     });
 
+    // Lim Yik Seng, A0338506B
     it('should handle API errors (getProduct function)', async () => {
         // Arrange
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {}); // Mock console.log to suppress error logs in test output
@@ -275,6 +284,7 @@ describe('ProductDetails Page Unit Tests', () => {
         consoleSpy.mockRestore(); // Restore original console.log implementation
     });
 
+    // Lim Yik Seng, A0338506B
     // Logic Test: Verifying the related products API request parameters
     it('should trigger getSimilarProduct API with correct pid and cid when main product is loaded', async () => {
         // Arrange
@@ -299,6 +309,7 @@ describe('ProductDetails Page Unit Tests', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // UI Test: Verifying "No Similar Products found" display when list is empty
     it('should display "No Similar Products found" when the products array is empty', async () => {
         // Arrange
@@ -323,6 +334,7 @@ describe('ProductDetails Page Unit Tests', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     // UI Test: Verifying rendering of a single similar product card
     it('should render exactly one similar product card when API returns one item', async () => {
         // Arrange
@@ -349,6 +361,7 @@ describe('ProductDetails Page Unit Tests', () => {
         expect(screen.queryByText(/No Similar Products found/i)).not.toBeInTheDocument();
     });
 
+    // Lim Yik Seng, A0338506B
     // UI Test: Verifying rendering of multiple similar product cards
     it('should render multiple similar product cards when API returns a list', async () => {
         // Arrange
@@ -380,8 +393,9 @@ describe('ProductDetails Page Unit Tests', () => {
         expect(buttons).toHaveLength(2);
     });
 
+    // Lim Yik Seng, A0338506B
     it('should display the full description with dots when it is under 60 characters', async () => {
-        // Arrange: 只有 10 個字
+        // Arrange
         const shortDesc = "Short one";
 
         axios.get.mockResolvedValueOnce({ data: { category: [] } }); 
@@ -402,8 +416,9 @@ describe('ProductDetails Page Unit Tests', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     it('should truncate related product description if it exceeds 60 characters', async () => {
-        // Arrange: 剛好 70 個字元的描述
+        // Arrange
         const longDesc = "ThisIsALongDescriptionThatExceedsSixtyCharactersToTestTheSubstringLogic!!";
         const expectedTruncated = longDesc.substring(0, 60); // 截取前 60 碼
 
@@ -428,6 +443,7 @@ describe('ProductDetails Page Unit Tests', () => {
         });
     });
 
+    // Lim Yik Seng, A0338506B
     it('should handle API errors (getSimilarProduct function)', async () => {
         // Arrange
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {}); // Mock console.log to suppress error logs in test output
@@ -460,6 +476,7 @@ describe('ProductDetails Page Unit Tests', () => {
         consoleSpy.mockRestore(); // Restore original console.log implementation
     });
 
+    // Lim Yik Seng, A0338506B
     it('should navigate to the product details page when a valid slug exists', async () => {
         // Arrange
         axios.get.mockResolvedValueOnce({ data: { category: [] } }); 
@@ -480,6 +497,7 @@ describe('ProductDetails Page Unit Tests', () => {
         expect(mockNavigate).toHaveBeenCalledWith(`/product/${mockRelatedProducts[0].slug}`);
     });
 
+    // Lim Yik Seng, A0338506B
     it('should not trigger navigation if the product slug is missing', async () => {
         // Arrange: Create a related product without a slug to test the guard condition in the onClick handler
         const noSlugRelated = [{ ...mockRelatedProducts[0], slug: null }];

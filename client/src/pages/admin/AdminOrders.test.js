@@ -55,9 +55,9 @@ describe('AdminOrders Component', () => {
   const mockOrders = [
     {
       _id: 'order1',
-      status: 'Not Process',
+      status: 'Not Processed',
       buyer: { name: 'John Doe' },
-      createAt: new Date('2024-01-01'),
+      createdAt: new Date('2024-01-01'),
       payment: { success: true },
       products: [
         {
@@ -72,7 +72,7 @@ describe('AdminOrders Component', () => {
       _id: 'order2',
       status: 'Processing',
       buyer: { name: 'Jane Smith' },
-      createAt: new Date('2024-01-02'),
+      createdAt: new Date('2024-01-02'),
       payment: { success: false },
       products: [
         {
@@ -161,7 +161,7 @@ describe('AdminOrders Component', () => {
     });
 
     // Wei Sheng, A0259272X
-    it('should display formatted date using moment(o.createAt).fromNow()', async () => {
+    it('should display formatted date using moment(o.createdAt).fromNow()', async () => {
       await renderWithOrders();
       expect(screen.getAllByText('2 days ago')).toHaveLength(2);
     });
@@ -206,7 +206,7 @@ describe('AdminOrders Component', () => {
     it('should set defaultValue to current order status', async () => {
       await renderWithOrders();
       const selects = screen.getAllByTestId('status-select');
-      expect(selects[0]).toHaveValue('Not Process');
+      expect(selects[0]).toHaveValue('Not Processed');
       expect(selects[1]).toHaveValue('Processing');
     });
 
@@ -218,17 +218,17 @@ describe('AdminOrders Component', () => {
     });
 
     // Wei Sheng, A0259272X
-    it('should have all status options: Not Process, Processing, Shipped, delivered, cancel', async () => {
+    it('should have all status options: Not Processed, Processing, Shipped, Delivered, Cancel', async () => {
       await renderWithOrders();
       const select = screen.getAllByTestId('status-select')[0];
       const options = select.querySelectorAll('option');
       const optionValues = Array.from(options).map(opt => opt.value);
 
-      expect(optionValues).toContain('Not Process');
+      expect(optionValues).toContain('Not Processed');
       expect(optionValues).toContain('Processing');
       expect(optionValues).toContain('Shipped');
-      expect(optionValues).toContain('delivered');
-      expect(optionValues).toContain('cancel');
+      expect(optionValues).toContain('Delivered');
+      expect(optionValues).toContain('Cancel');
     });
   });
 
@@ -296,7 +296,7 @@ describe('AdminOrders Component', () => {
       const select = screen.getAllByTestId('status-select')[0];
 
       await act(async () => {
-        fireEvent.change(select, { target: { value: 'cancel' } });
+        fireEvent.change(select, { target: { value: 'Cancel' } });
       });
 
       expect(consoleSpy).toHaveBeenCalledWith(expect.any(Error));
@@ -373,7 +373,7 @@ describe('AdminOrders Component', () => {
         _id: 'order-no-products',
         status: 'Processing',
         buyer: { name: 'Test User' },
-        createAt: new Date('2024-01-01'),
+        createdAt: new Date('2024-01-01'),
         payment: { success: true },
         products: undefined
       };
@@ -387,9 +387,9 @@ describe('AdminOrders Component', () => {
     it('should handle product with undefined description', async () => {
       const orderWithUndefinedDescription = {
         _id: 'order-undefined-desc',
-        status: 'Not Process',
+        status: 'Not Processed',
         buyer: { name: 'Bug Test User' },
-        createAt: new Date('2024-01-01'),
+        createdAt: new Date('2024-01-01'),
         payment: { success: true },
         products: [
           {
@@ -412,7 +412,7 @@ describe('AdminOrders Component', () => {
         _id: 'order-no-buyer',
         status: 'Shipped',
         buyer: undefined,
-        createAt: new Date('2024-01-01'),
+        createdAt: new Date('2024-01-01'),
         payment: { success: true },
         products: [
           {
