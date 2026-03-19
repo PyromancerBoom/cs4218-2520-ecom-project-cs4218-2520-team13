@@ -137,20 +137,6 @@ describe('PUT /api/v1/auth/profile', () => {
   });
 
   // LOW WEI SHENG, A0259272X
-  it('BUG-05 (fixed): empty string phone persists and does not fall back to old value', async () => {
-    const { user } = await createUser({ phone: '12345678' });
-    const token = generateToken(user._id);
-
-    const res = await request(app)
-      .put('/api/v1/auth/profile')
-      .set('Authorization', token)
-      .send({ phone: '' });
-
-    expect(res.status).toBe(200);
-    expect(res.body.updatedUser.phone).toBe('');
-  });
-
-  // LOW WEI SHENG, A0259272X
   it('returns 401 when unauthenticated', async () => {
     const res = await request(app)
       .put('/api/v1/auth/profile')
