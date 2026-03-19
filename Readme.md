@@ -56,3 +56,7 @@ npm run test:e2e
 ```
 
 For E2E, start MongoDB first (`brew services start mongodb-community` on Mac), then `npm run dev`, then run `npm run test:e2e` in a separate terminal.
+
+## AI Usage declaration
+
+Priyansh - **AI tools were used for initial user stories, followed by initial test scaffolding and code autocompletion. All AI-suggested code served only as a baseline. I manually reviewed, edited, fixed and validated the approach, code and strategy to ensure full alignment with the project requirements. (as described in AI driven testing plan)**
