@@ -13,10 +13,6 @@ export default {
   testMatch: ["<rootDir>/**/*.test.js"],
   testPathIgnorePatterns: ["/node_modules/", "<rootDir>/client/", "<rootDir>/tests/e2e/"],
 
-  // Limit parallel workers to prevent too many mongodb-memory-server instances
-  // running simultaneously, which causes timeouts on resource-constrained machines.
-  maxWorkers: 2,
-
   // jest code coverage
   collectCoverage: true,
   collectCoverageFrom: [
