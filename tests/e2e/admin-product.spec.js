@@ -1,10 +1,13 @@
 // Priyansh Bimbisariye, A0265903B
-const { test, expect } = require("@playwright/test");
-const path = require("path");
+import { test, expect } from "@playwright/test";
+import path from "path";
+import {
+  connectTestDB, disconnectTestDB, clearTestCollections,
+  seedAdmin, seedCategory, seedProduct,
+} from "../helpers/e2eDb.js";
 
 // Priyansh Bimbisariye, A0265903B
-
-const TEST_IMAGE = path.join(__dirname, "../test_assets", "test-image.jpg");
+const TEST_IMAGE = path.join(process.cwd(), "tests/test_assets/test-image.jpg");
 
 // Priyansh Bimbisariye, A0265903B
 async function fillAndCreateProduct(
@@ -43,6 +46,26 @@ async function fillAndCreateProduct(
 
 // Priyansh Bimbisariye, A0265903B
 test.describe("Admin Product Management", () => {
+  // Priyansh Bimbisariye, A0265903B
+  test.beforeAll(async () => {
+    await connectTestDB();
+    await clearTestCollections();
+    await seedAdmin({ email: "admin@admin.com", plainPassword: "admin", name: "Admin" });
+    const category = await seedCategory({ name: "Test Category", slug: "test-category" });
+    await seedProduct({
+      name: "Seeded Test Product",
+      slug: "seeded-test-product",
+      description: "A seeded product for E2E testing",
+      category: category._id,
+    });
+  });
+
+  // Priyansh Bimbisariye, A0265903B
+  test.afterAll(async () => {
+    await clearTestCollections();
+    await disconnectTestDB();
+  });
+
   // Priyansh Bimbisariye, A0265903B
   test.beforeEach(async ({ page }) => {
     await page.goto("/login");

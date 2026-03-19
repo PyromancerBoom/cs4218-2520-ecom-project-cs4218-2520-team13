@@ -4,6 +4,9 @@
 
 // @ts-check
 import { test, expect } from "@playwright/test";
+import {
+  connectTestDB, disconnectTestDB, clearTestCollections, seedProduct,
+} from "../helpers/e2eDb.js";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -52,6 +55,18 @@ async function addFirstProductToCart(page) {
 
 
 test.describe("Checkout and Payment Flow - E2E UI Tests", () => {
+
+  test.beforeAll(async () => {
+    await connectTestDB();
+    await clearTestCollections();
+    await seedProduct({ name: "Checkout Test Product 1", slug: "checkout-test-product-1", price: 9.99 });
+    await seedProduct({ name: "Checkout Test Product 2", slug: "checkout-test-product-2", price: 19.99 });
+  });
+
+  test.afterAll(async () => {
+    await clearTestCollections();
+    await disconnectTestDB();
+  });
 
   test.beforeAll(async ({ request }) => {
     await request.post(`${BASE_URL}/api/v1/auth/register`, {

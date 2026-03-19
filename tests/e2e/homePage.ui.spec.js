@@ -4,6 +4,9 @@
 
 // @ts-check
 import { test, expect } from "@playwright/test";
+import {
+  connectTestDB, disconnectTestDB, clearTestCollections, seedProduct, seedCategory,
+} from "../helpers/e2eDb.js";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -31,6 +34,20 @@ let combinedCategory = null;
 let combinedPriceRange = null; 
 
 test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
+  test.beforeAll(async () => {
+    await connectTestDB();
+    await clearTestCollections();
+    const category = await seedCategory({ name: "Home Test Category", slug: "home-test-category" });
+    // Two products in different price ranges so filter tests run rather than being skipped
+    await seedProduct({ name: "Home Test Product 1", slug: "home-test-product-1", price: 9.99, category: category._id });
+    await seedProduct({ name: "Home Test Product 2", slug: "home-test-product-2", price: 29.99, category: category._id });
+  });
+
+  test.afterAll(async () => {
+    await clearTestCollections();
+    await disconnectTestDB();
+  });
+
   test.beforeAll(async ({ request }) => {
     const [catResp, countResp, prodResp] = await Promise.all([
       request.get(`${BASE_URL}/api/v1/category/get-category`),

@@ -1,241 +1,58 @@
-# CS4218 Project - Virtual Vault
+# CS4218 Team 13 — Virtual Vault
 
-## Table of Contents
+## MS1 CI
 
-- [1. Project Introduction](#1-project-introduction)
-- [2. Website Features](#2-website-features)
-- [3. Your Task](#3-your-task)
-- [4. Setting Up The Project](#4-setting-up-the-project)
-  - [1. Installing Node.js](#1-installing-nodejs)
-  - [2. MongoDB Setup](#2-mongodb-setup)
-  - [3. Application Setup](#3-application-setup)
-- [5. Unit Testing with Jest](#5-unit-testing-with-jest)
-  - [Getting Started with Jest](#getting-started-with-jest)
-- [Team Contributions](#team-contributions)
+- Backend: https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team13/actions/runs/22289209498/job/64473320585
+- Frontend: https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team13/actions/runs/22289209492/job/64473320630
 
-## MS1 CI URL
+---
 
-We separated out the workflows:
-- Backend Tests - [https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team13/actions/runs/22289209498/job/64473320585](https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team13/actions/runs/22289209498/job/64473320585)
-- Frontend Tests - [https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team13/actions/runs/22289209492/job/64473320630](https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team13/actions/runs/22289209492/job/64473320630)
+## Team Contributions
 
-## 1. Project Introduction
+### MS1 — Unit Tests
 
-Virtual Vault is a full-stack MERN (MongoDB, Express.js, React.js, Node.js) e-commerce website, offering seamless connectivity and user-friendly features. The platform provides a robust framework for online shopping. The website is designed to adapt to evolving business needs and can be efficiently extended.
+| Member | Components |
+|--------|-----------|
+| **Priyansh** | `context/auth.js`, `helpers/authHelper.js`, `middlewares/authMiddleware.js`, `pages/Auth/Register.js`, `pages/Auth/Login.js`, `components/AdminMenu.js`, `pages/admin/AdminDashboard.js`, `components/Form/CategoryForm.js`, `pages/admin/CreateCategory.js`, `pages/admin/CreateProduct.js`, `pages/admin/UpdateProduct.js`, `registerController`, `loginController`, `forgotPasswordController`, `createCategoryController`, `updateCategoryController`, `deleteCategoryController` |
+| **Wei Sheng** | `components/Routes/AdminRoute.js`, `components/Routes/Private.js`, `components/UserMenu.js`, `pages/user/Dashboard.js`, `pages/user/Orders.js`, `pages/admin/AdminOrders.js`, `pages/admin/Products.js`, `models/userModel.js`, `models/orderModel.js`, `updateProfileController`, `getOrdersController`, `getAllOrdersController`, `orderStatusController`, `createProductController`, `deleteProductController`, `updateProductController` |
+| **Sandra** | `pages/user/Profile.js`, `pages/admin/Users.js`, `pages/Search.js`, `components/Form/SearchInput.js`, `context/Search.js`, `hooks/useCategory.js`, `pages/Categories.js`, `models/categoryModel.js`, `categoryController`, `singleCategoryController`, `getAllUsersController`, `updateRoleController`, `deleteUserController` |
+| **Yik Seng** | `pages/ProductDetails.js`, `pages/CategoryProduct.js`, `pages/Contact.js`, `pages/Policy.js`, `models/productModel.js`, `getProductController`, `getSingleProductController`, `productPhotoController`, `productFiltersController`, `productCountController`, `productListController`, `searchProductController`, `relatedProductController`, `productCategoryController` |
+| **Aashim** | `components/Layout.js`, `components/Header.js`, `components/Footer.js`, `components/Spinner.js`, `pages/Pagenotfound.js`, `pages/About.js`, `pages/HomePage.js`, `pages/CartPage.js`, `config/db.js`, `context/cart.js`, `braintreeTokenController`, `brainTreePaymentController` |
 
-## 2. Website Features
+### MS2 — Integration & E2E Tests
 
-- **User Authentication**: Secure user authentication system implemented to manage user accounts and sessions.
-- **Payment Gateway Integration**: Seamless integration with popular payment gateways for secure and reliable online transactions.
-- **Search and Filters**: Advanced search functionality and filters to help users easily find products based on their preferences.
-- **Product Set**: Organized product sets for efficient navigation and browsing through various categories and collections.
+| Member | Tests (pts) |
+|--------|------------|
+| **Wei Sheng** (9 pts) | Backend integration: user orders, admin orders, user profile update · Frontend integration: Orders component, route guards · E2E: admin order status, user order history, protected/admin route access |
+| **Priyansh** (8 pts) | Backend integration: register, login, forgot-password · Frontend integration: Login, Register, AdminOrders, Products, CreateCategory · E2E: admin product CRUD |
+| **Sandra** (9 pts) | Backend integration: category CRUD, category retrieval · Frontend integration: Search, Categories, Profile, Admin Users · E2E: category management, product search, profile update |
+| **Yik Seng** (9 pts) | Backend integration: product write, product retrieval · Frontend integration: CreateProduct, UpdateProduct, ProductDetails, CategoryProduct · E2E: product browsing and detail view |
+| **Aashim** (9 pts) | Backend integration: payment · Frontend integration: CartPage, Homepage · E2E: registration/login, cart, checkout/payment, 404 |
 
-## 3. Your Task
+---
 
-- **Unit and Integration Testing**: Utilize Jest for writing and running tests to ensure individual components and functions work as expected, finding and fixing bugs in the process.
-- **UI Testing**: Utilize Playwright for UI testing to validate the behavior and appearance of the website's user interface.
-- **Code Analysis and Coverage**: Utilize SonarQube for static code analysis and coverage reports to maintain code quality and identify potential issues.
-- **Load Testing**: Leverage JMeter for load testing to assess the performance and scalability of the ecommerce platform under various traffic conditions.
+## Running Tests
 
-## 4. Setting Up The Project
+**Prerequisites:** Node.js installed, dependencies installed (`npm install && cd client && npm install && cd ..`).
 
-### 1. Installing Node.js
+```bash
+# Unit tests (backend + frontend)
+npm test
 
-1. **Download and Install Node.js**:
-   - Visit [nodejs.org](https://nodejs.org) to download and install Node.js.
+# Backend unit + integration tests only
+npm run test:backend
 
-2. **Verify Installation**:
-   - Open your terminal and check the installed versions of Node.js and npm:
-     ```bash
-     node -v
-     npm -v
-     ```
+# Frontend unit + integration tests only
+npm run test:frontend
 
-### 2. MongoDB Setup
+# Backend integration tests only
+npm run test:integration:backend
 
-1. **Download and Install MongoDB Compass**:
-   - Visit [MongoDB Compass](https://www.mongodb.com/products/tools/compass) and download and install MongoDB Compass for your operating system.
+# Frontend integration tests only
+npm run test:integration:frontend
 
-2. **Create a New Cluster**:
-   - Sign up or log in to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register).
-   - After logging in, create a project and within that project deploy a free cluster.
+# E2E tests (requires MongoDB + app running: npm run dev)
+npm run test:e2e
+```
 
-3. **Configure Database Access**:
-   - Create a new user for your database (if not alredy done so) in MongoDB Atlas.
-   - Navigate to "Database Access" under "Security" and create a new user with the appropriate permissions.
-
-4. **Whitelist IP Address**:
-   - Go to "Network Access" under "Security" and whitelist your IP address to allow access from your machine.
-   - For example, you could whitelist 0.0.0.0 to allow access from anywhere for ease of use.
-
-5. **Connect to the Database**:
-   - In your cluster's page on MongoDB Atlas, click on "Connect" and choose "Compass".
-   - Copy the connection string.
-
-6. **Establish Connection with MongoDB Compass**:
-   - Open MongoDB Compass on your local machine, paste the connection string (replace the necessary placeholders), and establish a connection to your cluster.
-
-### 3. Application Setup
-
-To download and use the MERN (MongoDB, Express.js, React.js, Node.js) app from GitHub, follow these general steps:
-
-1. **Clone the Repository**
-   - Go to the GitHub repository of the MERN app.
-   - Click on the "Code" button and copy the URL of the repository.
-   - Open your terminal or command prompt.
-   - Use the `git clone` command followed by the repository URL to clone the repository to your local machine:
-     ```bash
-     git clone <repository_url>
-     ```
-   - Navigate into the cloned directory.
-
-2. **Install Frontend and Backend Dependencies**
-   - Run the following command in your project's root directory:
-
-     ```
-     npm install && cd client && npm install && cd ..
-     ```
-
-3. **Add database connection string to `.env`**
-   - Add the connection string copied from MongoDB Atlas to the `.env` file inside the project directory (replace the necessary placeholders):
-     ```env
-     MONGO_URL = <connection string>
-     ```
-
-4. **Adding sample data to database**
-   - Download “Sample DB Schema” from Canvas and extract it.
-   - In MongoDB Compass, create a database named `test` under your cluster.
-   - Add four collections to this database: `categories`, `orders`, `products`, and `users`.
-   - Under each collection, click "ADD DATA" and import the respective JSON from the extracted "Sample DB Schema".
-
-5. **Running the Application**
-   - Open your web browser.
-   - Use `npm run dev` to run the app from root directory, which starts the development server.
-   - Navigate to `http://localhost:3000` to access the application.
-
-## 5. Unit Testing with Jest
-
-Unit testing is a crucial aspect of software development aimed at verifying the functionality of individual units or components of a software application. It involves isolating these units and subjecting them to various test scenarios to ensure their correctness.  
-Jest is a popular JavaScript testing framework widely used for unit testing. It offers a simple and efficient way to write and execute tests in JavaScript projects.
-
-### Getting Started with Jest
-
-To begin unit testing with Jest in your project, follow these steps:
-
-1. **Install Jest**:  
-   Use your preferred package manager to install Jest. For instance, with npm:
-
-   ```bash
-   npm install --save-dev jest
-
-   ```
-
-2. **Write Tests**  
-   Create test files for your components or units where you define test cases to evaluate their behaviour.
-
-3. **Run Tests**  
-   Execute your tests using Jest to ensure that your components meet the expected behaviour.  
-   You can run the tests by using the following command in the root of the directory:
-   - **Frontend tests**
-
-     ```bash
-     npm run test:frontend
-     ```
-
-   - **Backend tests**
-
-     ```bash
-     npm run test:backend
-     ```
-
-   - **All the tests**
-     ```bash
-     npm run test
-     ```
-
-# Team Contributions
-
-## Priyansh
-
-- **Protected Routes**
-  - Client: `context/auth.js`
-  - Server: `helpers/authHelper.js`, `middlewares/authMiddleware.js`
-- **Registration**
-  - Client: `pages/Auth/Register.js`
-  - Server: `registerController` in `controllers/authController.js`
-- **Login**
-  - Client: `pages/Auth/Login.js`
-  - Server: `loginController`, `forgotPasswordController`, `testController` in `controllers/authController.js`
-- **Admin Dashboard**
-  - Client: `components/AdminMenu.js`, `pages/admin/AdminDashboard.js`
-- **Admin Actions (Category & Product)**
-  - Client: `components/Form/CategoryForm.js`, `pages/admin/CreateCategory.js`, `pages/admin/CreateProduct.js`, `pages/admin/UpdateProduct.js`
-  - Server: `createCategoryController`, `updateCategoryController`, `deleteCategoryController` in `controllers/categoryController.js`
-- **Admin View Orders**
-  - Client: `pages/admin/AdminOrders.js` (Minor Contributions)
- 
-  - **AI Usage Declaration - AI tools were used for initial test scaffolding and code autocompletion. All AI-suggested code served only as a baseline. I Manually reviewed, edited, fixed and validated the code to ensure full alignment with the project requirements.**
-
-## Wei Sheng
-
-- Admin View Orders - `pages/admin/AdminOrders.js`
-- Admin View Products - `pages/admin/Products.js`
-- Admin View Products - `controllers/productController.js`
-
-1. createProductController
-2. deleteProductController
-3. updateProductController
-
-- General - `components/Routes/AdminRoute.js`, `components/Routes/Private.js`, `components/UserMenu.js`, `pages/user/Dashboard.js`, `models/userModel.js`
-- Order - `pages/user/Orders.js`, `models/orderModel.js`
-- Order - `controllers/authController.js`
-
-1. updateProfileController
-2. getOrdersController
-3. getAllOrdersController
-4. orderStatusController
-
-## Sandra
-
-- Profile - `pages/user/Profile.js`
-- Users - `pages/admin/Users.js`
-- Search - `pages/Search.js`, `components/Form/SearchInput.js`, `context/Search.js`
-- Category - `hooks/useCategory.js`, `pages/Categories.js`, `models/categoryModel.js`
-- Category - `controllers/categoryController.js`
-
-1. categoryControlller
-2. singleCategoryController
-
-- Order - `controllers/authController.js`
-
-1. getAllUsersController
-2. updateRoleController
-3. deleteUserController
-
-## Yik Seng
-
-- Product - `pages/ProductDetails.js`, `pages/CategoryProduct.js`, `models/productModel.js`
-- Product - `controllers/productController.js`
-
-1. getProductController
-2. getSingleProductController
-3. productPhotoController
-4. productFiltersController
-5. productCountController
-6. productListController
-7. searchProductController
-8. relatedProductController
-9. productCategoryController
-
-- Contact - `pages/Contact.js`
-- Policy - `pages/Policy.js`
-
-## Aashim
-
-- General - `components/Layout.js`, `components/Header.js`, `components/Footer.js`, `components/Spinner.js`, `pages/Pagenotfound.js`, `pages/About.js`, `config/db.js`
-- Home - `pages/HomePage.js`
-- Cart - `pages/CartPage.js`, `context/cart.js`
-- Payment - `controllers/productController.js`
-
-1. braintreeTokenController
-2. brainTreePaymentController
+For E2E, start MongoDB first (`brew services start mongodb-community` on Mac), then `npm run dev`, then run `npm run test:e2e` in a separate terminal.

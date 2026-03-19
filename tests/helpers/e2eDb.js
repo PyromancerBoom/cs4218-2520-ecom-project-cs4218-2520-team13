@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import userModel from '../../models/userModel.js';
 import orderModel from '../../models/orderModel.js';
 import productModel from '../../models/productModel.js';
+import categoryModel from '../../models/categoryModel.js';
 
 const TEST_DB_URL = process.env.MONGO_URL || 'mongodb://localhost:27017/ecom-test';
 
@@ -26,6 +27,7 @@ export const clearTestCollections = async () => {
         userModel.deleteMany({}),
         orderModel.deleteMany({}),
         productModel.deleteMany({}),
+        categoryModel.deleteMany({}),
     ]);
 };
 
@@ -65,12 +67,21 @@ export const seedProduct = async (overrides = {}) => {
 };
 
 // LOW WEI SHENG, A0259272X
+export const seedCategory = async (overrides = {}) => {
+    return categoryModel.create({
+        name: 'E2E Category',
+        slug: `e2e-category-${Date.now()}`,
+        ...overrides,
+    });
+};
+
+// LOW WEI SHENG, A0259272X
 export const seedOrder = async (overrides = {}) => {
     return orderModel.create({
         products: [],
         payment: { success: true },
         buyer: new mongoose.Types.ObjectId(),
-        status: 'Not Process',
+        status: 'Not Processed',
         ...overrides,
     });
 };

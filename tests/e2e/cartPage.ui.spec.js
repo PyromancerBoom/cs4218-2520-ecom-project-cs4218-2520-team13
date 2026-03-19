@@ -4,6 +4,9 @@
 //Then I manually review the code and make necessary adjustments, ensuring test isolation, etc. to ensure accuracy and relevance to the project requirements.
 
 import { test, expect } from "@playwright/test";
+import {
+  connectTestDB, disconnectTestDB, clearTestCollections, seedProduct,
+} from "../helpers/e2eDb.js";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -32,6 +35,18 @@ async function registerUser(page, userData) {
 }
 
 test.describe("Cart Page UI Tests", () => {
+  test.beforeAll(async () => {
+    await connectTestDB();
+    await clearTestCollections();
+    await seedProduct({ name: "Cart Test Product 1", slug: "cart-test-product-1", price: 9.99 });
+    await seedProduct({ name: "Cart Test Product 2", slug: "cart-test-product-2", price: 19.99 });
+  });
+
+  test.afterAll(async () => {
+    await clearTestCollections();
+    await disconnectTestDB();
+  });
+
   test.beforeEach(async ({ page }) => {
     await page.goto(BASE_URL);
     await page.evaluate(() => localStorage.removeItem("cart"));

@@ -112,7 +112,7 @@ describe("updateProfileController", () => {
             const updatedUser = { ...mockUser, name: "Updated Name" };
 
             mockUserFindById.mockResolvedValueOnce(mockUser);
-            mockUserFindByIdAndUpdate.mockResolvedValueOnce(updatedUser);
+            mockUserFindByIdAndUpdate.mockReturnValueOnce({ select: jest.fn().mockResolvedValueOnce(updatedUser) });
 
             await updateProfileController(req, res);
 
@@ -134,7 +134,7 @@ describe("updateProfileController", () => {
             const updatedUser = { ...mockUser, phone: "9876543210" };
 
             mockUserFindById.mockResolvedValueOnce(mockUser);
-            mockUserFindByIdAndUpdate.mockResolvedValueOnce(updatedUser);
+            mockUserFindByIdAndUpdate.mockReturnValueOnce({ select: jest.fn().mockResolvedValueOnce(updatedUser) });
 
             await updateProfileController(req, res);
 
@@ -156,7 +156,7 @@ describe("updateProfileController", () => {
             const updatedUser = { ...mockUser, address: "456 New St" };
 
             mockUserFindById.mockResolvedValueOnce(mockUser);
-            mockUserFindByIdAndUpdate.mockResolvedValueOnce(updatedUser);
+            mockUserFindByIdAndUpdate.mockReturnValueOnce({ select: jest.fn().mockResolvedValueOnce(updatedUser) });
 
             await updateProfileController(req, res);
 
@@ -179,7 +179,7 @@ describe("updateProfileController", () => {
             };
 
             mockUserFindById.mockResolvedValueOnce(mockUser);
-            mockUserFindByIdAndUpdate.mockResolvedValueOnce(mockUser);
+            mockUserFindByIdAndUpdate.mockReturnValueOnce({ select: jest.fn().mockResolvedValueOnce(mockUser) });
 
             await updateProfileController(req, res);
 
@@ -204,7 +204,7 @@ describe("updateProfileController", () => {
             };
 
             mockUserFindById.mockResolvedValueOnce(mockUser);
-            mockUserFindByIdAndUpdate.mockResolvedValueOnce(mockUser);
+            mockUserFindByIdAndUpdate.mockReturnValueOnce({ select: jest.fn().mockResolvedValueOnce(mockUser) });
 
             await updateProfileController(req, res);
 
@@ -237,7 +237,7 @@ describe("updateProfileController", () => {
             };
 
             mockUserFindById.mockResolvedValueOnce(mockUser);
-            mockUserFindByIdAndUpdate.mockResolvedValueOnce(updatedUser);
+            mockUserFindByIdAndUpdate.mockReturnValueOnce({ select: jest.fn().mockResolvedValueOnce(updatedUser) });
 
             await updateProfileController(req, res);
 
@@ -262,7 +262,7 @@ describe("updateProfileController", () => {
 
             mockUserFindById.mockResolvedValueOnce(mockUser);
             mockHashPassword.mockResolvedValueOnce("newhashed");
-            mockUserFindByIdAndUpdate.mockResolvedValueOnce(updatedUser);
+            mockUserFindByIdAndUpdate.mockReturnValueOnce({ select: jest.fn().mockResolvedValueOnce(updatedUser) });
 
             await updateProfileController(req, res);
 
@@ -277,6 +277,7 @@ describe("updateProfileController", () => {
         // Wei Sheng, A0259272X
         it("should reject password shorter than 6 characters", async () => {
             req.body = { password: "ab" };
+            mockUserFindById.mockResolvedValueOnce({ _id: "user123", password: "hashed" });
 
             await updateProfileController(req, res);
 
@@ -289,6 +290,7 @@ describe("updateProfileController", () => {
         // Wei Sheng, A0259272X
         it("should reject password with exactly 5 characters (boundary)", async () => {
             req.body = { password: "12345" };
+            mockUserFindById.mockResolvedValueOnce({ _id: "user123", password: "hashed" });
 
             await updateProfileController(req, res);
 
@@ -305,7 +307,7 @@ describe("updateProfileController", () => {
 
             mockUserFindById.mockResolvedValueOnce(mockUser);
             mockHashPassword.mockResolvedValueOnce("newhashed");
-            mockUserFindByIdAndUpdate.mockResolvedValueOnce(mockUser);
+            mockUserFindByIdAndUpdate.mockReturnValueOnce({ select: jest.fn().mockResolvedValueOnce(mockUser) });
 
             await updateProfileController(req, res);
 
@@ -322,7 +324,7 @@ describe("updateProfileController", () => {
             };
 
             mockUserFindById.mockResolvedValueOnce(mockUser);
-            mockUserFindByIdAndUpdate.mockResolvedValueOnce(mockUser);
+            mockUserFindByIdAndUpdate.mockReturnValueOnce({ select: jest.fn().mockResolvedValueOnce(mockUser) });
 
             await updateProfileController(req, res);
 
@@ -342,7 +344,7 @@ describe("updateProfileController", () => {
             const mockUser = { _id: "user123", name: "Old Name", password: "hashed" };
 
             mockUserFindById.mockResolvedValueOnce(mockUser);
-            mockUserFindByIdAndUpdate.mockResolvedValueOnce(mockUser);
+            mockUserFindByIdAndUpdate.mockReturnValueOnce({ select: jest.fn().mockResolvedValueOnce(mockUser) });
 
             await updateProfileController(req, res);
 
@@ -356,7 +358,7 @@ describe("updateProfileController", () => {
             const updatedUser = { ...mockUser, name: "Updated Name" };
 
             mockUserFindById.mockResolvedValueOnce(mockUser);
-            mockUserFindByIdAndUpdate.mockResolvedValueOnce(updatedUser);
+            mockUserFindByIdAndUpdate.mockReturnValueOnce({ select: jest.fn().mockResolvedValueOnce(updatedUser) });
 
             await updateProfileController(req, res);
 
@@ -380,7 +382,7 @@ describe("updateProfileController", () => {
             const updatedUser = { ...mockUser, name: "Updated Name" };
 
             mockUserFindById.mockResolvedValueOnce(mockUser);
-            mockUserFindByIdAndUpdate.mockResolvedValueOnce(updatedUser);
+            mockUserFindByIdAndUpdate.mockReturnValueOnce({ select: jest.fn().mockResolvedValueOnce(updatedUser) });
 
             await updateProfileController(req, res);
 
@@ -414,9 +416,7 @@ describe("updateProfileController", () => {
             const mockUser = { _id: "user123", name: "Old", password: "hashed" };
 
             mockUserFindById.mockResolvedValueOnce(mockUser);
-            mockUserFindByIdAndUpdate.mockRejectedValueOnce(
-                new Error("Update failed"),
-            );
+            mockUserFindByIdAndUpdate.mockReturnValueOnce({ select: jest.fn().mockRejectedValueOnce(new Error("Update failed")) });
 
             await updateProfileController(req, res);
 
@@ -424,17 +424,16 @@ describe("updateProfileController", () => {
         });
 
         // Wei Sheng, A0259272X
-        it("should return 400 when user is not found (findById returns null)", async () => {
+        it("should return 404 when user is not found (findById returns null)", async () => {
             req.body = { name: "Updated Name" };
             mockUserFindById.mockResolvedValueOnce(null);
 
             await updateProfileController(req, res);
 
-            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.status).toHaveBeenCalledWith(404);
             expect(res.send).toHaveBeenCalledWith({
                 success: false,
-                message: "Error While Updating Profile",
-                error: expect.any(Error),
+                message: "User not found",
             });
         });
     });
@@ -732,7 +731,7 @@ describe("orderStatusController", () => {
             expect(mockOrderFindByIdAndUpdate).toHaveBeenCalledWith(
                 "order123",
                 { status: "Processing" },
-                { new: true },
+                { new: true, runValidators: true },
             );
         });
 
@@ -747,7 +746,7 @@ describe("orderStatusController", () => {
             expect(mockOrderFindByIdAndUpdate).toHaveBeenCalledWith(
                 "order123",
                 { status: "Shipped" },
-                { new: true },
+                { new: true, runValidators: true },
             );
         });
 
@@ -764,25 +763,30 @@ describe("orderStatusController", () => {
 
     describe("Edge cases", () => {
         // Wei Sheng, A0259272X
-        it("should handle order not found (returns null)", async () => {
+        it("should return 404 when order is not found (findByIdAndUpdate returns null)", async () => {
             mockOrderFindByIdAndUpdate.mockResolvedValueOnce(null);
 
             await orderStatusController(req, res);
 
-            expect(res.json).toHaveBeenCalledWith(null);
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.send).toHaveBeenCalledWith({
+                success: false,
+                message: "Order not found",
+            });
         });
 
         // Wei Sheng, A0259272X
-        it("should pass status value to database unchanged", async () => {
-            req.body.status = "InvalidStatus";
-            mockOrderFindByIdAndUpdate.mockResolvedValueOnce(null);
+        it("should pass valid status value to database with runValidators enabled", async () => {
+            req.body.status = "Delivered";
+            const updatedOrder = { _id: "order123", status: "Delivered" };
+            mockOrderFindByIdAndUpdate.mockResolvedValueOnce(updatedOrder);
 
             await orderStatusController(req, res);
 
             expect(mockOrderFindByIdAndUpdate).toHaveBeenCalledWith(
                 "order123",
-                { status: "InvalidStatus" },
-                { new: true },
+                { status: "Delivered" },
+                { new: true, runValidators: true },
             );
         });
     });

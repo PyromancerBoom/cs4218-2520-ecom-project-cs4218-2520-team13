@@ -5,6 +5,9 @@
 
 // @ts-check
 import { test, expect } from "@playwright/test";
+import {
+  connectTestDB, disconnectTestDB, clearTestCollections, seedProduct, seedCategory,
+} from "../helpers/e2eDb.js";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -51,6 +54,19 @@ async function openDropdown(page, toggleLocator) {
 }
 
 test.describe("Header - Authentication and Navigation UI Tests", () => {
+  test.beforeAll(async () => {
+    await connectTestDB();
+    await clearTestCollections();
+    const category = await seedCategory({ name: "Header Test Category", slug: "header-test-category" });
+    await seedProduct({ name: "Header Test Product 1", slug: "header-test-product-1", price: 9.99, category: category._id });
+    await seedProduct({ name: "Header Test Product 2", slug: "header-test-product-2", price: 29.99, category: category._id });
+  });
+
+  test.afterAll(async () => {
+    await clearTestCollections();
+    await disconnectTestDB();
+  });
+
   test.beforeAll(async ({ request }) => {
     const catResp = await request.get(
       `${BASE_URL}/api/v1/category/get-category`
