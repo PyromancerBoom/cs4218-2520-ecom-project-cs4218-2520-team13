@@ -440,7 +440,7 @@ describe("Cart & Payment Integration Tests", () => {
         products: [testProduct1._id],
         payment: { success: true },
         buyer: testUser._id,
-        status: "Not Process",
+        status: "Not Processed",
       });
 
       const res = await request(app)
@@ -609,7 +609,7 @@ describe("Cart & Payment Integration Tests", () => {
         buyer: testUser._id,
       });
 
-      expect(order.status).toBe("Not Process");
+      expect(order.status).toBe("Not Processed");
       expect(order.buyer.toString()).toBe(testUser._id.toString());
       expect(order.products).toHaveLength(1);
     });
