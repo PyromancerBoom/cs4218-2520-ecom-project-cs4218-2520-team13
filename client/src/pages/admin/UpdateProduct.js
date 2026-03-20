@@ -48,6 +48,8 @@ const UpdateProduct = () => {
       const { data } = await axios.get("/api/v1/category/get-category");
       if (data?.success) {
         setCategories(data?.category);
+      } else {
+        toast.error(data?.message); // Fixed: Add case when success = false
       }
     } catch (error) {
       console.log(error);

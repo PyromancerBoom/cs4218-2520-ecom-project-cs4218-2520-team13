@@ -6,6 +6,7 @@ import JWT from 'jsonwebtoken';
 import userModel from '../../models/userModel.js';
 import orderModel from '../../models/orderModel.js';
 import productModel from '../../models/productModel.js';
+import categoryModel from '../../models/categoryModel.js';
 
 let mongod;
 
@@ -105,4 +106,21 @@ export const generateToken = (userId) => {
     process.env.JWT_SECRET || 'test-jwt-secret-for-integration-tests',
     { expiresIn: '7d' }
   );
+};
+
+/**
+ * Insert a category.
+ * Generates a unique slug automatically.
+ */
+// Lim Yik Seng, A0338506B
+export const createCategory = async (overrides = {}) => {
+  const name = overrides.name || 'Test Category';
+  // Simple slugify logic or just use the name if you have slugify imported
+  const slug = name.toLowerCase().replace(/ /g, '-'); 
+  
+  return categoryModel.create({
+    name,
+    slug,
+    ...overrides,
+  });
 };
