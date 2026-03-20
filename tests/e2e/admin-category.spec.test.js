@@ -24,7 +24,6 @@ test.describe("Category Management - Integration & Lifecycle", () => {
         await page.getByRole('button', { name: /E2E ADMIN/i }).click();
         await page.getByRole('link', { name: /Dashboard/i }).click();
 
-
         await page.getByRole('link', { name: 'Create Category' }).click();
 
         await expect(page.getByRole('heading', { name: /category/i })).toBeVisible();
@@ -55,11 +54,15 @@ test.describe("Category Management - Integration & Lifecycle", () => {
         await expect(page.getByText('Category name is required')).toBeVisible();
 
         const duplicateName = "Electronics";
-        await input.fill(duplicateName);
-        await page.getByRole('button', { name: 'Submit' }).click();
 
         await input.fill(duplicateName);
         await page.getByRole('button', { name: 'Submit' }).click();
+
+        await expect(page.getByText(`${duplicateName} is created`)).toBeVisible();
+
+        await input.fill(duplicateName);
+        await page.getByRole('button', { name: 'Submit' }).click();
+
         await expect(page.locator('body')).toContainText(/already exists/i);
     });
 
