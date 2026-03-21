@@ -25,9 +25,9 @@
 |--------|------------|
 | **Wei Sheng** (9 pts) | Backend integration: user orders, admin orders, user profile update · Frontend integration: Orders component, route guards · E2E: admin order status, user order history, protected/admin route access |
 | **Priyansh** (8 pts) | Backend integration: register, login, forgot-password · Frontend integration: Login, Register, AdminOrders, Products, CreateCategory · E2E: admin product CRUD |
-| **Sandra** (9 pts) | Backend integration: category CRUD, category retrieval · Frontend integration: Search, Categories, Profile, Admin Users · E2E: category management, product search, profile update |
+| **Sandra** (9 pts) | Backend integration: category CRUD, category retrieval · Frontend integration: Search, Categories, Profile, Admin Users · E2E: category management, product search, profile update, admin users |
 | **Yik Seng** (9 pts) | Backend integration: product write, product retrieval · Frontend integration: CreateProduct, UpdateProduct, ProductDetails, CategoryProduct · E2E: product browsing and detail view |
-| **Aashim** (9 pts) | Backend integration: payment · Frontend integration: CartPage, Homepage · E2E: registration/login, cart, checkout/payment, 404 |
+| **Aashim** (9 pts) | Backend integration: payment, product listing · Frontend integration: CartPage, Homepage, About Page, Layout, Spinner, 404 · E2E: registration/login, cart, checkout/payment, 404, header, footer, homepage |
 
 ---
 
