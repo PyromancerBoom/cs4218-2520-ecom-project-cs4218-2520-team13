@@ -1,6 +1,4 @@
 // Lim Yik Seng, A0338506B
-import dotenv from "dotenv";
-dotenv.config();
 import { test, expect } from "@playwright/test";
 import {
   connectTestDB,
