@@ -6,7 +6,6 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true, // Removes whitespace from both ends // Lim Yik Seng, A0338506B
-      unique: true, // FIX: Prevents duplicate product names
       maxlength: 200, // FIX: Prevents extremely long strings 
     },
     slug: {

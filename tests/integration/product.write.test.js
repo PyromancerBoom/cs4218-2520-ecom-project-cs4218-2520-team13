@@ -187,33 +187,6 @@ describe('Product Write Endpoints Integration Tests', () => {
     });
 
     // Lim Yik Seng, A0338506B
-    // Edge Case: Duplicate Product Name (Unique Index Violation)
-    it('returns 500 and catches MongoDB duplicate key error when product name already exists', async () => {
-      const { user: admin } = await createAdmin();
-      const token = generateToken(admin._id);
-      const categoryId = new mongoose.Types.ObjectId().toString();
-
-      // Seed the database with an existing product
-      await createProduct({ name: 'Exclusive iPhone' });
-
-      // Attempt to create another product with the EXACT same name
-      const res = await request(app)
-        .post('/api/v1/product/create-product')
-        .set('Authorization', token)
-        .field('name', 'Exclusive iPhone') // Duplicate name
-        .field('description', 'This should fail due to unique index')
-        .field('price', 999)
-        .field('category', categoryId)
-        .field('quantity', 10)
-        .attach('photo', Buffer.from('dummy image'), 'dummy.png');
-
-      // Expecting a 500 error triggered by MongoDB (E11000 duplicate key error)
-      expect(res.status).toBe(500);
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toBe('Error in creating product');
-    });
-
-    // Lim Yik Seng, A0338506B
     // Edge Case: Negative Numbers for Price and Quantity
     it('returns 500 when price or quantity are invalid negative numbers', async () => {
       const { user: admin } = await createAdmin();
@@ -493,32 +466,6 @@ describe('Product Write Endpoints Integration Tests', () => {
       expect(res.status).toBe(401);
       expect(res.body.success).toBe(false);
       expect(res.body.message).toBe('Unauthorized');
-    });
-
-    // Lim Yik Seng, A0338506B
-    // Edge Case: Duplicate Name Conflict with ANOTHER product
-    it('returns 500 when updating a product name to one that already exists', async () => {
-      const { user: admin } = await createAdmin();
-      const token = generateToken(admin._id);
-      
-      // Create two distinct products
-      await createProduct({ name: 'Product Alpha' });
-      const productBeta = await createProduct({ name: 'Product Beta' });
-
-      // Try to update Beta's name to "Product Alpha"
-      const res = await request(app)
-        .put(`/api/v1/product/update-product/${productBeta._id}`)
-        .set('Authorization', token)
-        .field('name', 'Product Alpha') // This name is already taken!
-        .field('description', 'Attempting duplicate name update')
-        .field('price', 100)
-        .field('category', productBeta.category.toString())
-        .field('quantity', 10);
-
-      // Verify MongoDB Unique Index blocks this update
-      expect(res.status).toBe(500);
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toBe('Error in Update product');
     });
 
     // Lim Yik Seng, A0338506B
