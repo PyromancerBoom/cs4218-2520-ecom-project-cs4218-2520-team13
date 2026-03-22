@@ -85,7 +85,7 @@ test.describe("Checkout and Payment Flow - E2E UI Tests", () => {
   test.describe("Guest User Checkout Section", () => {
 
     test.beforeEach(async ({ page }) => {
-      await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
+      await page.goto(`${BASE_URL}/cart`, { waitUntil: "domcontentloaded" });
       await page.evaluate(() => localStorage.removeItem("cart"));
     });
 
