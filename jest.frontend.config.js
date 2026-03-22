@@ -22,13 +22,17 @@ export default {
   // run all frontend tests (exclude _site, which contains MarkBind-generated Vue files)
   // client/src/__tests__/integration/ is picked up automatically by the client/src/** glob
   testMatch: ["<rootDir>/client/src/**/*.test.js"],
+  
   testPathIgnorePatterns: [
     "/node_modules/",
     "<rootDir>/client/src/_site/",
+    "<rootDir>/client/src/__tests__/integration/"
   ],
 
   // jest code coverage
   collectCoverage: true,
+  coverageDirectory: "coverage/frontend",
+  
   collectCoverageFrom: [
     "client/src/**/*.{js,jsx}",
     "!client/src/**/*.test.{js,jsx}",
