@@ -116,7 +116,7 @@ test.describe("Home Page - Product Listing and Filtering UI Tests", () => {
     await page.evaluate(() => localStorage.removeItem("cart"));
     await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".card", { timeout: 15000 });
-    await page.waitForTimeout(300);
+    await page.waitForSelector(".filters .ant-checkbox-wrapper", { timeout: 15000 });
   });
 
   test.describe("Product Display", () => {
