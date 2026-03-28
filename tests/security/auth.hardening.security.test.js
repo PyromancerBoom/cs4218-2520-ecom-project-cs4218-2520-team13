@@ -69,43 +69,26 @@ describe('AUTH-03c: NoSQL injection resistance on login', () => {
 describe('AUTH-03d: NoSQL injection resistance on forgot-password', () => {
   /**
    * SECURITY FINDING (expected to fail — 3 tests):
-   * forgotPasswordController calls userModel.findOne({ email, answer }).
-   * When email/answer are MongoDB operator objects, Mongoose executes them as query operators.
-   * The injection { email: { $ne: null }, answer: { $ne: null } } matches ANY user in the DB
-   * and successfully resets their password. This is a real NoSQL injection vulnerability.
+   * forgotPasswordController calls userModel.findOne({ email, answer }) without sanitizing
+   * operator objects from req.body. When email/answer are MongoDB operators like { $ne: null },
+   * findOne matches the first user in the collection and resets their password.
+   * The server returns HTTP 200 for these injection payloads — it should return 400.
    *
-   * OWASP: A03 Injection · CWE-943 Improper Neutralization of Special Elements in Data Query
-   * Fix: Use express-mongo-sanitize middleware to strip $ operators from req.body, or validate
-   * that email and answer are strings (typeof === 'string') before passing to findOne.
+   * OWASP: A03:2021 Injection · CWE-943 Improper Neutralization of Special Elements in Data Query
+   * Fix: Use express-mongo-sanitize to strip $ operators from req.body before controller runs.
    *   npm install express-mongo-sanitize
    *   import mongoSanitize from 'express-mongo-sanitize';
-   *   app.use(mongoSanitize());
+   *   app.use(mongoSanitize());  // in server.js, before routes
    */
-  let d_email;
-  let d_password;
-
-  beforeEach(async () => {
-    const { user, plainPassword } = await createUser({ answer: 'blue' });
-    d_email = user.email;
-    d_password = plainPassword;
-  });
-
   test.each(forgotPasswordInjectionPayloads.map((p, i) => [i, p]))(
-    'forgot-password injection payload #%i does not reset user password',
+    'forgot-password injection payload #%i is rejected by the server (not 200)',
     async (_, payload) => {
-      const injRes = await request(app).post('/api/v1/auth/forgot-password').send(payload);
-      // If the injection endpoint returns 2xx, the server accepted the operator payload
-      // Log the status so the finding is visible in test output:
-      if (injRes.status >= 200 && injRes.status < 300) {
-        console.error(`[AUTH-03d FINDING] Injection payload accepted with status ${injRes.status}`);
-      }
-
-      // Verify this specific user's password was not changed to 'injected_pw_1234'
-      const loginRes = await request(app)
-        .post('/api/v1/auth/login')
-        .send({ email: d_email, password: d_password });
-      expect(loginRes.status).toBe(200);
-      expect(loginRes.body.token).toBeDefined();
+      const injRes = await request(app)
+        .post('/api/v1/auth/forgot-password')
+        .send(payload);
+      // If the server accepts a MongoDB operator object as a field value and returns 200,
+      // it processed the injection — this is the finding.
+      expect(injRes.status).not.toBe(200);
     }
   );
 });
