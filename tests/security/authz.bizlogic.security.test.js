@@ -50,8 +50,8 @@ describe('AUTHZ-04: Business Logic — Order Status Mutation', () => {
       .put(`/api/v1/auth/order-status/${orderId}`)
       .set('Authorization', adminToken)
       .send({ status: 'INVALID_STATUS_XYZ' });
-    // Mongoose runValidators:true means this should be rejected
-    expect(res.status).not.toBe(200);
+    // Mongoose runValidators:true validation error returns 500 from error handler
+    expect(res.status).toBe(500);
   });
 
   test('admin sending a non-existent orderId returns 404 (regression BUG-03)', async () => {
