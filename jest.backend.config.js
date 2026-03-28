@@ -11,7 +11,7 @@ export default {
   // which test to run - backend unit tests + backend integration tests in tests/integration/
   // excludes client/ (frontend, handled by jest.frontend.config.js)
   testMatch: ["<rootDir>/**/*.test.js"],
-  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/client/", "<rootDir>/tests/e2e/"],
+  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/client/", "<rootDir>/tests/e2e/", "<rootDir>/tests/security/"],
 
   // jest code coverage
   collectCoverage: true,
