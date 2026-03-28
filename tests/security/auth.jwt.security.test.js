@@ -10,26 +10,27 @@ import {
   generateToken,
 } from '../helpers/db.js';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
 const makeExpiredToken = (userId) =>
-  JWT.sign({ _id: userId }, JWT_SECRET, { expiresIn: 0 });
+  JWT.sign({ _id: userId }, process.env.JWT_SECRET || 'test-jwt-secret-for-integration-tests', { expiresIn: 0 });
 
 const toBase64url = (obj) =>
   Buffer.from(JSON.stringify(obj)).toString('base64url');
 
+// Declare variables at file scope so both describe blocks can access them
+let userId, adminId, validToken;
+
+beforeAll(async () => {
+  await startMemoryDB();
+  const { user } = await createUser();
+  const { user: admin } = await createAdmin();
+  userId = user._id;
+  adminId = admin._id;
+  validToken = generateToken(user._id);
+});
+
+afterAll(() => stopMemoryDB());
+
 describe('AUTH-01: JWT Expiry Enforcement', () => {
-  let userId, adminId;
-
-  beforeAll(async () => {
-    await startMemoryDB();
-    const { user } = await createUser();
-    const { user: admin } = await createAdmin();
-    userId = user._id;
-    adminId = admin._id;
-  });
-
-  afterAll(() => stopMemoryDB());
 
   test('[expired] GET /api/v1/auth/user-auth returns 401', async () => {
     const res = await request(app)
@@ -62,15 +63,6 @@ describe('AUTH-01: JWT Expiry Enforcement', () => {
 });
 
 describe('AUTH-02: JWT Signature & Algorithm Validation', () => {
-  let validToken;
-
-  beforeAll(async () => {
-    await startMemoryDB();
-    const { user } = await createUser();
-    validToken = generateToken(user._id);
-  });
-
-  afterAll(() => stopMemoryDB());
 
   test('[none-algorithm] token with alg:none returns 401', async () => {
     // Reconstruct header with alg:none, keep original payload, empty signature
@@ -99,8 +91,9 @@ describe('AUTH-02: JWT Signature & Algorithm Validation', () => {
   test('[tampered-signature] one character changed in signature returns 401', async () => {
     const parts = validToken.split('.');
     const sig = parts[2];
-    // Flip last character: A→B or anything→A
-    const flipped = sig.slice(0, -1) + (sig.slice(-1) === 'A' ? 'B' : 'A');
+    // Flip a middle character to avoid padding bits
+    const mid = Math.floor(sig.length / 2);
+    const flipped = sig.slice(0, mid) + (sig[mid] === 'A' ? 'B' : 'A') + sig.slice(mid + 1);
     const tamperedToken = `${parts[0]}.${parts[1]}.${flipped}`;
 
     const res = await request(app)
