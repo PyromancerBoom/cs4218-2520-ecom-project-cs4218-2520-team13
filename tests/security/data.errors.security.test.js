@@ -32,7 +32,7 @@ describe('DATA-02: Error Response Sanitization', () => {
     expect(bodyContainsSensitiveDetail(res.body)).toBe(false);
   });
 
-  test('POST /api/v1/auth/login 500 response does not contain stack trace', async () => {
+  test('POST /api/v1/auth/register duplicate 409 does not leak MongoServerError', async () => {
     /**
      * SECURITY FINDING (expected to fail):
      * loginController: res.status(500).send({ success: false, message: "Error in login", error })
