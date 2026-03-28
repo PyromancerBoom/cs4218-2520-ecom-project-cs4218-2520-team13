@@ -7,7 +7,6 @@ import {
   createAdmin,
   createOrder,
   createCategory,
-  createProduct,
   generateToken,
 } from '../helpers/db.js';
 
@@ -15,7 +14,6 @@ let userToken;
 let adminToken;
 let orderId;
 let categoryId;
-let productId;
 
 beforeAll(async () => {
   await startMemoryDB();
@@ -29,9 +27,6 @@ beforeAll(async () => {
 
   const cat = await createCategory();
   categoryId = cat._id.toString();
-
-  const product = await createProduct({ category: cat._id });
-  productId = product._id.toString();
 });
 
 afterAll(() => stopMemoryDB());
@@ -40,16 +35,6 @@ afterAll(() => stopMemoryDB());
 const adminGetRoutes = [
   '/api/v1/auth/all-orders',
   '/api/v1/auth/all-users',
-];
-
-// Admin-only POST routes
-const adminPostRoutes = [
-  { path: '/api/v1/category/create-category', body: { name: 'Injected Category' } },
-];
-
-// Admin-only DELETE routes — use dynamic paths set in beforeAll
-const getAdminDeleteRoutes = () => [
-  `/api/v1/category/delete-category/${categoryId}`,
 ];
 
 describe('AUTHZ-01: Admin GET endpoints reject non-admin', () => {
@@ -96,6 +81,13 @@ describe('AUTHZ-01: Category management rejects non-admin', () => {
     expect(res.status).toBe(401);
   });
 
+  test('POST /api/v1/category/create-category — no token returns 401', async () => {
+    const res = await request(app)
+      .post('/api/v1/category/create-category')
+      .send({ name: 'Injected Category' });
+    expect(res.status).toBe(401);
+  });
+
   test('PUT /api/v1/category/update-category/:id — regular user returns 401', async () => {
     const res = await request(app)
       .put(`/api/v1/category/update-category/${categoryId}`)
@@ -104,10 +96,23 @@ describe('AUTHZ-01: Category management rejects non-admin', () => {
     expect(res.status).toBe(401);
   });
 
+  test('PUT /api/v1/category/update-category/:id — no token returns 401', async () => {
+    const res = await request(app)
+      .put(`/api/v1/category/update-category/${categoryId}`)
+      .send({ name: 'Injected' });
+    expect(res.status).toBe(401);
+  });
+
   test('DELETE /api/v1/category/delete-category/:id — regular user returns 401', async () => {
     const res = await request(app)
       .delete(`/api/v1/category/delete-category/${categoryId}`)
       .set('Authorization', userToken);
+    expect(res.status).toBe(401);
+  });
+
+  test('DELETE /api/v1/category/delete-category/:id — no token returns 401', async () => {
+    const res = await request(app)
+      .delete(`/api/v1/category/delete-category/${categoryId}`);
     expect(res.status).toBe(401);
   });
 });
@@ -123,6 +128,43 @@ describe('AUTHZ-01: Admin routes accept admin token', () => {
   test('GET /api/v1/auth/all-users — admin returns 200', async () => {
     const res = await request(app)
       .get('/api/v1/auth/all-users')
+      .set('Authorization', adminToken);
+    expect(res.status).toBe(200);
+  });
+
+  test('PUT /api/v1/auth/order-status/:id — admin returns 200', async () => {
+    const res = await request(app)
+      .put(`/api/v1/auth/order-status/${orderId}`)
+      .set('Authorization', adminToken)
+      .send({ status: 'Processing' });
+    expect(res.status).toBe(200);
+  });
+
+  test('POST /api/v1/category/create-category — admin returns 201', async () => {
+    const res = await request(app)
+      .post('/api/v1/category/create-category')
+      .set('Authorization', adminToken)
+      .send({ name: 'Admin Created' });
+    expect([200, 201]).toContain(res.status);
+  });
+
+  test('PUT /api/v1/category/update-category/:id — admin returns 200', async () => {
+    const res = await request(app)
+      .put(`/api/v1/category/update-category/${categoryId}`)
+      .set('Authorization', adminToken)
+      .send({ name: 'Updated By Admin' });
+    expect(res.status).toBe(200);
+  });
+
+  test('DELETE /api/v1/category/delete-category/:id — admin returns 200', async () => {
+    // Create a fresh category to delete so we don't affect other tests
+    const createRes = await request(app)
+      .post('/api/v1/category/create-category')
+      .set('Authorization', adminToken)
+      .send({ name: 'To Delete' });
+    const deleteCatId = createRes.body.category._id;
+    const res = await request(app)
+      .delete(`/api/v1/category/delete-category/${deleteCatId}`)
       .set('Authorization', adminToken);
     expect(res.status).toBe(200);
   });
