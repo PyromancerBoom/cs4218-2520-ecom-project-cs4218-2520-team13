@@ -24,6 +24,7 @@ beforeAll(async () => {
     .post('/api/v1/product/product-filters')
     .send({ checked: [], radio: [] });
   legitimateProductCount = baseRes.body.products?.length ?? 0;
+  expect(legitimateProductCount).toBeGreaterThan(0);
 });
 
 afterAll(() => stopMemoryDB());
