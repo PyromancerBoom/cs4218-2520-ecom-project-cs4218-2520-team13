@@ -989,11 +989,11 @@ describe("loginController", () => {
         await loginController(req, res);
 
         // assert
-        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.status).toHaveBeenCalledWith(401);
         expect(res.send).toHaveBeenCalledWith(
             expect.objectContaining({
                 success: false,
-                message: "Email is not registered",
+                message: "Invalid email or password",
             }),
         );
     });
@@ -1013,7 +1013,7 @@ describe("loginController", () => {
         expect(res.send).toHaveBeenCalledWith(
             expect.objectContaining({
                 success: false,
-                message: "Invalid Password",
+                message: "Invalid email or password",
             }),
         );
     });
