@@ -1349,6 +1349,20 @@ describe("forgotPasswordController", () => {
         expect(res.send).toHaveBeenCalledTimes(1);
     });
 
+    // LOW WEI SHENG, A0259272X
+    // security - reject non-string values to prevent NoSQL operator injection
+    it("should return 400 when email is not a string", async () => {
+        // arrange
+        req.body.email = { $gt: "" };
+
+        // act
+        await forgotPasswordController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.send).toHaveBeenCalledWith({ message: "Invalid input" });
+    });
+
     // Priyansh Bimbisariye, A0265903B
     // ep - non-existent user partition
     // mock findOne to return null
