@@ -2,6 +2,10 @@ import base from './jest.frontend.config.js';
 
 export default {
   ...base,
+
+  collectCoverage: true,
+  coverageDirectory: 'coverage/frontend-integration',
+
   testMatch: ['**/client/src/__tests__/integration/**/*.test.js'],
   testTimeout: 15000,
   // Override to remove the integration directory exclusion that the base adds for unit runs
