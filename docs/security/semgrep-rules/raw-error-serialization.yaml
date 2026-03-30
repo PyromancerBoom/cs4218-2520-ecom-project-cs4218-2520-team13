@@ -1,0 +1,15 @@
+rules:
+  - id: raw-error-object-in-response
+    patterns:
+      - pattern: "res.status(...).send({ ..., error: $ERR, ... })"
+      - pattern-not: "res.status(...).send({ ..., error: $ERR.message, ... })"
+    message: >
+      Raw Error object passed to res.send(). While Error.stack is non-enumerable in V8
+      and may not serialize, this is a fragile assumption. Use error.message instead
+      to explicitly control what is sent to the client (CWE-209).
+      Fix: replace `error: err` with `error: err.message`.
+    languages: [js]
+    severity: ERROR
+    metadata:
+      owasp: "A05:2021 Security Misconfiguration"
+      cwe: "CWE-209 Generation of Error Message Containing Sensitive Information"

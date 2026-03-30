@@ -1,0 +1,16 @@
+rules:
+  - id: findbyidandupdate-missing-runvalidators
+    pattern: "$MODEL.findByIdAndUpdate($ID, $UPDATE, $OPTIONS)"
+    pattern-not: "$MODEL.findByIdAndUpdate($ID, $UPDATE, { ..., runValidators: true, ... })"
+    message: >
+      findByIdAndUpdate called without runValidators:true.
+      Mongoose skips schema validators (enum, required, min/max) on updates by default.
+      This was the root cause of BUG-02 in this codebase (invalid order status accepted silently).
+      Fix: add { runValidators: true } to the options object.
+    languages: [js]
+    severity: WARNING
+    metadata:
+      owasp: "A03:2021 Injection"
+      cwe: "CWE-20 Improper Input Validation"
+      references:
+        - https://mongoosejs.com/docs/api/query.html#Query.prototype.setOptions()
