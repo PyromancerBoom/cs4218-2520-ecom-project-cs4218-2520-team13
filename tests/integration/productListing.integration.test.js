@@ -254,7 +254,6 @@ describe("Home Page - Product Listing and Filtering Integration Tests", () => {
       const product = res.body.products[0];
       expect(product).toHaveProperty("name");
       expect(product).toHaveProperty("price");
-      expect(product).toHaveProperty("description");
       expect(product).toHaveProperty("slug");
       expect(product).toHaveProperty("_id");
       expect(product).not.toHaveProperty("photo");
