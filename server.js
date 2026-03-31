@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoute.js'
 import categoryRoutes from './routes/categoryRoutes.js'
 import productRoutes from './routes/productRoutes.js'
 import cors from "cors";
+import { testRouter } from "./tests/loadtest/helper/testDbHelper.js";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use(morgan('dev'));
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
+app.use("/api/v1/test", testRouter);
 
 app.get('/', (req, res) => {
     res.send("<h1>Welcome to ecommerce app</h1>");
