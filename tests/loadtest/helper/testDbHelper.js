@@ -24,9 +24,11 @@ const IDEAL_PRODUCTS = [
 
 testRouter.post("/seed", async (req, res) => {
     try {
+        // Generates a 100KB dummy buffer to simulate a standard product image size
+        const mockImageBuffer = Buffer.alloc(1024 * 100, 'x');
+
         if (req.body.users && req.body.users.length > 0) {
             const hashedPassword = await bcrypt.hash("password123", 10);
-
             const incomingEmails = req.body.users.map(u => u.email);
             const existingUsers = await userModel.find({ email: { $in: incomingEmails } });
             const existingEmails = existingUsers.map(u => u.email);
@@ -61,7 +63,11 @@ testRouter.post("/seed", async (req, res) => {
                 await new productModel({
                     ...p,
                     quantity: 1000,
-                    shipping: true
+                    shipping: true,
+                    photo: {
+                        data: mockImageBuffer,
+                        contentType: "image/jpeg"
+                    }
                 }).save();
             }
         }
@@ -79,7 +85,6 @@ testRouter.post("/seed", async (req, res) => {
             products: mappedProducts
         });
     } catch (error) {
-        console.log(error);
         res.status(500).send({ success: false, error });
     }
 });
@@ -92,9 +97,11 @@ testRouter.delete("/cleanup", async (req, res) => {
         await orderModel.deleteMany({ buyer: { $in: testUserIds } });
         await userModel.deleteMany({ _id: { $in: testUserIds } });
 
+        const productIds = IDEAL_PRODUCTS.map(p => p._id);
+        await productModel.deleteMany({ _id: { $in: productIds } });
+
         res.status(200).send({ success: true });
     } catch (error) {
-        console.log(error);
         res.status(500).send({ success: false, error });
     }
 });

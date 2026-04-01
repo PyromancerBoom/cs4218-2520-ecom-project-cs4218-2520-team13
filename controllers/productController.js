@@ -119,7 +119,7 @@ export const productPhotoController = async (req, res) => {
     if (photoCache.has(pid)) {
       const cachedPhoto = photoCache.get(pid);
       res.set("Content-type", cachedPhoto.contentType);
-      res.set("Cache-Control", "public, max-age=86400");
+      res.set("Cache-Control", "public, max-age=60");
       return res.status(200).send(cachedPhoto.data);
     }
 
@@ -139,7 +139,7 @@ export const productPhotoController = async (req, res) => {
       });
 
       res.set("Content-type", product.photo.contentType);
-      res.set("Cache-Control", "public, max-age=86400"); // FIX: Add cache control header for better caching (handled by frontend) // LOU YING-WEN, A0338520J
+      res.set("Cache-Control", "public, max-age=60"); // FIX: Add cache control header for better caching (handled by frontend) // LOU YING-WEN, A0338520J
       return res.status(200).send(product.photo.data);
     } else {
       return res.status(404).send({

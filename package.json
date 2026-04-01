@@ -14,7 +14,8 @@
     "test:backend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js",
     "test:integration:backend": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.integration.config.js",
     "test:integration:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.integration.config.js",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:load": "cd tests/loadtest && node runner.js"
   },
   "keywords": [],
   "author": "RP",

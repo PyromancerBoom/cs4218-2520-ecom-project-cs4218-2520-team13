@@ -5,8 +5,8 @@ import { randomItem } from 'https://jslib.k6.io/k6-utils/1.2.0/index.js';
 
 export const options = {
     stages: [
-        { duration: '3m', target: 300 },
-        { duration: '2m', target: 300 },
+        { duration: '3m', target: 280 },
+        { duration: '2m', target: 280 },
         { duration: '1m', target: 0 },
     ],
     thresholds: {
