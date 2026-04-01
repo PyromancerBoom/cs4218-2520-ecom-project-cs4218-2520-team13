@@ -13,6 +13,7 @@
     "test:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js",
     "test:backend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js",
     "test:integration:backend": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.integration.config.js",
+    "test:security": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.security.config.js",
     "test:integration:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.integration.config.js",
     "test:e2e": "playwright test",
     "test:load": "cd tests/loadtest && node runner.js"
@@ -31,6 +32,9 @@
     "dotenv": "^16.4.1",
     "express": "^4.18.2",
     "express-formidable": "^1.2.0",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.3.1",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.3.0",
     "mongodb-memory-server": "^11.0.1",
