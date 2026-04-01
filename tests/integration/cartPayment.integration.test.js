@@ -357,7 +357,7 @@ describe("Cart & Payment Integration Tests", () => {
         password: "password123",
       });
 
-      expect(res.statusCode).toBe(404);
+      expect(res.statusCode).toBe(401);
       expect(res.body.success).toBe(false);
     });
 

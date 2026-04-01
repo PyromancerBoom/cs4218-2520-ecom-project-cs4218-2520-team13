@@ -989,11 +989,11 @@ describe("loginController", () => {
         await loginController(req, res);
 
         // assert
-        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.status).toHaveBeenCalledWith(401);
         expect(res.send).toHaveBeenCalledWith(
             expect.objectContaining({
                 success: false,
-                message: "Email is not registered",
+                message: "Invalid email or password",
             }),
         );
     });
@@ -1013,7 +1013,7 @@ describe("loginController", () => {
         expect(res.send).toHaveBeenCalledWith(
             expect.objectContaining({
                 success: false,
-                message: "Invalid Password",
+                message: "Invalid email or password",
             }),
         );
     });
@@ -1347,6 +1347,20 @@ describe("forgotPasswordController", () => {
             message: "New Password is required",
         });
         expect(res.send).toHaveBeenCalledTimes(1);
+    });
+
+    // LOW WEI SHENG, A0259272X
+    // security - reject non-string values to prevent NoSQL operator injection
+    it("should return 400 when email is not a string", async () => {
+        // arrange
+        req.body.email = { $gt: "" };
+
+        // act
+        await forgotPasswordController(req, res);
+
+        // assert
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.send).toHaveBeenCalledWith({ message: "Invalid input" });
     });
 
     // Priyansh Bimbisariye, A0265903B

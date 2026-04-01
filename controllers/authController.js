@@ -83,16 +83,16 @@ export const loginController = async (req, res) => {
     //check user
     const user = await userModel.findOne({ email });
     if (!user) {
-      return res.status(404).send({
+      return res.status(401).send({
         success: false,
-        message: "Email is not registered",
+        message: "Invalid email or password",
       });
     }
     const match = await comparePassword(password, user.password);
     if (!match) {
       return res.status(401).send({
         success: false,
-        message: "Invalid Password",
+        message: "Invalid email or password",
       });
     }
     //token
@@ -136,7 +136,10 @@ export const forgotPasswordController = async (req, res) => {
     if (!newPassword) {
       return res.status(400).send({ message: "New Password is required" });
     }
-    //check
+    //check — reject non-string values to prevent NoSQL operator injection
+    if (typeof email !== "string" || typeof answer !== "string") {
+      return res.status(400).send({ message: "Invalid input" });
+    }
     const user = await userModel.findOne({ email, answer });
     //validation
     if (!user) {

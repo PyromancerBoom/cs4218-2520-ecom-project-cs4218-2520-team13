@@ -11,12 +11,10 @@ export default {
   // which test to run - backend unit tests + backend integration tests in tests/integration/
   // excludes client/ (frontend, handled by jest.frontend.config.js)
   testMatch: ["<rootDir>/**/*.test.js"],
-  
-  testPathIgnorePatterns: [
-    "/node_modules/", 
-    "<rootDir>/client/", 
-    "<rootDir>/tests/" 
-  ],
+  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/client/", "<rootDir>/tests/e2e/", "<rootDir>/tests/security/"],
+
+  // force exit so express-rate-limit's MemoryStore setInterval doesn't keep workers alive
+  forceExit: true,
 
   // jest code coverage
   collectCoverage: true,
