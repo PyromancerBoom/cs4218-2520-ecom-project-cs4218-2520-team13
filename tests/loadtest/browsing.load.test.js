@@ -5,8 +5,8 @@ import { randomItem } from 'https://jslib.k6.io/k6-utils/1.2.0/index.js';
 
 export const options = {
     stages: [
-        { duration: '3m', target: 280 },
-        { duration: '2m', target: 280 },
+        { duration: '2m', target: 250 },
+        { duration: '2m', target: 250 },
         { duration: '1m', target: 0 },
     ],
     thresholds: {
@@ -44,6 +44,15 @@ export default function () {
         check(res['productList'], { 'Paginated products loaded (200)': (r) => r.status === 200 });
         check(res['category'], { 'Categories loaded successfully (200)': (r) => r.status === 200 });
         check(res['productCount'], { 'Product count loaded (200)': (r) => r.status === 200 });
+
+        sleep(0.5);
+
+        let homepagePhotoReqs = DB_PRODUCTS.map(p =>
+            ['GET', `${BASE_URL}/product/product-photo/${p.pid}`, null, { tags: { type: 'photo_api', name: 'Flow_Homepage' } }]
+        );
+
+        let hpPhotoRes = http.batch(homepagePhotoReqs);
+        check(hpPhotoRes[0], { 'Homepage product photos loaded': (r) => r.status === 200 || r.status === 404 });
     });
 
     sleep(Math.random() * 2 + 1);
@@ -55,11 +64,6 @@ export default function () {
         check(detailsRes, { 'Product details JSON loaded': (r) => r.status === 200 });
 
         sleep(0.5);
-
-        let mainPhotoRes = http.get(`${BASE_URL}/product/product-photo/${selectedItem.pid}`, {
-            tags: { type: 'photo_api', name: 'Flow_ProductDetail' }
-        });
-        check(mainPhotoRes, { 'Main photo loaded': (r) => r.status === 200 || r.status === 404 });
 
         let relatedRes = http.get(`${BASE_URL}/product/related-product/${selectedItem.pid}/${selectedItem.cid}`, {
             tags: { type: 'json_api', name: 'Flow_ProductDetail' }

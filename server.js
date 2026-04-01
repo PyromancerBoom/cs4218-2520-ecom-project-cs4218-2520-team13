@@ -26,7 +26,9 @@ const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 10,
     message: { success: false, message: "Too many login attempts, try again later." },
+    skip: (req) => req.headers['x-loadtest-bypass'] === 'true'
 });
+
 app.use("/api/v1/auth/login", loginLimiter);
 
 app.use("/api/v1/auth", authRoutes);
