@@ -25,19 +25,19 @@ async function runAllTests() {
         if (!seedRes.ok) throw new Error(`Seed failed: ${seedRes.status}`);
         console.log("✅ Database seeded successfully!\n");
 
-        // console.log("🚀 [2/5] Running Search Scenario...");
-        // try {
-        //     execSync("k6 run usersearch.load.test.js", { stdio: 'inherit' });
-        // } catch (e) {
-        //     console.log("⚠️ Search finished with threshold warnings, continuing to next...");
-        // }
+        console.log("🚀 [2/5] Running Search Scenario...");
+        try {
+            execSync("k6 run usersearch.load.test.js", { stdio: 'inherit' });
+        } catch (e) {
+            console.log("⚠️ Search finished with threshold warnings, continuing to next...");
+        }
 
-        // console.log("\n🚀 [3/5] Running Browsing Scenario...");
-        // try {
-        //     execSync("k6 run browsing.load.test.js", { stdio: 'inherit' });
-        // } catch (e) {
-        //     console.log("⚠️ Browsing finished with threshold warnings, continuing to next...");
-        // }
+        console.log("\n🚀 [3/5] Running Browsing Scenario...");
+        try {
+            execSync("k6 run browsing.load.test.js", { stdio: 'inherit' });
+        } catch (e) {
+            console.log("⚠️ Browsing finished with threshold warnings, continuing to next...");
+        }
 
         console.log("\n🚀 [4/5] Running Checkout Scenario...");
         try {
