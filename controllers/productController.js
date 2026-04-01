@@ -10,6 +10,7 @@ import braintree from "braintree";
 import dotenv from "dotenv";
 
 dotenv.config();
+const photoCache = new Map();
 
 var gateway = new braintree.BraintreeGateway({
   environment: braintree.Environment.Sandbox,
@@ -66,10 +67,12 @@ export const getProductController = async (req, res) => {
   try {
     const products = await productModel
       .find({}) // find all products
-      .populate("category") 
+      .select("-photo") //FIX: Exclude photo data for faster response (handled by separate endpoint) // LOU YING-WEN, A0338520J
+      .populate("category", "name") // populate category field with only name for better performance // LOU YING-WEN, A0338520J
       .select("-photo") // exclude photo field
       .limit(12)
-      .sort({ createdAt: -1 }); // sort by creation date descending (newest first)
+      .sort({ createdAt: -1 }) // sort by creation date descending (newest first)
+
     res.status(200).send({ // package response object and send to frontend
       success: true,
       countTotal: products.length,
@@ -92,7 +95,7 @@ export const getSingleProductController = async (req, res) => {
     const product = await productModel
       .findOne({ slug: req.params.slug })
       .select("-photo")
-      .populate("category");
+      .populate("category")
     res.status(200).send({
       success: true,
       message: "Single Product Fetched",
@@ -103,7 +106,7 @@ export const getSingleProductController = async (req, res) => {
     res.status(500).send({
       success: false,
       message: "Error while getting single product",
-      error: error.message, 
+      error: error.message,
     });
   }
 };
@@ -111,20 +114,34 @@ export const getSingleProductController = async (req, res) => {
 // get photo
 export const productPhotoController = async (req, res) => {
   try {
-    const product = await productModel.findById(req.params.pid).select("photo");
-    // Handle "Product Not Found" (Prevents Null Pointer Crash)
+    const pid = req.params.pid;
+
+    if (photoCache.has(pid)) {
+      const cachedPhoto = photoCache.get(pid);
+      res.set("Content-type", cachedPhoto.contentType);
+      res.set("Cache-Control", "public, max-age=60");
+      return res.status(200).send(cachedPhoto.data);
+    }
+
+    const product = await productModel.findById(pid).select("photo");
+
     if (!product) {
       return res.status(404).send({
         success: false,
         message: "Product not found",
       });
     }
-    // Handle "No Photo Data" (Prevents Request Hanging)
+
     if (product.photo && product.photo.data) {
+      photoCache.set(pid, {
+        data: product.photo.data,
+        contentType: product.photo.contentType
+      });
+
       res.set("Content-type", product.photo.contentType);
+      res.set("Cache-Control", "public, max-age=60"); // FIX: Add cache control header for better caching (handled by frontend) // LOU YING-WEN, A0338520J
       return res.status(200).send(product.photo.data);
     } else {
-      // Return 404 or a default image if photo doesn't exist
       return res.status(404).send({
         success: false,
         message: "No photo found for this product",
@@ -214,7 +231,7 @@ export const productFiltersController = async (req, res) => {
     let args = {};
     if (checked && checked.length > 0) args.category = checked;
     if (radio && radio.length === 2) args.price = { $gte: radio[0], $lte: radio[1] };
-    const products = await productModel.find(args);
+    const products = await productModel.find(args).select("-photo");
     res.status(200).send({
       success: true,
       products,
@@ -292,7 +309,8 @@ export const searchProductController = async (req, res) => {
           { description: { $regex: keyword, $options: "i" } },
         ],
       })
-      .select("-photo");
+      .select("-photo")
+
     res.status(200).send({    /// Modified
       success: true,
       results,
@@ -325,8 +343,7 @@ export const relatedProductController = async (req, res) => {
         _id: { $ne: pid },  // Exclude the current product (not equal)
       })
       .select("-photo")
-      .limit(3)
-      .populate("category");
+      .limit(3);
     res.status(200).send({
       success: true,
       products,
@@ -356,9 +373,12 @@ export const productCategoryController = async (req, res) => {
         message: "Category not found in database",
       });
     }
-    const products = await productModel.find({ category }).populate("category");
+    const products = await productModel
+      .find({ category })
+      .select("-photo")
+      .limit(12);
     res.status(200).send({
-      success: true, 
+      success: true,
       category,
       products,
     });
@@ -396,6 +416,9 @@ export const brainTreePaymentController = async (req, res) => {
     cart.map((i) => {
       total += i.price;
     });
+
+    total = Number(total.toFixed(2)); // TO MAKE SURE BRAINTREE ACCEPTS THE AMOUNT IN CORRECT FORMAT // LOU YING-WEN, A0338520J
+
     let newTransaction = gateway.transaction.sale(
       {
         amount: total,

@@ -15,13 +15,15 @@
     "test:integration:backend": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.integration.config.js",
     "test:security": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.security.config.js",
     "test:integration:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.integration.config.js",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:load": "cd tests/loadtest && node runner.js"
   },
   "keywords": [],
   "author": "RP",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.3",
     "braintree": "^3.22.0",
     "colors": "^1.4.0",
     "concurrently": "^8.2.2",

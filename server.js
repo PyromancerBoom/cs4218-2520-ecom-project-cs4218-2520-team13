@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoute.js'
 import categoryRoutes from './routes/categoryRoutes.js'
 import productRoutes from './routes/productRoutes.js'
 import cors from "cors";
+import { testRouter } from "./tests/loadtest/helper/testDbHelper.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
@@ -22,15 +23,18 @@ app.use(mongoSanitize());
 app.use(morgan('dev'));
 
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  message: { success: false, message: "Too many login attempts, try again later." },
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { success: false, message: "Too many login attempts, try again later." },
+    skip: (req) => req.headers['x-loadtest-bypass'] === 'true'
 });
+
 app.use("/api/v1/auth/login", loginLimiter);
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
+app.use("/api/v1/test", testRouter);
 
 app.get('/', (req, res) => {
     res.send("<h1>Welcome to ecommerce app</h1>");

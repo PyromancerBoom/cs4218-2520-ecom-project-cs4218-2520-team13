@@ -7,10 +7,12 @@ const productSchema = new mongoose.Schema(
       required: true,
       trim: true, // Removes whitespace from both ends // Lim Yik Seng, A0338506B
       maxlength: 200, // FIX: Prevents extremely long strings 
+      index: true, // Adds an index for faster search by name
     },
     slug: {
       type: String,
       required: true,
+      index: true,
     },
     description: {
       type: String,
@@ -26,6 +28,7 @@ const productSchema = new mongoose.Schema(
       type: mongoose.ObjectId,
       ref: "Category",
       required: true,
+      index: true, // Adds an index for faster queries by category
     },
     quantity: {
       type: Number,
