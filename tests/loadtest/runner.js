@@ -27,21 +27,21 @@ async function runAllTests() {
 
         console.log("🚀 [2/5] Running Search Scenario...");
         try {
-            execSync("k6 run usersearch.load.test.js", { stdio: 'inherit' });
+            execSync("k6 run usersearch-filter.load.test.js", { stdio: 'inherit' });
         } catch (e) {
             console.log("⚠️ Search finished with threshold warnings, continuing to next...");
         }
 
         console.log("\n🚀 [3/5] Running Browsing Scenario...");
         try {
-            execSync("k6 run browsing.load.test.js", { stdio: 'inherit' });
+            execSync("k6 run browsing-productdetail.load.test.js", { stdio: 'inherit' });
         } catch (e) {
             console.log("⚠️ Browsing finished with threshold warnings, continuing to next...");
         }
 
         console.log("\n🚀 [4/5] Running Checkout Scenario...");
         try {
-            execSync("k6 run checkout.load.test.js", { stdio: 'inherit' });
+            execSync("k6 run login-checkout.load.test.js", { stdio: 'inherit' });
         } catch (e) {
             console.log("⚠️ Checkout finished with threshold warnings.");
         }
