@@ -16,7 +16,14 @@
     "test:security": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.security.config.js",
     "test:integration:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.integration.config.js",
     "test:e2e": "playwright test",
-    "test:load": "cd tests/loadtest && node runner.js"
+    "test:load": "cd tests/loadtest && node runner.js",
+    "test:spike:flash": "cross-env K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=report-flash.html k6 run tests/spike/flash-sale-spike.test.js",
+    "test:spike:login": "cross-env K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=report-login.html k6 run tests/spike/login-surge-spike.test.js",
+    "test:spike:search": "cross-env K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=report-search.html k6 run tests/spike/search-spike.test.js",
+    "test:spike:category": "cross-env K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=report-category.html k6 run tests/spike/category-spike.test.js",
+    "test:spike:checkout": "cross-env K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=report-checkout.html k6 run tests/spike/checkout-spike.test.js",
+    "test:spike:full": "cross-env K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=report-full.html k6 run tests/spike/full-scenario-spike.test.js",
+    "test:spike:all": "npm run test:spike:flash && npm run test:spike:login && npm run test:spike:search && npm run test:spike:category && npm run test:spike:checkout"
   },
   "keywords": [],
   "author": "RP",
