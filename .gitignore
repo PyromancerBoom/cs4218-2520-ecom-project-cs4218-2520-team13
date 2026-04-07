@@ -14,3 +14,6 @@ coverage/
 /playwright/.auth/
 # SonarQube
 .scannerwork/
+
+# k6 spike test reports
+report-*.html
