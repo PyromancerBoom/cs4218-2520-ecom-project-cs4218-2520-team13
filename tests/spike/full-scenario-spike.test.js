@@ -1,6 +1,6 @@
 // Lim Yik Seng, A0338506B
 // Full spike test combining all 4 user archetypes simultaneously.
-// Total peak: ~500 VUs (200 browsers + 150 searchers + 100 login + 50 shoppers).
+// Total peak: ~800 VUs (350 browsers + 200 searchers + 150 login + 100 checkouts).
 // Tests how the system behaves when all endpoint types are under load at the same time.
 
 import http from "k6/http";
@@ -21,7 +21,7 @@ const overallErrorRate = new Rate("overall_error_rate");
 const archBrowserErrors = new Counter("arch_browser_errors");
 const archSearchErrors = new Counter("arch_search_errors");
 const archLoginErrors = new Counter("arch_login_errors");
-const archShopperErrors = new Counter("arch_shopper_errors");
+const archCheckoutErrors = new Counter("arch_checkout_errors");
 
 // --- Scenario options using k6 scenarios API ---
 // Each scenario has independent VU scaling — this is more realistic
@@ -31,13 +31,13 @@ export const options = {
     // Anonymous browsers — product listing and filtering
     anonymous_browsers: {
       executor: "ramping-vus",
-      startVUs: 2,
+      startVUs: 4,
       stages: [
-        { duration: "30s", target: 10 },   // Baseline
-        { duration: "5s", target: 200 },   // Spike
-        { duration: "30s", target: 200 },  // Sustained
-        { duration: "5s", target: 10 },    // Drop
-        { duration: "20s", target: 10 },   // Recovery
+        { duration: "30s", target: 4 },    // Baseline
+        { duration: "5s", target: 350 },   // Spike
+        { duration: "30s", target: 350 },  // Sustained
+        { duration: "5s", target: 4 },     // Drop
+        { duration: "20s", target: 4 },    // Recovery
       ],
       exec: "browserScenario",
       tags: { archetype: "browser" },
@@ -46,13 +46,13 @@ export const options = {
     // Searchers — search endpoint spike
     searchers: {
       executor: "ramping-vus",
-      startVUs: 1,
+      startVUs: 2,
       stages: [
-        { duration: "30s", target: 8 },
-        { duration: "5s", target: 150 },
-        { duration: "30s", target: 150 },
-        { duration: "5s", target: 8 },
-        { duration: "20s", target: 8 },
+        { duration: "30s", target: 2 },
+        { duration: "5s", target: 200 },
+        { duration: "30s", target: 200 },
+        { duration: "5s", target: 2 },
+        { duration: "20s", target: 2 },
       ],
       exec: "searchScenario",
       tags: { archetype: "searcher" },
@@ -63,29 +63,29 @@ export const options = {
       executor: "ramping-vus",
       startVUs: 1,
       stages: [
-        { duration: "30s", target: 5 },
-        { duration: "5s", target: 100 },
-        { duration: "30s", target: 100 },
-        { duration: "5s", target: 5 },
-        { duration: "20s", target: 5 },
+        { duration: "30s", target: 1 },
+        { duration: "5s", target: 150 },
+        { duration: "30s", target: 150 },
+        { duration: "5s", target: 1 },
+        { duration: "20s", target: 1 },
       ],
       exec: "loginScenario",
       tags: { archetype: "login" },
     },
 
-    // Authenticated shoppers — product detail + checkout token
-    authenticated_shoppers: {
+    // Authenticated checkouts — product detail + checkout token
+    authenticated_checkouts: {
       executor: "ramping-vus",
       startVUs: 1,
       stages: [
-        { duration: "30s", target: 3 },
-        { duration: "5s", target: 50 },
-        { duration: "30s", target: 50 },
-        { duration: "5s", target: 3 },
-        { duration: "20s", target: 3 },
+        { duration: "30s", target: 1 },
+        { duration: "5s", target: 100 },
+        { duration: "30s", target: 100 },
+        { duration: "5s", target: 1 },
+        { duration: "20s", target: 1 },
       ],
-      exec: "shopperScenario",
-      tags: { archetype: "shopper" },
+      exec: "checkoutScenario",
+      tags: { archetype: "checkout" },
     },
   },
 
@@ -96,10 +96,15 @@ export const options = {
     http_req_duration: ["p(95)<3000"],
     // Failed requests across the whole run
     http_req_failed: ["rate<0.02"],
+    // Per-archetype breakdown — allows separate result tables per scenario
+    "http_req_duration{archetype:browser}": ["p(95)<3000"],
+    "http_req_duration{archetype:searcher}": ["p(95)<3000"],
+    "http_req_duration{archetype:login}": ["p(95)<2000"],
+    "http_req_duration{archetype:checkout}": ["p(95)<1000"],
   },
 };
 
-// Creates login/shopper users, fetches category slugs and page count before the spike starts.
+// Creates login/checkout users, fetches category slugs and page count before the spike starts.
 export function setup() {
   console.log("[setup] Creating test users for full scenario spike...");
 
@@ -107,16 +112,16 @@ export function setup() {
   const loginUsers = createTestUsers(30, "fullscenario_login");
   console.log(`[setup] Created ${loginUsers.length} login test users.`);
 
-  // Create and pre-authenticate users for shopper scenario
-  const shopperCreds = createTestUsers(15, "fullscenario_shopper");
-  const shopperTokens = shopperCreds
+  // Create and pre-authenticate users for checkout scenario
+  const checkoutCreds = createTestUsers(15, "fullscenario_checkout");
+  const checkoutTokens = checkoutCreds
     .map((c) => {
       const token = login(c.email, c.password);
       return token ? { token, email: c.email } : null;
     })
     .filter(Boolean);
 
-  console.log(`[setup] Pre-authenticated ${shopperTokens.length} shopper users.`);
+  console.log(`[setup] Pre-authenticated ${checkoutTokens.length} checkout users.`);
 
   // Fetch live category slugs for browser scenario
   const catRes = http.get(`${API_BASE}/category/get-category`);
@@ -135,7 +140,7 @@ export function setup() {
   const pageCount = getActualPageCount(countRes);
   console.log(`[setup] Total pages available: ${pageCount}`);
 
-  return { loginUsers, shopperTokens, categorySlugs, pageCount };
+  return { loginUsers, checkoutTokens, categorySlugs, pageCount };
 }
 
 // Lim Yik Seng, A0338506B
@@ -240,61 +245,36 @@ export function loginScenario(data) {
 }
 
 // Lim Yik Seng, A0338506B
-// Archetype D: logged-in users browsing product details and getting a Braintree token.
-export function shopperScenario(data) {
-  const { shopperTokens } = data;
+// Archetype D: logged-in users focused strictly on checkout — fetching a Braintree client token.
+export function checkoutScenario(data) {
+  const { checkoutTokens } = data;
 
-  if (!shopperTokens || shopperTokens.length === 0) {
+  if (!checkoutTokens || checkoutTokens.length === 0) {
     sleep(1);
     return;
   }
 
-  // Browse products (auth not required for these endpoints)
-  const listRes = http.get(`${API_BASE}/product/get-product`, {
-    tags: { endpoint: "get_product", archetype: "shopper" },
-  });
+  const user = randomPick(checkoutTokens);
 
-  const ok1 = check(listRes, {
-    "shopper: get-product 200": (r) => r.status === 200,
-  });
-  overallErrorRate.add(!ok1);
-  if (!ok1) archShopperErrors.add(1);
-
-  // Look at an individual product if available
-  try {
-    const products = listRes.json("products");
-    if (Array.isArray(products) && products.length > 0) {
-      const product = randomPick(products);
-      if (product.slug) {
-        const detailRes = http.get(`${API_BASE}/product/get-product/${product.slug}`, {
-          tags: { endpoint: "product_detail", archetype: "shopper" },
-        });
-        const detailOk = check(detailRes, { "shopper: product-detail 200": (r) => r.status === 200 });
-        overallErrorRate.add(!detailOk);
-        if (!detailOk) archShopperErrors.add(1);
-        sleep(0.5); // Reading the product detail page
-      }
-    }
-  } catch (_) {}
-
-  // Initiate checkout — fetch Braintree token
+  // Fetch Braintree client token to initiate checkout
   const tokenRes = http.get(`${API_BASE}/product/braintree/token`, {
-    tags: { endpoint: "braintree_token", archetype: "shopper" },
+    headers: { Authorization: user.token },
+    tags: { endpoint: "braintree_token", archetype: "checkout" },
   });
 
-  const ok2 = check(tokenRes, {
-    "shopper: braintree-token 200": (r) => r.status === 200,
+  const ok = check(tokenRes, {
+    "checkout: braintree-token 200": (r) => r.status === 200,
   });
-  overallErrorRate.add(!ok2);
-  if (!ok2) archShopperErrors.add(1);
+  overallErrorRate.add(!ok);
+  if (!ok) archCheckoutErrors.add(1);
 
-  sleep(Math.random() * 1.0 + 0.3);
+  sleep(Math.random() * 1.5 + 0.5);
 }
 
 export function teardown(data) {
   console.log(
     `[teardown] Full scenario spike complete. ` +
     `Login users: ${data.loginUsers.length}, ` +
-    `Shopper tokens: ${data.shopperTokens.length}.`
+    `Checkout tokens: ${data.checkoutTokens.length}.`
   );
 }

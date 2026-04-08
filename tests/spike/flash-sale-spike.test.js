@@ -5,17 +5,17 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
 import { Counter, Rate, Trend } from "k6/metrics";
-import { API_BASE, JSON_HEADERS, SPIKE_STAGES, THRESHOLDS } from "./helpers/config.js";
+import { API_BASE, JSON_HEADERS, buildSpike, THRESHOLDS } from "./helpers/config.js";
 import { randomPage, randomFilterPayload, getActualPageCount } from "./helpers/generators.js";
 
 // Custom metrics to track per-endpoint behaviour during the spike
 const productListErrors = new Counter("product_list_errors");
 const filterErrors = new Counter("filter_errors");
 const productListDuration = new Trend("product_list_duration", true);
-const errorRate = new Rate("custom_error_rate");
+const errorRate = new Rate("browsing_error_rate");
 
 export const options = {
-  stages: SPIKE_STAGES.SHARP_SPIKE,
+  stages: buildSpike(800, "5s"),
   thresholds: THRESHOLDS.STANDARD,
 };
 

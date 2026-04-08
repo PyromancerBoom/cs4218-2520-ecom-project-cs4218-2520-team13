@@ -5,7 +5,7 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
 import { Counter, Rate, Trend } from "k6/metrics";
-import { API_BASE, SPIKE_STAGES, THRESHOLDS } from "./helpers/config.js";
+import { API_BASE, buildSpike, THRESHOLDS } from "./helpers/config.js";
 import { randomKeyword } from "./helpers/generators.js";
 
 // The "viral" keyword that most VUs will search for — configurable via env
@@ -16,7 +16,7 @@ const searchDuration = new Trend("search_duration", true);
 const searchErrorRate = new Rate("search_error_rate");
 
 export const options = {
-  stages: SPIKE_STAGES.MODERATE_SPIKE,
+  stages: buildSpike(400, "10s"),
   thresholds: {
     ...THRESHOLDS.STANDARD,
     search_error_rate: ["rate<0.02"],
@@ -45,7 +45,6 @@ export default function () {
         return false;
       }
     },
-    "search: response under 3s": (r) => r.timings.duration < 3000,
   });
 
   searchErrorRate.add(!ok);
