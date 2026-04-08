@@ -7,7 +7,7 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
 import { Counter, Rate, Trend } from "k6/metrics";
-import { API_BASE, JSON_HEADERS, SPIKE_STAGES, THRESHOLDS } from "./helpers/config.js";
+import { API_BASE, buildSpike, THRESHOLDS } from "./helpers/config.js";
 import { createTestUsers, login, authHeaders } from "./helpers/auth.js";
 
 const ENABLE_PAYMENT_SPIKE = __ENV.ENABLE_PAYMENT_SPIKE === "true";
@@ -19,7 +19,7 @@ const tokenDuration = new Trend("braintree_token_duration", true);
 const checkoutErrorRate = new Rate("checkout_error_rate");
 
 export const options = {
-  stages: SPIKE_STAGES.PAYMENT_SPIKE,
+  stages: buildSpike(150, "10s"),
   thresholds: {
     ...THRESHOLDS.PAYMENT,
     checkout_error_rate: ["rate<0.02"], // Payment must be highly reliable
