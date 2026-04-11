@@ -90,9 +90,20 @@ testRouter.post("/seed", async (req, res) => {
     }
 });
 
+testRouter.get("/order-count", async (req, res) => {
+    try {
+        const testUsers = await userModel.find({ email: { $regex: "(loadtest|soaktest)_user" } });
+        const testUserIds = testUsers.map(user => user._id);
+        const count = await orderModel.countDocuments({ buyer: { $in: testUserIds } });
+        res.status(200).send({ success: true, count });
+    } catch (error) {
+        res.status(500).send({ success: false, error });
+    }
+});
+
 testRouter.delete("/cleanup", async (req, res) => {
     try {
-        const testUsers = await userModel.find({ email: { $regex: 'loadtest_user' } });
+        const testUsers = await userModel.find({ email: { $regex: "(loadtest|soaktest)_user" } });
         const testUserIds = testUsers.map(user => user._id);
 
         await orderModel.deleteMany({ buyer: { $in: testUserIds } });

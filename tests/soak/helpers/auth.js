@@ -1,18 +1,18 @@
 // Priyansh Bimbisariye, A0265903B
 
 /*
-Soak test logs in repeatedly (10 checkout VUs × many iterations over 24 min)
+Soak test logs in repeatedly (13 checkout VUs x many iterations over 34 min)
 
 and the server blocks login after 10 attempts per 15 min from the same IP
 
-so we add a bypass. otherwise our checkout scenario would get rate-limited 
+so we add a bypass. otherwise our checkout scenario would get rate-limited
 and fail after the first few minutes
 */
 
 import http from "k6/http";
 import { BASE_URL } from "./config.js";
 
-export function login(user, phaseTag) {
+export function login(user) {
   const res = http.post(
     `${BASE_URL}/auth/login`,
     JSON.stringify({ email: user.email, password: user.password }),
@@ -21,7 +21,7 @@ export function login(user, phaseTag) {
         "Content-Type": "application/json",
         "x-loadtest-bypass": "true",
       },
-      tags: { name: "Soak_Login", phase: phaseTag },
+      tags: { name: "Soak_Login" },
     },
   );
 
