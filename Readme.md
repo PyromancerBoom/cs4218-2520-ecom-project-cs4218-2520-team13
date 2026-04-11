@@ -67,3 +67,5 @@ Wei Sheng - **AI tools were used for user story generation, initial test scaffol
 Aashim - **I utilized AI to draft the initial user stories and test structures, treating its output  as a starting point. I then manually refined, corrected, and validated all code and strategies to guarantee they met the project's exact specifications.**
 
 LOU YING WEN - **I utilized AI for drafting user stories, initial test frameworks, and code suggestions. Treating these outputs as a foundation, I personally overhauled and verified the implementation to ensure the testing approach and final code strictly conformed to our project objectives.**
+
+Lim Yik Seng - **I utilized AI for initial test planning, drafting user stories, and generating baseline test scaffolding. However, no AI-generated code was blindly trusted. I manually audited, heavily edited, and verified all test logic, mock behaviors, and non-functional requirements to ensure the final implementation accurately reflected real-world edge cases and project requirements.**

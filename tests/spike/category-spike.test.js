@@ -5,7 +5,7 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
 import { Counter, Rate } from "k6/metrics";
-import { API_BASE, SPIKE_STAGES, THRESHOLDS } from "./helpers/config.js";
+import { API_BASE, buildSpike, THRESHOLDS } from "./helpers/config.js";
 import { randomPick } from "./helpers/generators.js";
 
 const categoryErrors = new Counter("category_errors");
@@ -13,7 +13,7 @@ const productByCategoryErrors = new Counter("product_by_category_errors");
 const errorRate = new Rate("category_spike_error_rate");
 
 export const options = {
-  stages: SPIKE_STAGES.MODERATE_SPIKE,
+  stages: buildSpike(500, "10s"),
   thresholds: {
     ...THRESHOLDS.STANDARD,
     category_spike_error_rate: ["rate<0.02"],

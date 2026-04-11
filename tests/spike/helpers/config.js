@@ -10,35 +10,18 @@ export const JSON_HEADERS = {
   "Content-Type": "application/json",
 };
 
-// Stage profiles for different spike scenarios.
-// SHARP_SPIKE: 5 to 500 VUs, fast ramp (5s)
-// MODERATE_SPIKE: 5 to 400 VUs, slower ramp (10s)
-// PAYMENT_SPIKE: 3 to 150 VUs, slower ramp (10s), lower ceiling for payment endpoints
-export const SPIKE_STAGES = {
-  SHARP_SPIKE: [
-    { duration: "30s", target: 5 },   // Baseline: establish normal traffic
-    { duration: "5s", target: 500 },  // Spike up: simulate flash-sale launch
-    { duration: "30s", target: 500 }, // Sustained spike: measure system under stress
-    { duration: "5s", target: 5 },    // Spike down: traffic drops
-    { duration: "30s", target: 5 },   // Recovery: verify system stabilises
-  ],
-
-  MODERATE_SPIKE: [
-    { duration: "30s", target: 5 },
-    { duration: "10s", target: 400 },
-    { duration: "30s", target: 400 },
-    { duration: "10s", target: 5 },
-    { duration: "30s", target: 5 },
-  ],
-
-  PAYMENT_SPIKE: [
-    { duration: "30s", target: 3 },
-    { duration: "10s", target: 150 },
-    { duration: "30s", target: 150 },
-    { duration: "10s", target: 3 },
-    { duration: "30s", target: 3 },
-  ],
-};
+// Builds a standard 5-stage spike profile for a given peak VU count.
+// rampDuration: "5s" for sharp spikes, "10s" for more gradual ones.
+export function buildSpike(peak, rampDuration = "5s") {
+  const baseline = Math.max(3, Math.ceil(peak * 0.01));  // Baseline at 1% of peak, minimum 3 VUs to keep the server active
+  return [
+    { duration: "30s", target: baseline },   // Baseline: establish normal traffic
+    { duration: rampDuration, target: peak }, // Spike up
+    { duration: "30s", target: peak },        // Sustained spike
+    { duration: rampDuration, target: baseline }, // Spike down
+    { duration: "30s", target: baseline },    // Recovery
+  ];
+}
 
 // Threshold presets.
 // STANDARD: for general endpoints (browsing, search, categories)

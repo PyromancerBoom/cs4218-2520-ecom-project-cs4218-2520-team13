@@ -1,12 +1,12 @@
 // Lim Yik Seng, A0338506B
 // Spike test: login endpoint under sudden surge (e.g. flash sale start).
-// 80% valid logins, 20% wrong password. Peaks at 500 VUs.
+// 90% valid logins, 10% wrong password. Peaks at 300 VUs.
 // Login is bcrypt-heavy so it degrades faster than other endpoints under load.
 
 import http from "k6/http";
 import { check, sleep } from "k6";
 import { Counter, Rate } from "k6/metrics";
-import { API_BASE, JSON_HEADERS, SPIKE_STAGES, THRESHOLDS } from "./helpers/config.js";
+import { API_BASE, JSON_HEADERS, buildSpike, THRESHOLDS } from "./helpers/config.js";
 import { createTestUsers } from "./helpers/auth.js";
 import { randomCredentials } from "./helpers/generators.js";
 
@@ -18,11 +18,11 @@ const loginFailures = new Counter("login_failures");
 const invalidLoginCount = new Counter("invalid_login_attempts");
 
 export const options = {
-  stages: SPIKE_STAGES.SHARP_SPIKE,
+  stages: buildSpike(300, "5s"),
 
   thresholds: {
     ...THRESHOLDS.STRICT,
-    http_req_failed: ["rate<0.25"], // Including the expected 20% invalid attempts, failure rate should stay below 25%
+    http_req_failed: ["rate<0.15"], // Including the expected 10% invalid attempts, failure rate should stay below 15%
     login_success_rate: ["rate>0.95"],  // Login success rate must stay above 95% even during spike
   },
 };
@@ -43,7 +43,7 @@ export function setup() {
   return { credentials };
 }
 
-// Each VU attempts a login: 80% with correct credentials, 20% with wrong password.
+// Each VU attempts a login: 90% with correct credentials, 10% with wrong password.
 export default function (data) {
   const { credentials } = data;
 
@@ -53,7 +53,7 @@ export default function (data) {
   }
 
   const cred = randomCredentials(credentials);
-  const isInvalidAttempt = Math.random() < 0.2; // 20% invalid attempts
+  const isInvalidAttempt = Math.random() < 0.1; // 10% invalid attempts
 
   let payload;
   if (isInvalidAttempt) {
