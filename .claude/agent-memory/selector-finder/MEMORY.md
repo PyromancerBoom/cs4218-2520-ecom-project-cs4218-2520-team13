@@ -1,1 +1,0 @@
-- [Admin Component Test Instrumentation State](project_test_instrumentation.md) — No data-testid in production source; all testids are in Jest mocks only
