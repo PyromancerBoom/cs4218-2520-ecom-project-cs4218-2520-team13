@@ -1,4 +1,5 @@
-// LOU,YING-WEN, A0338520J
+// Priyansh Bimbisariye, A0265903B
+// Credits to author of loadtest/testDbHelper. Mostly taken from there.
 import express from "express";
 import userModel from "../../../models/userModel.js";
 import orderModel from "../../../models/orderModel.js";
@@ -6,7 +7,7 @@ import categoryModel from "../../../models/categoryModel.js";
 import productModel from "../../../models/productModel.js";
 import bcrypt from "bcryptjs";
 
-export const testRouter = express.Router();
+export const soakTestRouter = express.Router();
 
 const IDEAL_CATEGORIES = [
     { _id: '66db427fdb0119d9234b27ed', name: 'Electronics', slug: 'electronics' },
@@ -23,10 +24,11 @@ const IDEAL_PRODUCTS = [
     { _id: '67a21772a6d9e00ef2ac022a', name: 'NUS T-shirt', slug: 'nus-t-shirt', description: 'Plain NUS T-shirt for sale', price: 4.99, category: '66db427fdb0119d9234b27ee' }
 ];
 
-testRouter.post("/seed", async (req, res) => {
+// Creates test users, categories, and products if they don't already exist.
+// Uses fixed ObjectIDs so K6 can reference products by hardcoded ID in config.js.
+soakTestRouter.post("/seed", async (req, res) => {
     try {
-        // Generates a 100KB dummy buffer to simulate a standard product image size
-        const mockImageBuffer = Buffer.alloc(1024 * 100, 'x');
+        const mockImageBuffer = Buffer.alloc(1024 * 100, 'x'); // 100KB dummy image
 
         if (req.body.users && req.body.users.length > 0) {
             const hashedPassword = await bcrypt.hash("password123", 10);
@@ -81,18 +83,16 @@ testRouter.post("/seed", async (req, res) => {
             price: p.price
         }));
 
-        res.status(200).send({
-            success: true,
-            products: mappedProducts
-        });
+        res.status(200).send({ success: true, products: mappedProducts });
     } catch (error) {
         res.status(500).send({ success: false, error });
     }
 });
 
-testRouter.get("/order-count", async (req, res) => {
+// Counts orders created by soak test users — used as a throughput metric
+soakTestRouter.get("/order-count", async (req, res) => {
     try {
-        const testUsers = await userModel.find({ email: { $regex: "loadtest_user" } });
+        const testUsers = await userModel.find({ email: { $regex: "soaktest_user" } });
         const testUserIds = testUsers.map(user => user._id);
         const count = await orderModel.countDocuments({ buyer: { $in: testUserIds } });
         res.status(200).send({ success: true, count });
@@ -101,9 +101,11 @@ testRouter.get("/order-count", async (req, res) => {
     }
 });
 
-testRouter.delete("/cleanup", async (req, res) => {
+// Deletes all soak test data: users, orders, products, and categories.
+// Categories are seeded with fixed IDs and cleaned up here to avoid accumulation across runs.
+soakTestRouter.delete("/cleanup", async (req, res) => {
     try {
-        const testUsers = await userModel.find({ email: { $regex: "loadtest_user" } });
+        const testUsers = await userModel.find({ email: { $regex: "soaktest_user" } });
         const testUserIds = testUsers.map(user => user._id);
 
         await orderModel.deleteMany({ buyer: { $in: testUserIds } });
@@ -112,8 +114,24 @@ testRouter.delete("/cleanup", async (req, res) => {
         const productIds = IDEAL_PRODUCTS.map(p => p._id);
         await productModel.deleteMany({ _id: { $in: productIds } });
 
+        const categoryIds = IDEAL_CATEGORIES.map(c => c._id);
+        await categoryModel.deleteMany({ _id: { $in: categoryIds } });
+
         res.status(200).send({ success: true });
     } catch (error) {
         res.status(500).send({ success: false, error });
     }
+});
+
+// Returns Node.js process memory stats sampled from inside the runtime.
+// heapUsed trending upward across GC cycles over time = memory leak signal.
+// rss - heapUsed widening = off-heap allocations (Buffers, native modules).
+soakTestRouter.get("/metrics", (req, res) => {
+    const mem = process.memoryUsage();
+    res.json({
+        heapUsed: mem.heapUsed,
+        heapTotal: mem.heapTotal,
+        rss: mem.rss,
+        external: mem.external,
+    });
 });
