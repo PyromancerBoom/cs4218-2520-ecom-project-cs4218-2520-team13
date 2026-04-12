@@ -17,3 +17,6 @@ coverage/
 
 # k6 spike test reports
 report-*.html
+
+# claude agents
+.claude/agent-memory/
