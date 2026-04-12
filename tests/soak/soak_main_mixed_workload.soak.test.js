@@ -54,7 +54,7 @@ export const options = {
       startVUs: 0,
       stages: [
         { duration: "2m", target: 25 }, // ramp up
-        { duration: "2m", target: 25 }, // sustained load
+        { duration: "26m", target: 25 }, // sustained load
         { duration: "2m", target: 0 },  // ramp down
       ],
       gracefulRampDown: "30s",
@@ -67,7 +67,7 @@ export const options = {
       startVUs: 0,
       stages: [
         { duration: "2m", target: 20 },
-        { duration: "2m", target: 20 },
+        { duration: "26m", target: 20 },
         { duration: "2m", target: 0 },
       ],
       gracefulRampDown: "30s",
@@ -80,7 +80,7 @@ export const options = {
       startVUs: 0,
       stages: [
         { duration: "2m", target: 13 },
-        { duration: "2m", target: 13 },
+        { duration: "26m", target: 13 },
         { duration: "2m", target: 0 },
       ],
       gracefulRampDown: "30s",
@@ -93,7 +93,7 @@ export const options = {
       startVUs: 0,
       stages: [
         { duration: "2m", target: 7 },
-        { duration: "2m", target: 7 },
+        { duration: "26m", target: 7 },
         { duration: "2m", target: 0 },
       ],
       gracefulRampDown: "30s",
@@ -108,7 +108,7 @@ export const options = {
       startVUs: 1,
       stages: [
         { duration: "2m", target: 1 },
-        { duration: "2m", target: 1 },
+        { duration: "26m", target: 1 },
         { duration: "2m", target: 1 },
       ],
       gracefulRampDown: "30s",
@@ -117,6 +117,8 @@ export const options = {
   },
 
   thresholds: {
+    // these are adjusted for localhost
+
     // Max 0.5% error rate per endpoint
     // test fails if any endpoint degrades under sustained load
     "http_req_failed{name:Soak_ProductList}": ["rate<0.005"],
@@ -135,8 +137,6 @@ export const options = {
     // external sandbox rate-limits concurrent transactions, causing expected failures unrelated
     // to system health. Payment throughput is visible via soak_payment_successes.
 
-    // p95 latency: 95% of requests must complete within this time
-    // p99 on login/orders catches tail latency from session/DB degradation that p95 masks
     "http_req_duration{name:Soak_ProductList}": ["p(95)<500"],
     "http_req_duration{name:Soak_Categories}": ["p(95)<500"],
     "http_req_duration{name:Soak_ProductCount}": ["p(95)<500"],
@@ -149,7 +149,6 @@ export const options = {
     "http_req_duration{name:Soak_Login}": ["p(95)<1000", "p(99)<5000"],
     "http_req_duration{name:Soak_Orders}": ["p(95)<1000", "p(99)<5000"],
 
-    // Catches silent assertion failures across all scenarios — test fails if >1% of checks fail
     "checks": ["rate>0.99"],
   },
 };
