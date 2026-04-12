@@ -33,7 +33,7 @@
 
 | Member | Tests (pts) |
 |--------|------------|
-| **Wei Sheng** |  |
+| **Wei Sheng** | Security Tests (tests/security) — JWT auth validation, authorization controls (IDOR, admin isolation, mass assignment, business logic), NoSQL injection resistance, sensitive data exposure, error sanitization, CORS & security headers |
 | **Priyansh**  | |
 | **Sandra**  | |
 | **Yik Seng**  | |
