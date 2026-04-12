@@ -36,7 +36,7 @@
 | **Wei Sheng** | Security Tests (tests/security) — JWT auth validation, authorization controls (IDOR, admin isolation, mass assignment, business logic), NoSQL injection resistance, sensitive data exposure, error sanitization, CORS & security headers |
 | **Priyansh**  | |
 | **LOU YING WEN**  | Load Tests (tests/load) — k6 mixed-load scenarios (Browsing, Search, Checkout), daily workload simulation, performance bottleneck identification, latency optimization (Server-side & HTTP caching), and stress-resilient flow design |
-| **Yik Seng**  | |
+| **Yik Seng**  | Spike Tests (tests/spike) - flash sale browsing, login surge, search surge, checkout flow, category promotion, full mixed-archetype scenario |
 | **Aashim** | Stress Tests (tests/stress) - Product listing, Product search, Product filters, Product photo, auth login, auth register, category listing, order retrieval, paginated listing, mixed workload |
 
 ---
