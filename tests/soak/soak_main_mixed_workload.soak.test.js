@@ -100,7 +100,7 @@ export const options = {
       exec: "orderHistoryScenario",
     },
 
-    // 1 VU polling server memory every 15s
+    // 1 VU polling server memory
     // tracks V8 heap growth over the test duration
     // A rising baseline across GC cycles indicates a memory leak
     metrics: {
