@@ -35,7 +35,7 @@
 |--------|------------|
 | **Wei Sheng** | Security Tests (tests/security) — JWT auth validation, authorization controls (IDOR, admin isolation, mass assignment, business logic), NoSQL injection resistance, sensitive data exposure, error sanitization, CORS & security headers |
 | **Priyansh**  | |
-| **Sandra**  | |
+| **LOU YING WEN**  | Load Tests (tests/load) — k6 mixed-load scenarios (Browsing, Search, Checkout), daily workload simulation, performance bottleneck identification, latency optimization (Server-side & HTTP caching), and stress-resilient flow design |
 | **Yik Seng**  | |
 | **Aashim** | Stress Tests (tests/stress) |
 
