@@ -37,7 +37,7 @@
 | **Priyansh**  | |
 | **Sandra**  | |
 | **Yik Seng**  | |
-| **Aashim** | Stress Tests |
+| **Aashim** | Stress Tests (tests/stress) |
 
 ---
 
