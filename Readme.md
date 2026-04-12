@@ -37,7 +37,7 @@
 | **Priyansh**  | |
 | **Sandra**  | |
 | **Yik Seng**  | |
-| **Aashim** | Stress Tests (tests/stress) |
+| **Aashim** | Stress Tests (tests/stress) - Product listing, Product search, Product filters, Product photo, auth login, auth register, category listing, order retrieval, paginated listing, mixed workload |
 
 ---
 
