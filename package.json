@@ -17,6 +17,8 @@
     "test:integration:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.integration.config.js",
     "test:e2e": "playwright test",
     "test:load": "cd tests/loadtest && node runner.js",
+    "test:soak": "cd tests/soak && node soak-runner.js",
+    "test:soak:dashboard": "cd tests/soak && node soak-runner.js --dashboard",
     "test:spike:flash": "cross-env K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=report-flash.html k6 run tests/spike/flash-sale-spike.test.js",
     "test:spike:login": "cross-env K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=report-login.html k6 run tests/spike/login-surge-spike.test.js",
     "test:spike:search": "cross-env K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=report-search.html k6 run tests/spike/search-spike.test.js",

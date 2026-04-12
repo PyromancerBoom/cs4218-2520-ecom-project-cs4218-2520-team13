@@ -17,3 +17,12 @@ coverage/
 
 # k6 spike test reports
 report-*.html
+
+# soak test artifacts
+tests/soak/soak-console-output.txt
+tests/soak/soak-results.json
+tests/soak/soak-report.html
+
+# claude agents
+.claude/*
+!.claude/agents/
