@@ -29,6 +29,16 @@
 | **Yik Seng** (9 pts) | Backend integration: product write, product retrieval · Frontend integration: CreateProduct, UpdateProduct, ProductDetails, CategoryProduct · E2E: product browsing and detail view |
 | **Aashim** (9 pts) | Backend integration: payment, product listing · Frontend integration: CartPage, Homepage, About Page, Layout, Spinner, 404 · E2E: registration/login, cart, checkout/payment, 404, header, footer, homepage |
 
+### MS3 — NFR Tests
+
+| Member | Tests (pts) |
+|--------|------------|
+| **Wei Sheng** |  |
+| **Priyansh**  | |
+| **Sandra**  | |
+| **Yik Seng**  | |
+| **Aashim** | Stress Tests |
+
 ---
 
 ## Running Tests
